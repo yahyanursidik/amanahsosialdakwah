@@ -1,27 +1,45 @@
-/* Hallmark · pre-emit critique: P5 H4 E4 S5 R5 V4 · contrast pass */
-/* Hallmark · genre: modern-minimal · macrostructure: Split Studio · theme: Cobalt · enrichment: none · nav: operational shell · footer: none */
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 */
+/* Hallmark · macrostructure: Workbench · H9 custom illustration + operational dashboard
+ * theme: custom · vibe: "calm trust, human, accountable" · paper: oklch(98% 0.006 175) · accent: oklch(48% 0.078 190)
+ * display: Plus Jakarta Sans · body: Inter · axes: light / geometric-sans / chromatic-teal
+ * enrichment: tier-B SVG · nav: N3 grouped side rail · footer: Ft5 statement · studied: no · context: explicit
+ * contrast: pass (40–41) · slop: pass (42–45) · honest: pass (46) · chrome: pass (47)
+ * tokens: pass (48) · responsive: pass (49) · icons: pass (30) · mobile: pass (34, 49, 50–57)
+ */
 
 :root {
-  --color-paper: oklch(98.5% 0.004 250);
-  --color-paper-2: oklch(96% 0.008 250);
-  --color-paper-3: oklch(92% 0.012 250);
-  --color-rule: oklch(85% 0.014 250);
-  --color-rule-strong: oklch(70% 0.018 250);
-  --color-neutral: oklch(48% 0.018 257);
-  --color-muted: oklch(40% 0.018 257);
-  --color-ink-2: oklch(30% 0.02 258);
-  --color-ink: oklch(20% 0.022 258);
-  --color-accent: oklch(48% 0.19 256);
-  --color-accent-hover: oklch(42% 0.18 256);
-  --color-accent-ink: oklch(98% 0.006 250);
-  --color-focus: oklch(66% 0.18 256);
-  --color-error: oklch(49% 0.18 25);
-  --color-error-paper: oklch(96% 0.025 25);
-  --color-success: oklch(43% 0.12 150);
-  --color-success-paper: oklch(96% 0.025 150);
+  --color-paper: oklch(98% 0.006 175);
+  --color-paper-2: oklch(96% 0.012 175);
+  --color-paper-3: oklch(92% 0.022 170);
+  --color-surface: oklch(99.5% 0.004 175);
+  --color-rule: oklch(86% 0.014 178);
+  --color-rule-strong: oklch(72% 0.022 180);
+  --color-neutral: oklch(52% 0.018 180);
+  --color-muted: oklch(45% 0.022 180);
+  --color-ink-2: oklch(31% 0.032 180);
+  --color-ink: oklch(25% 0.045 180);
+  --color-deep: oklch(34% 0.055 180);
+  --color-deep-2: oklch(29% 0.052 180);
+  --color-deep-ink: oklch(96% 0.018 170);
+  --color-accent: oklch(48% 0.078 190);
+  --color-accent-hover: oklch(42% 0.074 190);
+  --color-accent-strong: oklch(64% 0.11 194);
+  --color-accent-paper: oklch(94% 0.038 174);
+  --color-accent-ink: oklch(98% 0.01 175);
+  --color-mint: oklch(94% 0.038 165);
+  --color-warm: oklch(93% 0.036 78);
+  --color-focus: oklch(62% 0.15 194);
+  --color-error: oklch(52% 0.17 25);
+  --color-error-paper: oklch(96% 0.028 25);
+  --color-warning: oklch(64% 0.13 75);
+  --color-warning-paper: oklch(95% 0.035 78);
+  --color-info: oklch(53% 0.065 213);
+  --color-info-paper: oklch(95% 0.026 213);
+  --color-success: oklch(51% 0.12 150);
+  --color-success-paper: oklch(95% 0.035 155);
 
-  --font-display: "Space Grotesk Variable", ui-sans-serif, sans-serif;
-  --font-body: "IBM Plex Sans Variable", ui-sans-serif, sans-serif;
+  --font-display: "Plus Jakarta Sans Variable", ui-sans-serif, sans-serif;
+  --font-body: "Inter Variable", ui-sans-serif, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 
   --space-3xs: 0.125rem;
@@ -52,9 +70,10 @@
   --dur-long: 420ms;
 
   --rule-thin: 1px;
-  --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 0.875rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
 
   --z-base: 1;
   --z-raised: 10;
@@ -66,9 +85,9 @@
 
   --background: var(--color-paper);
   --foreground: var(--color-ink);
-  --card: var(--color-paper);
+  --card: var(--color-surface);
   --card-foreground: var(--color-ink);
-  --popover: var(--color-paper);
+  --popover: var(--color-surface);
   --popover-foreground: var(--color-ink);
   --primary: var(--color-accent);
   --primary-foreground: var(--color-accent-ink);

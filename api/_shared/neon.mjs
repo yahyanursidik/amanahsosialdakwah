@@ -332,6 +332,11 @@ export function sendError(response, statusCode, message) {
 }
 
 export async function readJsonBody(request) {
+  if (Buffer.isBuffer(request.body)) {
+    const raw = request.body.toString("utf8");
+    return raw ? JSON.parse(raw) : {};
+  }
+
   if (request.body && typeof request.body === "object") {
     return request.body;
   }

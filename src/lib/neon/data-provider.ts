@@ -54,6 +54,11 @@ const restResourcePaths = new Map([
   ["fund_reconciliations", "funds/reconciliations"],
   ["fund_restrictions", "funds/restrictions"],
   ["distributions", "distributions"],
+  ["inventory_adjustments", "inventory/adjustments"],
+  ["inventory_balances", "inventory/balances"],
+  ["inventory_movements", "inventory/movements"],
+  ["inventory_products", "inventory/products"],
+  ["inventory_warehouses", "inventory/warehouses"],
   ["procurement", "procurement"],
 ]);
 const restResources = new Set([
@@ -64,6 +69,11 @@ const restResources = new Set([
   "assessments",
   "cases",
   "distributions",
+  "inventory_adjustments",
+  "inventory_balances",
+  "inventory_movements",
+  "inventory_products",
+  "inventory_warehouses",
   "procurement",
   ...restResourcePaths.keys(),
 ]);

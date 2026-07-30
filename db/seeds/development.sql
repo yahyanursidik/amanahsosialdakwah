@@ -444,3 +444,68 @@ join public.permissions p on p.key = 'goods_receipts.receive'
 where r.organization_id is null
   and r.key = 'field_officer'
 on conflict (role_id, permission_id) do nothing;
+
+insert into public.permissions (key, resource, action, description)
+values
+  ('inventory_products.read', 'inventory_products', 'read', 'Melihat master produk inventory'),
+  ('inventory_products.manage', 'inventory_products', 'manage', 'Mengelola master produk inventory'),
+  ('inventory_warehouses.read', 'inventory_warehouses', 'read', 'Melihat gudang inventory'),
+  ('inventory_warehouses.manage', 'inventory_warehouses', 'manage', 'Mengelola gudang inventory'),
+  ('inventory_batches.read', 'inventory_batches', 'read', 'Melihat batch inventory'),
+  ('inventory_balances.read', 'inventory_balances', 'read', 'Melihat saldo stok inventory'),
+  ('inventory_movements.read', 'inventory_movements', 'read', 'Melihat movement stok append-only'),
+  ('inventory_movements.post', 'inventory_movements', 'post', 'Membukukan movement stok dari sumber resmi'),
+  ('inventory_adjustments.read', 'inventory_adjustments', 'read', 'Melihat permintaan adjustment inventory'),
+  ('inventory_adjustments.manage', 'inventory_adjustments', 'manage', 'Membuat draft adjustment inventory'),
+  ('inventory_adjustments.submit', 'inventory_adjustments', 'submit', 'Mengirim adjustment inventory untuk approval'),
+  ('inventory_adjustments.approve', 'inventory_adjustments', 'approve', 'Menyetujui atau menolak adjustment inventory'),
+  ('inventory_adjustments.post', 'inventory_adjustments', 'post', 'Membukukan adjustment inventory yang approved'),
+  ('inventory_adjustments.cancel', 'inventory_adjustments', 'cancel', 'Membatalkan adjustment inventory')
+on conflict (key) do update
+set
+  resource = excluded.resource,
+  action = excluded.action,
+  description = excluded.description,
+  updated_at = now();
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, r.id, p.id
+from public.roles r
+join public.permissions p on p.resource in (
+  'inventory_products',
+  'inventory_warehouses',
+  'inventory_batches',
+  'inventory_balances',
+  'inventory_movements',
+  'inventory_adjustments'
+)
+where r.organization_id is null
+  and r.key in ('organization_owner', 'organization_admin')
+on conflict (role_id, permission_id) do nothing;
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, r.id, p.id
+from public.roles r
+join public.permissions p on p.key in (
+  'inventory_products.read',
+  'inventory_warehouses.read',
+  'inventory_batches.read',
+  'inventory_balances.read',
+  'inventory_movements.read',
+  'inventory_adjustments.read'
+)
+where r.organization_id is null
+  and r.key in ('field_officer', 'auditor')
+on conflict (role_id, permission_id) do nothing;
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, r.id, p.id
+from public.roles r
+join public.permissions p on p.key in (
+  'inventory_movements.post',
+  'inventory_adjustments.manage',
+  'inventory_adjustments.submit'
+)
+where r.organization_id is null
+  and r.key = 'field_officer'
+on conflict (role_id, permission_id) do nothing;

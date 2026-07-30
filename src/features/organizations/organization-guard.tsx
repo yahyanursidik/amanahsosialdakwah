@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 
+import { AppBoot } from "@/components/layout/app-boot";
 import { Button } from "@/components/ui/button";
 
 import { useOrganization } from "./organization-context";
@@ -9,13 +10,7 @@ export function OrganizationGuard() {
   const organization = useOrganization();
 
   if (organization.status === "loading") {
-    return (
-      <main className="system-page" aria-busy="true">
-        <div className="system-page__inner">
-          <p>Memvalidasi membership organisasi…</p>
-        </div>
-      </main>
-    );
+    return <AppBoot message="Memvalidasi membership organisasi…" />;
   }
 
   if (organization.status === "error") {

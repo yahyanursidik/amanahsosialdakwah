@@ -2,6 +2,7 @@ import { Authenticated } from "@refinedev/core";
 import { Navigate, Outlet, Route, Routes } from "react-router";
 
 import { ProtectedRoute } from "@/components/access-control/protected-route";
+import { AppBoot } from "@/components/layout/app-boot";
 import { AppLayout } from "@/components/layout/app-layout";
 import { OrganizationGuard } from "@/features/organizations/organization-guard";
 import { ApplicationCreatePage } from "@/pages/applications/application-create-page";
@@ -34,6 +35,9 @@ import { DistributionListPage } from "@/pages/distributions/distribution-list-pa
 import { FundAllocationDetailPage } from "@/pages/funds/fund-allocation-detail-page";
 import { FundCreatePage } from "@/pages/funds/fund-create-page";
 import { FundsDashboardPage } from "@/pages/funds/funds-dashboard-page";
+import { InventoryAdjustmentCreatePage } from "@/pages/inventory/inventory-adjustment-create-page";
+import { InventoryAdjustmentDetailPage } from "@/pages/inventory/inventory-adjustment-detail-page";
+import { InventoryListPage } from "@/pages/inventory/inventory-list-page";
 import { LoginPage } from "@/pages/login/login-page";
 import { NotFoundPage } from "@/pages/not-found/not-found-page";
 import { ProgramCreatePage } from "@/pages/programs/program-create-page";
@@ -49,13 +53,7 @@ import { FoundationResourcePage } from "@/pages/workspace/foundation-resource-pa
 import { WorkspacePage } from "@/pages/workspace/workspace-page";
 
 function AuthenticationCheck() {
-  return (
-    <main className="system-page" aria-busy="true">
-      <div className="system-page__inner">
-        <p>Memeriksa sesi…</p>
-      </div>
-    </main>
-  );
+  return <AppBoot message="Memeriksa sesi…" />;
 }
 
 export function AppRouter() {
@@ -320,6 +318,39 @@ export function AppRouter() {
               <Route
                 path="/procurement/new"
                 element={<ProcurementCreatePage />}
+              />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute action="read" resource="inventory_balances" />
+              }
+            >
+              <Route path="/inventory" element={<InventoryListPage />} />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute
+                  action="manage"
+                  resource="inventory_adjustments"
+                />
+              }
+            >
+              <Route
+                path="/inventory/adjustments/new"
+                element={<InventoryAdjustmentCreatePage />}
+              />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute
+                  action="read"
+                  resource="inventory_adjustments"
+                />
+              }
+            >
+              <Route
+                path="/inventory/adjustments/:id"
+                element={<InventoryAdjustmentDetailPage />}
               />
             </Route>
             <Route

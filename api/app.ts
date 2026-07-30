@@ -12,6 +12,7 @@ import { assessmentsRoute } from "./routes/assessments";
 import { casesRoute } from "./routes/cases";
 import { distributionsRoute } from "./routes/distributions";
 import { fundsRoute } from "./routes/funds";
+import { inventoryRoute } from "./routes/inventory";
 import { procurementRoute } from "./routes/procurement";
 import type { AppEnv } from "./types";
 
@@ -80,6 +81,8 @@ app.use("/distributions", requestContextMiddleware);
 app.use("/distributions/*", requestContextMiddleware);
 app.use("/procurement", requestContextMiddleware);
 app.use("/procurement/*", requestContextMiddleware);
+app.use("/inventory", requestContextMiddleware);
+app.use("/inventory/*", requestContextMiddleware);
 
 app.route("/applications", applicationsRoute);
 app.route("/cases", casesRoute);
@@ -90,6 +93,7 @@ app.route("/approval-requests", approvalRequestsRoute);
 app.route("/funds", fundsRoute);
 app.route("/distributions", distributionsRoute);
 app.route("/procurement", procurementRoute);
+app.route("/inventory", inventoryRoute);
 
 app.notFound((context) =>
   context.json(

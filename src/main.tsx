@@ -1,7 +1,8 @@
-import "@fontsource-variable/space-grotesk";
-import "@fontsource-variable/ibm-plex-sans";
+import "@fontsource-variable/plus-jakarta-sans";
+import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
 import "@/styles/globals.css";
+import "@/styles/brand-refresh.css";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

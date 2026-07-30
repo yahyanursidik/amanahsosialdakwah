@@ -35,8 +35,16 @@ describe("halaman sistem", () => {
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Alamat email")).toBeInTheDocument();
     expect(screen.getByLabelText("Kata sandi")).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("img", { name: "Amanah Platform" }),
+    ).toHaveLength(2);
+    expect(
+      screen.getByRole("link", { name: "Yahya Nursidik" }),
+    ).toHaveAttribute("href", "https://yahyanursidik.my.id/");
 
-    await user.click(screen.getByRole("button", { name: "Masuk" }));
+    await user.click(
+      screen.getByRole("button", { name: "Masuk dengan aman" }),
+    );
 
     expect(
       await screen.findByText("Alamat email wajib diisi."),
