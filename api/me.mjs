@@ -5,7 +5,7 @@ import {
   sendJson,
   toClientDocument,
   withRuntimeContext,
-} from "./_shared/neon.mjs";
+} from "../server/_shared/neon.mjs";
 
 export default async function handler(request, response) {
   if (request.method !== "GET") {

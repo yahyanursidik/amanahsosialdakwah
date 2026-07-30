@@ -1,17 +1,27 @@
 import { Pool } from "@neondatabase/serverless";
 
-const databaseUrl = process.env.DATABASE_URL;
-const authBaseUrl = process.env.NEON_AUTH_BASE_URL;
+let poolInstance = null;
 
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL belum tersedia untuk API server-side.");
+export function getDatabasePool() {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL belum tersedia untuk API server-side.");
+  }
+
+  poolInstance ??= new Pool({ connectionString: databaseUrl });
+  return poolInstance;
 }
 
-if (!authBaseUrl) {
-  throw new Error("NEON_AUTH_BASE_URL belum tersedia untuk API server-side.");
-}
+export function getAuthBaseUrl() {
+  const authBaseUrl = process.env.NEON_AUTH_BASE_URL;
 
-export const pool = new Pool({ connectionString: databaseUrl });
+  if (!authBaseUrl) {
+    throw new Error("NEON_AUTH_BASE_URL belum tersedia untuk API server-side.");
+  }
+
+  return authBaseUrl;
+}
 
 export const tableSchemas = Object.freeze({
   organizations: [
@@ -374,7 +384,7 @@ export async function readRawBody(request) {
 }
 
 export async function requireSession(request) {
-  const sessionResponse = await fetch(`${authBaseUrl}/get-session`, {
+  const sessionResponse = await fetch(`${getAuthBaseUrl()}/get-session`, {
     method: "GET",
     headers: {
       cookie: request.headers.cookie ?? "",
@@ -401,7 +411,7 @@ export async function requireSession(request) {
 }
 
 export async function ensureProfileAndBootstrap(user) {
-  const client = await pool.connect();
+  const client = await getDatabasePool().connect();
 
   try {
     await client.query("begin");
@@ -500,7 +510,7 @@ export async function ensureProfileAndBootstrap(user) {
 }
 
 export async function withRuntimeContext(profileId, organizationId, callback) {
-  const client = await pool.connect();
+  const client = await getDatabasePool().connect();
 
   try {
     await client.query("begin");

@@ -17,6 +17,7 @@ export default tseslint.config(
       "node_modules/",
       "playwright-report/",
       "test-results/",
+      ".vercel/",
     ],
   },
   eslint.configs.recommended,
@@ -28,7 +29,12 @@ export default tseslint.config(
     },
   },
   {
-    files: ["api/**/*.ts", "drizzle/**/*.ts", "drizzle.config.ts"],
+    files: [
+      "api/**/*.ts",
+      "server/**/*.ts",
+      "drizzle/**/*.ts",
+      "drizzle.config.ts",
+    ],
     languageOptions: {
       globals: globals.node,
     },

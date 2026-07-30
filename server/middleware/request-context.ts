@@ -1,7 +1,7 @@
 import type { MiddlewareHandler } from "hono";
 import { z } from "zod";
 
-import { pool } from "../db/client";
+import { getDatabasePool } from "../db/client";
 import { DomainError } from "../domain/errors";
 import type { AppEnv } from "../types";
 
@@ -74,7 +74,7 @@ export const requestContextMiddleware: MiddlewareHandler<AppEnv> = async (
   }
 
   const user = await readAuthUser(context.req.header("cookie") ?? "");
-  const client = await pool.connect();
+  const client = await getDatabasePool().connect();
 
   try {
     const profileResult = await client.query<{
