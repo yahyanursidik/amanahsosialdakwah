@@ -31,6 +31,33 @@ export function App() {
             meta: { label: "Pengadaan" },
           },
           {
+            name: "inventory_products",
+            list: "/inventory",
+            meta: { label: "Produk Inventory" },
+          },
+          {
+            name: "inventory_warehouses",
+            list: "/inventory",
+            meta: { label: "Gudang Inventory" },
+          },
+          {
+            name: "inventory_balances",
+            list: "/inventory",
+            meta: { label: "Saldo Inventory" },
+          },
+          {
+            name: "inventory_movements",
+            list: "/inventory",
+            meta: { label: "Movement Inventory" },
+          },
+          {
+            name: "inventory_adjustments",
+            list: "/inventory",
+            create: "/inventory/adjustments/new",
+            show: "/inventory/adjustments/:id",
+            meta: { label: "Adjustment Inventory" },
+          },
+          {
             name: "distributions",
             list: "/distributions",
             create: "/distributions/new",

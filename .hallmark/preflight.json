@@ -1,9 +1,9 @@
 {
-  "date": "2026-07-29",
+  "date": "2026-07-30",
   "framework": "React 19 + Vite 8 + Tailwind CSS 4",
-  "fontStack": "Space Grotesk + IBM Plex Sans + JetBrains Mono",
-  "palette": "OKLCH semantic tokens",
+  "fontStack": "Plus Jakarta Sans + Inter + JetBrains Mono",
+  "palette": "OKLCH semantic tokens aligned to Amanah Teal, Deep Forest, Fresh Mint, and Warm Sand",
   "motion": "motion-cut",
   "spacing": "4-point semantic scale",
-  "preserve": ["React", "Vite", "Tailwind CSS", "Refine Core", "Appwrite"]
+  "preserve": ["React", "Vite", "Tailwind CSS", "Refine Core", "Neon"]
 }

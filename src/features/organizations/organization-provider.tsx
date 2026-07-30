@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "react-router";
 
 import { setCurrentAccessContext } from "@/features/access-control/access-context";
 import type { NeonAuthUser } from "@/providers/auth-provider";
@@ -29,7 +28,6 @@ export function OrganizationProvider({
   children,
   repository = organizationAccessRepository,
 }: OrganizationProviderProps) {
-  const location = useLocation();
   const [status, setStatus] =
     useState<OrganizationContextValue["status"]>("loading");
   const [error, setError] = useState<Error | null>(null);
@@ -112,7 +110,7 @@ export function OrganizationProvider({
     const timeoutId = window.setTimeout(() => void load(), 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [load, location.key]);
+  }, [load]);
 
   useEffect(() => {
     const handleFocus = () => {

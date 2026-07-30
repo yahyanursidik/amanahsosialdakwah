@@ -336,3 +336,38 @@ npm run neon:test:isolation → 4 SQL tests pass
 **Next recommended task**
 
 - fase 14 Inventory and Warehouse.
+
+## 2026-07-30 — Fase 14 Inventory and Warehouse
+
+**Completed**
+
+- menambahkan master produk inventory, gudang, batch, balance, movement,
+  adjustment request, dan idempotency record;
+- menambahkan API `/api/v1/inventory` untuk produk, gudang, saldo, movement,
+  adjustment, dan posting goods receipt ke stok;
+- menambahkan UI Refine untuk ringkasan inventory, master produk/gudang,
+  saldo, movement, dan workflow adjustment;
+- menambahkan RLS eksplisit, composite tenant foreign key, no hard delete,
+  append-only movement, maker-checker adjustment, dan policy audit inventory;
+- menambahkan permission inventory pada migration dan seed development;
+- menambahkan unit test aturan inventory, schema validation, dan SQL tenant
+  isolation.
+
+**Decisions**
+
+- `inventory_movements` menjadi sumber kebenaran stok;
+- `inventory_balances` adalah cache transaksi yang tidak boleh diedit manual;
+- adjustment final menggunakan posting movement, bukan update saldo langsung;
+- goods receipt dapat diposting ke inventory melalui command idempotent.
+
+**Known limitations**
+
+- transfer antar-gudang, reservasi, FEFO picking, dan stock opname lengkap masuk
+  fase berikutnya;
+- UI posting goods receipt ke produk inventory masih perlu form mapping khusus;
+- upload bukti kerusakan/hilang menunggu Evidence Service.
+
+**Next recommended task**
+
+- fase 15 Aid Packages atau hardening Inventory transfer/reservation sebelum
+  packing paket.

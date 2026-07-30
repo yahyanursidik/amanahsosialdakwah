@@ -1,5 +1,4 @@
-/* Hallmark · pre-emit critique: P5 H4 E4 S5 R5 V4 · mobile pass */
-/* Hallmark · genre: modern-minimal · macrostructure: Split Studio · tone: utilitarian-austere · anchor hue: cobalt */
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · tone: calm-professional · anchor hue: Amanah teal */
 
 @import "../../tokens.css";
 @import "tailwindcss";
@@ -49,7 +48,7 @@
   }
 
   body {
-    min-width: 20rem;
+    min-width: 0;
     min-height: 100dvh;
     margin: 0;
     background: var(--color-paper);

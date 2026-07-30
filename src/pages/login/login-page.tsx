@@ -1,11 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLogin } from "@refinedev/core";
-import { LoaderCircle } from "lucide-react";
-import { useEffect } from "react";
+import { Eye, EyeOff, LoaderCircle, LockKeyhole } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { z } from "zod";
 
+import { BrandLogo } from "@/components/brand/brand-logo";
+import { TrustFlowIllustration } from "@/components/brand/trust-flow-illustration";
+import { AppFooter } from "@/components/layout/app-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +24,7 @@ const loginSchema = z.object({
 });
 
 export function LoginPage() {
+  const [showPassword, setShowPassword] = useState(false);
   const {
     mutate: login,
     error: loginError,
@@ -41,7 +45,7 @@ export function LoginPage() {
   });
 
   useEffect(() => {
-    document.title = "Masuk · Amanah Sosial-Dakwah";
+    document.title = "Masuk · Amanah Platform";
   }, []);
 
   const submitLogin = handleSubmit((credentials) => {
@@ -50,39 +54,38 @@ export function LoginPage() {
 
   return (
     <main className="auth-shell">
-      <section className="auth-context" aria-label="Prinsip sistem">
-        <span className="auth-brand">
-          <span className="auth-brand__mark" aria-hidden="true">
-            AS
-          </span>
-          <span>Amanah Sosial-Dakwah</span>
-        </span>
-
-        <h1 className="auth-context__statement">
-          Amanah tercatat. Proses dapat ditelusuri.
-        </h1>
-
+      <section className="auth-context" aria-label="Perjalanan amanah">
+        <BrandLogo className="auth-context__logo" priority variant="white" />
+        <div className="auth-context__copy auth-reveal">
+          <h1 className="auth-context__statement">
+            Setiap amanah punya perjalanan yang jelas.
+          </h1>
+          <p>
+            Terima, kelola, salurkan, dan pertanggungjawabkan dalam satu ruang
+            kerja yang dapat ditelusuri.
+          </p>
+        </div>
+        <TrustFlowIllustration />
         <p className="auth-context__note">
-          Ruang kerja untuk tim yang menerima, mengelola, menyalurkan, dan
-          mempertanggungjawabkan amanah.
+          Akses dibatasi berdasarkan organisasi, membership, dan permission.
         </p>
       </section>
 
       <section className="auth-panel" aria-labelledby="login-title">
-        <div className="auth-panel__inner">
-          <span className="auth-brand lg:hidden">
-            <span className="auth-brand__mark" aria-hidden="true">
-              AS
-            </span>
-            <span>Amanah Sosial-Dakwah</span>
-          </span>
+        <div className="auth-panel__inner auth-reveal">
+          <BrandLogo className="auth-panel__logo" priority />
 
           <div className="auth-heading">
             <h1 id="login-title">Masuk ke ruang kerja</h1>
-            <p>Gunakan akun yang telah diundang oleh lembaga Anda.</p>
+            <p>Gunakan akun yang telah terhubung dengan organisasi Anda.</p>
           </div>
 
-          <form className="auth-form" onSubmit={submitLogin} noValidate>
+          <form
+            aria-busy={isPending}
+            className="auth-form"
+            onSubmit={submitLogin}
+            noValidate
+          >
             {loginError ? (
               <p className="auth-error" role="alert">
                 {loginError.message}
@@ -111,16 +114,43 @@ export function LoginPage() {
             </div>
 
             <div className="auth-field">
-              <Label htmlFor="password">Kata sandi</Label>
-              <Input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                aria-invalid={Boolean(errors.password)}
-                aria-describedby="password-message"
-                disabled={isPending}
-                {...register("password")}
-              />
+              <div className="auth-field__label-row">
+                <Label htmlFor="password">Kata sandi</Label>
+                <Link
+                  className="auth-link auth-link--inline"
+                  to="/forgot-password"
+                >
+                  Lupa kata sandi?
+                </Link>
+              </div>
+              <div className="auth-password">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  aria-invalid={Boolean(errors.password)}
+                  aria-describedby="password-message"
+                  disabled={isPending}
+                  {...register("password")}
+                />
+                <button
+                  aria-label={
+                    showPassword
+                      ? "Sembunyikan kata sandi"
+                      : "Tampilkan kata sandi"
+                  }
+                  className="auth-password__toggle"
+                  disabled={isPending}
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  type="button"
+                >
+                  {showPassword ? (
+                    <EyeOff aria-hidden className="size-4" />
+                  ) : (
+                    <Eye aria-hidden className="size-4" />
+                  )}
+                </button>
+              </div>
               <p
                 id="password-message"
                 className="auth-field__message"
@@ -130,21 +160,21 @@ export function LoginPage() {
               </p>
             </div>
 
-            <Link className="auth-link auth-link--inline" to="/forgot-password">
-              Lupa kata sandi?
-            </Link>
-
-            <Button type="submit" disabled={isPending}>
+            <Button className="auth-submit" type="submit" disabled={isPending}>
               {isPending ? (
                 <>
                   <LoaderCircle className="size-4 animate-spin" aria-hidden />
                   Memeriksa akun…
                 </>
               ) : (
-                "Masuk"
+                <>
+                  <LockKeyhole aria-hidden className="size-4" />
+                  Masuk dengan aman
+                </>
               )}
             </Button>
           </form>
+          <AppFooter compact />
         </div>
       </section>
     </main>

@@ -152,6 +152,27 @@ export interface Database {
       goods_receipts: {
         Row: GoodsReceiptsRow;
       };
+      inventory_adjustment_requests: {
+        Row: InventoryAdjustmentRequestsRow;
+      };
+      inventory_balances: {
+        Row: InventoryBalancesRow;
+      };
+      inventory_batches: {
+        Row: InventoryBatchesRow;
+      };
+      inventory_idempotency_records: {
+        Row: InventoryIdempotencyRecordsRow;
+      };
+      inventory_movements: {
+        Row: InventoryMovementsRow;
+      };
+      inventory_products: {
+        Row: InventoryProductsRow;
+      };
+      inventory_warehouses: {
+        Row: InventoryWarehousesRow;
+      };
       membership_roles: {
         Row: MembershipRolesRow;
       };
@@ -992,6 +1013,116 @@ export interface GoodsReceiptsRow {
   received_at: string;
   received_by: string;
   created_at: string;
+}
+
+export interface InventoryAdjustmentRequestsRow {
+  id: string;
+  organization_id: string;
+  reference_number: string;
+  product_id: string;
+  warehouse_id: string;
+  batch_number: string | null;
+  expires_at: string | null;
+  adjustment_type: string;
+  expected_delta: string;
+  unit: string;
+  notes: string;
+  decision_notes: string | null;
+  status: string;
+  approved_by: string | null;
+  approved_at: string | null;
+  posted_by: string | null;
+  posted_at: string | null;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InventoryBalancesRow {
+  id: string;
+  organization_id: string;
+  product_id: string;
+  warehouse_id: string;
+  batch_id: string | null;
+  quantity_on_hand: string;
+  quantity_reserved: string;
+  updated_at: string;
+}
+
+export interface InventoryBatchesRow {
+  id: string;
+  organization_id: string;
+  product_id: string;
+  batch_number: string;
+  manufactured_at: string | null;
+  expires_at: string | null;
+  status: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InventoryIdempotencyRecordsRow {
+  id: string;
+  organization_id: string;
+  idempotency_key: string;
+  command_type: string;
+  request_hash: string;
+  status: string;
+  response_snapshot: unknown | null;
+  created_by: string;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export interface InventoryMovementsRow {
+  id: string;
+  organization_id: string;
+  product_id: string;
+  warehouse_id: string;
+  batch_id: string | null;
+  movement_type: string;
+  direction: string;
+  quantity: string;
+  unit: string;
+  source_type: string;
+  source_id: string;
+  occurred_at: string;
+  notes: string | null;
+  request_id: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface InventoryProductsRow {
+  id: string;
+  organization_id: string;
+  sku: string;
+  name: string;
+  category: string | null;
+  base_unit: string;
+  track_batch: boolean;
+  track_expiry: boolean;
+  status: string;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InventoryWarehousesRow {
+  id: string;
+  organization_id: string;
+  code: string;
+  name: string;
+  type: string;
+  address_notes: string | null;
+  status: string;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface MembershipRolesRow {

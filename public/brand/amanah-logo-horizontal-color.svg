@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 108" role="img" aria-labelledby="title">
+  <title id="title">Amanah Platform</title>
+  <g transform="translate(0)">
+    <path d="M24 84 57 20l39 64" fill="none" stroke="#199FA6" stroke-linecap="round" stroke-linejoin="round" stroke-width="13"/>
+    <path d="M24 84c25-25 42-43 64-32 15 8 18 23 8 32-16 14-42-5-72-1" fill="none" stroke="#176B68" stroke-linecap="round" stroke-linejoin="round" stroke-width="13"/>
+    <path d="m56 21 17 33 23 30" fill="none" stroke="#173F3B" stroke-linecap="round" stroke-width="7"/>
+    <circle cx="24" cy="84" r="13" fill="#173F3B"/>
+    <circle cx="57" cy="20" r="12" fill="#DDF3EC"/>
+    <circle cx="73" cy="54" r="12" fill="#199FA6"/>
+    <circle cx="96" cy="84" r="13" fill="#DDF3EC"/>
+  </g>
+  <text x="132" y="51" fill="#173F3B" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-size="34" font-weight="700">Amanah</text>
+  <text x="132" y="82" fill="#176B68" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-size="27" font-weight="500">Platform</text>
+</svg>
