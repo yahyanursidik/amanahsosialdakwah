@@ -9,7 +9,7 @@ import {
   tableSchemas,
   toClientDocument,
   withRuntimeContext,
-} from "./_shared/neon.mjs";
+} from "../server/_shared/neon.mjs";
 
 function placeholders(values, startAt = 1) {
   return values.map((_, index) => `$${index + startAt}`);

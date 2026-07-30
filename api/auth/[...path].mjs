@@ -1,4 +1,4 @@
-import { readRawBody } from "../_shared/neon.mjs";
+import { readRawBody } from "../../server/_shared/neon.mjs";
 
 const authBaseUrl = process.env.NEON_AUTH_BASE_URL;
 

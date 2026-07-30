@@ -30,7 +30,7 @@ function localApiPlugin(): Plugin {
             `http://${request.headers.host ?? "127.0.0.1"}`,
           );
           if (requestUrl.pathname.startsWith("/api/v1/")) {
-            const { app } = await import("./api/app");
+            const { app } = await import("./server/app");
             const headers = new Headers();
             for (const [name, value] of Object.entries(request.headers)) {
               if (Array.isArray(value)) {
@@ -131,6 +131,12 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: "jsdom",
       globals: true,
+      include: [
+        "src/**/*.test.{ts,tsx}",
+        "src/**/*.spec.{ts,tsx}",
+        "server/**/*.test.{ts,mjs,js}",
+        "server/**/*.spec.{ts,mjs,js}",
+      ],
       setupFiles: ["./src/test/setup.ts"],
       css: true,
       coverage: {

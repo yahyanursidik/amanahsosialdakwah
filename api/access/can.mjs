@@ -5,7 +5,7 @@ import {
   sendError,
   sendJson,
   withRuntimeContext,
-} from "../_shared/neon.mjs";
+} from "../../server/_shared/neon.mjs";
 
 const actionAliases = {
   create: "manage",

@@ -9,13 +9,18 @@ import * as fundsSchema from "./funds-schema";
 import * as foundationSchema from "../../drizzle/schema";
 import type { RequestContext } from "../types";
 
-const databaseUrl = process.env.DATABASE_URL;
+let poolInstance: Pool | null = null;
 
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL belum tersedia untuk API server-side.");
+export function getDatabasePool(): Pool {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL belum tersedia untuk API server-side.");
+  }
+
+  poolInstance ??= new Pool({ connectionString: databaseUrl });
+  return poolInstance;
 }
-
-export const pool = new Pool({ connectionString: databaseUrl });
 
 export const schema = {
   ...foundationSchema,
@@ -36,7 +41,7 @@ export async function withTenantTransaction<T>(
   context: RequestContext,
   callback: (database: TenantDatabase, client: PoolClient) => Promise<T>,
 ): Promise<T> {
-  const client = await pool.connect();
+  const client = await getDatabasePool().connect();
 
   try {
     await client.query("begin");
