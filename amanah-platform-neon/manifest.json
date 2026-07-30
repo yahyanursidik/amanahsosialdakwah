@@ -1,0 +1,28 @@
+{
+  "project": "Amanah Platform Neon Edition",
+  "markdown_files": [
+    "AGENTS.md",
+    "README.md",
+    "docs/00-project-context.md",
+    "docs/01-architecture-neon.md",
+    "docs/02-business-rules.md",
+    "docs/03-security-and-tenancy.md",
+    "docs/04-database-and-migrations.md",
+    "docs/05-authentication.md",
+    "docs/06-api-and-refine.md",
+    "docs/07-storage-evidence.md",
+    "docs/08-testing-strategy.md",
+    "docs/09-deployment-vercel-neon.md",
+    "docs/10-vibe-coding-roadmap.md",
+    "docs/11-definition-of-done.md",
+    "docs/12-development-log.md",
+    "docs/13-known-issues.md",
+    "prompts/00-start-project.md",
+    "prompts/01-foundation.md",
+    "prompts/02-auth-tenancy.md",
+    "prompts/03-feature-template.md",
+    "prompts/04-review-security.md",
+    "prompts/05-migrate-supabase-to-neon.md"
+  ],
+  "count": 22
+}

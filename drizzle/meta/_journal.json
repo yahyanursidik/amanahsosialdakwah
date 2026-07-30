@@ -1,0 +1,90 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1785374162661,
+      "tag": "0000_stale_luke_cage",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785374350807,
+      "tag": "0001_applications_cases",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785375389238,
+      "tag": "0002_harden_application_case_audit_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785382977272,
+      "tag": "0003_famous_xorn",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785383376576,
+      "tag": "0004_eminent_valkyrie",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785384065232,
+      "tag": "0005_aspiring_thanos",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785385382960,
+      "tag": "0006_wealthy_madame_web",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1785385798957,
+      "tag": "0007_dusty_sauron",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1785390538377,
+      "tag": "0008_magenta_boomer",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1785392168463,
+      "tag": "0009_lyrical_mongoose",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1785392423683,
+      "tag": "0010_optimal_sebastian_shaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1785393472055,
+      "tag": "0011_magenta_morlocks",
+      "breakpoints": true
+    }
+  ]
+}
