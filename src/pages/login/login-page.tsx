@@ -3,7 +3,7 @@ import { useLogin } from "@refinedev/core";
 import { Eye, EyeOff, LoaderCircle, LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
@@ -12,6 +12,7 @@ import { AppFooter } from "@/components/layout/app-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useOptionalOrganization } from "@/features/organizations/organization-context";
 import type { LoginCredentials } from "@/providers/auth-provider";
 
 const loginSchema = z.object({
@@ -24,12 +25,33 @@ const loginSchema = z.object({
 });
 
 export function LoginPage() {
+  const navigate = useNavigate();
+  const organization = useOptionalOrganization();
   const [showPassword, setShowPassword] = useState(false);
+  const [loginResponseError, setLoginResponseError] = useState<string | null>(
+    null,
+  );
   const {
     mutate: login,
-    error: loginError,
+    error: loginMutationError,
     isPending,
-  } = useLogin<LoginCredentials>();
+  } = useLogin<LoginCredentials>({
+    mutationOptions: {
+      onSuccess: async (result) => {
+        if (result.success) {
+          setLoginResponseError(null);
+          await organization?.refresh();
+          navigate(result.redirectTo ?? "/", { replace: true });
+          return;
+        }
+
+        setLoginResponseError(
+          result.error?.message ?? "Akun belum dapat digunakan untuk masuk.",
+        );
+      },
+    },
+  });
+  const loginErrorMessage = loginResponseError ?? loginMutationError?.message;
   const {
     register,
     handleSubmit,
@@ -49,6 +71,7 @@ export function LoginPage() {
   }, []);
 
   const submitLogin = handleSubmit((credentials) => {
+    setLoginResponseError(null);
     login(credentials);
   });
 
@@ -86,9 +109,9 @@ export function LoginPage() {
             onSubmit={submitLogin}
             noValidate
           >
-            {loginError ? (
+            {loginErrorMessage ? (
               <p className="auth-error" role="alert">
-                {loginError.message}
+                {loginErrorMessage}
               </p>
             ) : null}
 

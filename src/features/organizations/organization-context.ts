@@ -17,8 +17,12 @@ export type OrganizationContextValue = {
 export const OrganizationContext =
   createContext<OrganizationContextValue | null>(null);
 
+export function useOptionalOrganization(): OrganizationContextValue | null {
+  return useContext(OrganizationContext);
+}
+
 export function useOrganization(): OrganizationContextValue {
-  const context = useContext(OrganizationContext);
+  const context = useOptionalOrganization();
 
   if (!context) {
     throw new Error("useOrganization harus digunakan di dalam provider.");

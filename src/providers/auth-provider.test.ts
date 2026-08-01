@@ -58,6 +58,23 @@ describe("authProvider", () => {
     expect(result.error?.message).toBe("Email atau kata sandi tidak cocok.");
   });
 
+  it("memberi pesan aman ketika origin ditolak Neon Auth", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      jsonResponse({ error: { code: "INVALID_ORIGIN" } }, { status: 403 }),
+    );
+    const provider = createAuthProvider();
+
+    const result = await provider.login({
+      email: "petugas@example.org",
+      password: "rahasia",
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.message).toBe(
+      "Alamat aplikasi belum diizinkan oleh layanan autentikasi. Gunakan alamat aplikasi resmi.",
+    );
+  });
+
   it("menolak akses ketika sesi Neon Auth tidak tersedia", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       jsonResponse({ error: "Unauthorized" }, { status: 401 }),

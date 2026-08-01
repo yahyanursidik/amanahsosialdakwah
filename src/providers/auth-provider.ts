@@ -44,6 +44,12 @@ function getPublicLoginError(error: unknown): Error {
     return new Error("Email atau kata sandi tidak cocok.");
   }
 
+  if (error instanceof ApiError && error.status === 403) {
+    return new Error(
+      "Alamat aplikasi belum diizinkan oleh layanan autentikasi. Gunakan alamat aplikasi resmi.",
+    );
+  }
+
   return new Error(
     "Layanan autentikasi sedang tidak tersedia. Coba beberapa saat lagi.",
   );
@@ -54,7 +60,9 @@ function recoveryUrl() {
 }
 
 function getResetToken(secret?: string, token?: string) {
-  return token ?? secret ?? new URLSearchParams(window.location.search).get("token");
+  return (
+    token ?? secret ?? new URLSearchParams(window.location.search).get("token")
+  );
 }
 
 export function createAuthProvider(): AuthProvider {
