@@ -2,6 +2,11 @@ import { Authenticated } from "@refinedev/core";
 import { Navigate, Outlet, Route, Routes } from "react-router";
 
 import { ProtectedRoute } from "@/components/access-control/protected-route";
+import { AidPackageListPage } from "@/pages/aid-packages/aid-package-list-page";
+import { AidPackagePackingCreatePage } from "@/pages/aid-packages/aid-package-packing-create-page";
+import { AidPackagePackingDetailPage } from "@/pages/aid-packages/aid-package-packing-detail-page";
+import { AidPackageTemplateCreatePage } from "@/pages/aid-packages/aid-package-template-create-page";
+import { AidPackageTemplateDetailPage } from "@/pages/aid-packages/aid-package-template-detail-page";
 import { AppBoot } from "@/components/layout/app-boot";
 import { AppLayout } from "@/components/layout/app-layout";
 import { OrganizationGuard } from "@/features/organizations/organization-guard";
@@ -32,6 +37,9 @@ import { ForgotPasswordPage } from "@/pages/forgot-password/forgot-password-page
 import { DistributionCreatePage } from "@/pages/distributions/distribution-create-page";
 import { DistributionDetailPage } from "@/pages/distributions/distribution-detail-page";
 import { DistributionListPage } from "@/pages/distributions/distribution-list-page";
+import { EvidenceDetailPage } from "@/pages/evidence/evidence-detail-page";
+import { EvidenceListPage } from "@/pages/evidence/evidence-list-page";
+import { EvidenceUploadPage } from "@/pages/evidence/evidence-upload-page";
 import { FundAllocationDetailPage } from "@/pages/funds/fund-allocation-detail-page";
 import { FundCreatePage } from "@/pages/funds/fund-create-page";
 import { FundsDashboardPage } from "@/pages/funds/funds-dashboard-page";
@@ -39,6 +47,10 @@ import { InventoryAdjustmentCreatePage } from "@/pages/inventory/inventory-adjus
 import { InventoryAdjustmentDetailPage } from "@/pages/inventory/inventory-adjustment-detail-page";
 import { InventoryListPage } from "@/pages/inventory/inventory-list-page";
 import { LoginPage } from "@/pages/login/login-page";
+import { LogisticsCourierCreatePage } from "@/pages/logistics/logistics-courier-create-page";
+import { LogisticsListPage } from "@/pages/logistics/logistics-list-page";
+import { LogisticsShipmentCreatePage } from "@/pages/logistics/logistics-shipment-create-page";
+import { LogisticsShipmentDetailPage } from "@/pages/logistics/logistics-shipment-detail-page";
 import { NotFoundPage } from "@/pages/not-found/not-found-page";
 import { ProgramCreatePage } from "@/pages/programs/program-create-page";
 import { ProgramEditPage } from "@/pages/programs/program-edit-page";
@@ -166,14 +178,9 @@ export function AppRouter() {
               <Route path="/programs/:id" element={<ProgramShowPage />} />
             </Route>
             <Route
-              element={
-                <ProtectedRoute action="read" resource="applications" />
-              }
+              element={<ProtectedRoute action="read" resource="applications" />}
             >
-              <Route
-                path="/applications"
-                element={<ApplicationListPage />}
-              />
+              <Route path="/applications" element={<ApplicationListPage />} />
               <Route
                 path="/applications/:id"
                 element={<ApplicationDetailPage />}
@@ -286,7 +293,9 @@ export function AppRouter() {
               />
             </Route>
             <Route
-              element={<ProtectedRoute action="manage" resource="assessments" />}
+              element={
+                <ProtectedRoute action="manage" resource="assessments" />
+              }
             >
               <Route
                 path="/assessments/new"
@@ -295,10 +304,7 @@ export function AppRouter() {
             </Route>
             <Route
               element={
-                <ProtectedRoute
-                  action="read"
-                  resource="procurement_requests"
-                />
+                <ProtectedRoute action="read" resource="procurement_requests" />
               }
             >
               <Route path="/procurement" element={<ProcurementListPage />} />
@@ -329,6 +335,40 @@ export function AppRouter() {
             </Route>
             <Route
               element={
+                <ProtectedRoute action="read" resource="logistics_shipments" />
+              }
+            >
+              <Route path="/logistics" element={<LogisticsListPage />} />
+              <Route
+                path="/logistics/shipments/:id"
+                element={<LogisticsShipmentDetailPage />}
+              />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute
+                  action="manage"
+                  resource="logistics_shipments"
+                />
+              }
+            >
+              <Route
+                path="/logistics/shipments/new"
+                element={<LogisticsShipmentCreatePage />}
+              />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute action="manage" resource="logistics_couriers" />
+              }
+            >
+              <Route
+                path="/logistics/couriers/new"
+                element={<LogisticsCourierCreatePage />}
+              />
+            </Route>
+            <Route
+              element={
                 <ProtectedRoute
                   action="manage"
                   resource="inventory_adjustments"
@@ -338,6 +378,56 @@ export function AppRouter() {
               <Route
                 path="/inventory/adjustments/new"
                 element={<InventoryAdjustmentCreatePage />}
+              />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute action="read" resource="aid_package_packings" />
+              }
+            >
+              <Route path="/aid-packages" element={<AidPackageListPage />} />
+              <Route
+                path="/aid-packages/packings/:id"
+                element={<AidPackagePackingDetailPage />}
+              />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute
+                  action="read"
+                  resource="aid_package_templates"
+                />
+              }
+            >
+              <Route
+                path="/aid-packages/templates/:id"
+                element={<AidPackageTemplateDetailPage />}
+              />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute
+                  action="manage"
+                  resource="aid_package_templates"
+                />
+              }
+            >
+              <Route
+                path="/aid-packages/templates/new"
+                element={<AidPackageTemplateCreatePage />}
+              />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute
+                  action="manage"
+                  resource="aid_package_packings"
+                />
+              }
+            >
+              <Route
+                path="/aid-packages/packings/new"
+                element={<AidPackagePackingCreatePage />}
               />
             </Route>
             <Route
@@ -359,16 +449,30 @@ export function AppRouter() {
               <Route path="/funds" element={<FundsDashboardPage />} />
             </Route>
             <Route
-              element={<ProtectedRoute action="read" resource="distributions" />}
+              element={
+                <ProtectedRoute action="read" resource="distributions" />
+              }
             >
-              <Route
-                path="/distributions"
-                element={<DistributionListPage />}
-              />
+              <Route path="/distributions" element={<DistributionListPage />} />
               <Route
                 path="/distributions/:id"
                 element={<DistributionDetailPage />}
               />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute action="read" resource="evidence_files" />
+              }
+            >
+              <Route path="/evidence" element={<EvidenceListPage />} />
+              <Route path="/evidence/:id" element={<EvidenceDetailPage />} />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute action="upload" resource="evidence_files" />
+              }
+            >
+              <Route path="/evidence/upload" element={<EvidenceUploadPage />} />
             </Route>
             <Route
               element={
@@ -411,7 +515,9 @@ export function AppRouter() {
               />
             </Route>
             <Route
-              element={<ProtectedRoute action="post" resource="fund_receipts" />}
+              element={
+                <ProtectedRoute action="post" resource="fund_receipts" />
+              }
             >
               <Route path="/funds/new/receipt" element={<FundCreatePage />} />
             </Route>
@@ -420,7 +526,10 @@ export function AppRouter() {
                 <ProtectedRoute action="manage" resource="fund_allocations" />
               }
             >
-              <Route path="/funds/new/allocation" element={<FundCreatePage />} />
+              <Route
+                path="/funds/new/allocation"
+                element={<FundCreatePage />}
+              />
             </Route>
             <Route
               element={

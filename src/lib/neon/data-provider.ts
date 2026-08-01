@@ -18,12 +18,7 @@ import type {
 import { readActiveOrganizationPreference } from "@/features/organizations/active-organization-storage";
 import { apiFetch } from "@/lib/neon/http";
 
-type DataOperation =
-  | "create"
-  | "deleteOne"
-  | "getList"
-  | "getOne"
-  | "update";
+type DataOperation = "create" | "deleteOne" | "getList" | "getOne" | "update";
 
 type DataRequest = {
   filters?: unknown;
@@ -47,6 +42,8 @@ type RestEnvelope<TData> = {
 };
 
 const restResourcePaths = new Map([
+  ["aid_package_packings", "aid-packages/packings"],
+  ["aid_package_templates", "aid-packages/templates"],
   ["fund_allocations", "funds/allocations"],
   ["fund_commitments", "funds/commitments"],
   ["fund_disbursements", "funds/disbursements"],
@@ -54,14 +51,19 @@ const restResourcePaths = new Map([
   ["fund_reconciliations", "funds/reconciliations"],
   ["fund_restrictions", "funds/restrictions"],
   ["distributions", "distributions"],
+  ["evidence_files", "evidence/files"],
   ["inventory_adjustments", "inventory/adjustments"],
   ["inventory_balances", "inventory/balances"],
   ["inventory_movements", "inventory/movements"],
   ["inventory_products", "inventory/products"],
   ["inventory_warehouses", "inventory/warehouses"],
+  ["logistics_couriers", "logistics/couriers"],
+  ["logistics_shipments", "logistics/shipments"],
   ["procurement", "procurement"],
 ]);
 const restResources = new Set([
+  "aid_package_packings",
+  "aid_package_templates",
   "applications",
   "approval_requests",
   "approval_workflows",
@@ -69,11 +71,14 @@ const restResources = new Set([
   "assessments",
   "cases",
   "distributions",
+  "evidence_files",
   "inventory_adjustments",
   "inventory_balances",
   "inventory_movements",
   "inventory_products",
   "inventory_warehouses",
+  "logistics_couriers",
+  "logistics_shipments",
   "procurement",
   ...restResourcePaths.keys(),
 ]);

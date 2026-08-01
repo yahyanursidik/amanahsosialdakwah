@@ -5,14 +5,17 @@ import { secureHeaders } from "hono/secure-headers";
 import { DomainError } from "./domain/errors";
 import { requestContextMiddleware } from "./middleware/request-context";
 import { applicationsRoute } from "./routes/applications";
+import { aidPackagesRoute } from "./routes/aid-packages";
 import { approvalRequestsRoute } from "./routes/approval-requests";
 import { approvalWorkflowsRoute } from "./routes/approval-workflows";
 import { assessmentTemplatesRoute } from "./routes/assessment-templates";
 import { assessmentsRoute } from "./routes/assessments";
 import { casesRoute } from "./routes/cases";
 import { distributionsRoute } from "./routes/distributions";
+import { evidenceRoute } from "./routes/evidence";
 import { fundsRoute } from "./routes/funds";
 import { inventoryRoute } from "./routes/inventory";
+import { logisticsRoute } from "./routes/logistics";
 import { procurementRoute } from "./routes/procurement";
 import type { AppEnv } from "./types";
 
@@ -47,11 +50,7 @@ app.use("*", async (context, next) => {
     !["GET", "HEAD", "OPTIONS"].includes(context.req.method) &&
     context.req.header("sec-fetch-site") === "cross-site"
   ) {
-    throw new DomainError(
-      "FORBIDDEN",
-      "Permintaan lintas situs ditolak.",
-      403,
-    );
+    throw new DomainError("FORBIDDEN", "Permintaan lintas situs ditolak.", 403);
   }
   await next();
 });
@@ -83,6 +82,12 @@ app.use("/procurement", requestContextMiddleware);
 app.use("/procurement/*", requestContextMiddleware);
 app.use("/inventory", requestContextMiddleware);
 app.use("/inventory/*", requestContextMiddleware);
+app.use("/aid-packages", requestContextMiddleware);
+app.use("/aid-packages/*", requestContextMiddleware);
+app.use("/logistics", requestContextMiddleware);
+app.use("/logistics/*", requestContextMiddleware);
+app.use("/evidence", requestContextMiddleware);
+app.use("/evidence/*", requestContextMiddleware);
 
 app.route("/applications", applicationsRoute);
 app.route("/cases", casesRoute);
@@ -94,6 +99,9 @@ app.route("/funds", fundsRoute);
 app.route("/distributions", distributionsRoute);
 app.route("/procurement", procurementRoute);
 app.route("/inventory", inventoryRoute);
+app.route("/aid-packages", aidPackagesRoute);
+app.route("/logistics", logisticsRoute);
+app.route("/evidence", evidenceRoute);
 
 app.notFound((context) =>
   context.json(

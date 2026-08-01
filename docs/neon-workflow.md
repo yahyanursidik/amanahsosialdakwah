@@ -4,6 +4,17 @@ Backend project ini sudah diarahkan ke Neon Serverless Postgres dan Neon Auth.
 Frontend React/Vite tetap tidak boleh menerima `DATABASE_URL` karena connection
 string Postgres adalah secret server-side.
 
+## Mode database aktif
+
+Workspace saat ini menggunakan branch Neon `production` sebagai sumber data
+aktif untuk aplikasi lokal dan deployment production. File `.neon` dan `.env`
+lokal harus menunjukkan `NEON_BRANCH=production`.
+
+Perubahan schema tetap tidak diuji pertama kali pada production. Buat clone
+sementara dari production, jalankan migration dan seluruh SQL isolation test di
+clone tersebut, lalu terapkan migration immutable yang sama ke production.
+Seed development dan reset database tidak boleh dijalankan pada production.
+
 ## Setup awal
 
 Jalankan dari root project:
@@ -18,9 +29,9 @@ File `.neon` berisi `orgId`, `projectId`, dan branch aktif. File ini tidak
 berisi secret. File `.env` berisi `DATABASE_URL`, `DATABASE_URL_UNPOOLED`,
 `NEON_AUTH_BASE_URL`, dan `NEON_AUTH_JWKS_URL`; file tersebut diabaikan Git.
 
-## Branch-first development
+## Rehearsal sebelum migration production
 
-Jangan menjalankan migration baru langsung di branch `production`.
+Jangan menguji migration baru pertama kali di branch `production`.
 
 ```powershell
 npx.cmd -y neon branches create --name dev-nama-fitur --project-id damp-dew-93728221
@@ -47,7 +58,7 @@ npm.cmd run neon:types
 - SQL test berada di `db/tests`.
 - Types hasil introspeksi berada di `src/generated/neon/database.ts`.
 
-## Provisioning akun role development
+## Provisioning akun role
 
 Setelah migration dan seed selesai, buat satu akun Neon Auth untuk setiap role
 sistem:
@@ -56,9 +67,17 @@ sistem:
 npm.cmd run neon:provision:roles
 ```
 
-Script hanya berjalan bila `NEON_BRANCH` bukan `production`. Signup dilakukan
-melalui Neon Auth, kemudian profile, membership aktif, dan role diikat ke
-organisasi development dalam satu transaksi Postgres. Password acak hanya
+Pada development script berjalan tanpa flag tambahan. Pada production, operator
+wajib memberikan guard eksplisit berikut setelah memastikan organisasi tujuan:
+
+```powershell
+$env:NEON_ALLOW_PRODUCTION_ROLE_PROVISION="1"
+npm.cmd run neon:provision:roles
+Remove-Item Env:NEON_ALLOW_PRODUCTION_ROLE_PROVISION
+```
+
+Signup dilakukan melalui Neon Auth, kemudian profile, membership aktif, dan
+role diikat ke organisasi dalam satu transaksi Postgres. Password acak hanya
 ditampilkan sekali di terminal dan tidak ditulis ke `.env`, seed, atau source
 control. Jika akun sudah ada, password tidak diubah.
 
