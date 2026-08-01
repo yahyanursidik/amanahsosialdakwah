@@ -116,3 +116,19 @@ versioning, dan audit.
 Roadmap fase 17 — Evidence Service.
 
 **Status:** Open
+
+# Known Issues
+
+## Evidence object storage belum dikonfigurasi
+
+- Project Neon production berada di `aws-ap-southeast-1`, sedangkan Neon Object
+  Storage beta masih terbatas pada `us-east-2`.
+- Evidence Service menggunakan adapter S3-compatible, tetapi variabel `S3_*`,
+  bucket privat, dan CORS production belum tersedia.
+- Metadata/RLS/versioning aktif; upload dan download binary akan mengembalikan
+  error konfigurasi yang aman sampai storage disiapkan.
+
+## Bundle frontend besar
+
+- Bundle utama melebihi 500 kB setelah minification.
+- Perlu route-level lazy loading/code splitting pada hardening berikutnya.

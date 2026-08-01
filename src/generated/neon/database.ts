@@ -8,6 +8,24 @@ export interface Database {
       aid_applications: {
         Row: AidApplicationsRow;
       };
+      aid_package_idempotency_records: {
+        Row: AidPackageIdempotencyRecordsRow;
+      };
+      aid_package_packing_items: {
+        Row: AidPackagePackingItemsRow;
+      };
+      aid_package_packings: {
+        Row: AidPackagePackingsRow;
+      };
+      aid_package_template_items: {
+        Row: AidPackageTemplateItemsRow;
+      };
+      aid_package_templates: {
+        Row: AidPackageTemplatesRow;
+      };
+      aid_package_unpack_items: {
+        Row: AidPackageUnpackItemsRow;
+      };
       application_case_events: {
         Row: ApplicationCaseEventsRow;
       };
@@ -122,6 +140,15 @@ export interface Database {
       distribution_verifications: {
         Row: DistributionVerificationsRow;
       };
+      evidence_access_events: {
+        Row: EvidenceAccessEventsRow;
+      };
+      evidence_files: {
+        Row: EvidenceFilesRow;
+      };
+      evidence_publications: {
+        Row: EvidencePublicationsRow;
+      };
       fund_allocations: {
         Row: FundAllocationsRow;
       };
@@ -172,6 +199,27 @@ export interface Database {
       };
       inventory_warehouses: {
         Row: InventoryWarehousesRow;
+      };
+      logistics_couriers: {
+        Row: LogisticsCouriersRow;
+      };
+      logistics_deliveries: {
+        Row: LogisticsDeliveriesRow;
+      };
+      logistics_idempotency_records: {
+        Row: LogisticsIdempotencyRecordsRow;
+      };
+      logistics_incidents: {
+        Row: LogisticsIncidentsRow;
+      };
+      logistics_returns: {
+        Row: LogisticsReturnsRow;
+      };
+      logistics_shipments: {
+        Row: LogisticsShipmentsRow;
+      };
+      logistics_tracking_events: {
+        Row: LogisticsTrackingEventsRow;
       };
       membership_roles: {
         Row: MembershipRolesRow;
@@ -245,6 +293,96 @@ export interface AidApplicationsRow {
   updated_by: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface AidPackageIdempotencyRecordsRow {
+  id: string;
+  organization_id: string;
+  idempotency_key: string;
+  command_type: string;
+  request_hash: string;
+  status: string;
+  response_snapshot: unknown | null;
+  created_by: string;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export interface AidPackagePackingItemsRow {
+  id: string;
+  organization_id: string;
+  packing_id: string;
+  template_item_id: string;
+  requested_product_id: string;
+  actual_product_id: string;
+  batch_id: string | null;
+  quantity: string;
+  unit: string;
+  is_substitution: boolean;
+  substitution_reason: string | null;
+  movement_id: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface AidPackagePackingsRow {
+  id: string;
+  organization_id: string;
+  reference_number: string;
+  template_id: string;
+  warehouse_id: string;
+  package_count: number;
+  recipient_label: string | null;
+  notes: string | null;
+  status: string;
+  packed_by: string | null;
+  packed_at: string | null;
+  reversed_by: string | null;
+  reversed_at: string | null;
+  reversal_reason: string | null;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AidPackageTemplateItemsRow {
+  id: string;
+  organization_id: string;
+  template_id: string;
+  product_id: string;
+  quantity: string;
+  unit: string;
+  allow_substitution: boolean;
+  substitution_notes: string | null;
+  sort_order: number;
+  created_by: string;
+  created_at: string;
+}
+
+export interface AidPackageTemplatesRow {
+  id: string;
+  organization_id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  status: string;
+  published_by: string | null;
+  published_at: string | null;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AidPackageUnpackItemsRow {
+  id: string;
+  organization_id: string;
+  packing_id: string;
+  packing_item_id: string;
+  movement_id: string;
+  created_by: string;
+  created_at: string;
 }
 
 export interface ApplicationCaseEventsRow {
@@ -848,6 +986,61 @@ export interface DistributionVerificationsRow {
   created_at: string;
 }
 
+export interface EvidenceAccessEventsRow {
+  id: string;
+  organization_id: string;
+  evidence_file_id: string;
+  action: string;
+  actor_profile_id: string;
+  request_id: string | null;
+  metadata: unknown | null;
+  created_at: string;
+}
+
+export interface EvidenceFilesRow {
+  id: string;
+  organization_id: string;
+  logical_file_id: string;
+  version: number;
+  previous_version_id: string | null;
+  entity_type: string;
+  entity_id: string;
+  classification: string;
+  purpose: string;
+  original_file_name: string;
+  safe_file_name: string;
+  object_key: string;
+  storage_bucket: string;
+  mime_type: string;
+  size_bytes: number;
+  checksum_sha256: string | null;
+  status: string;
+  confirmed_by: string | null;
+  confirmed_at: string | null;
+  superseded_at: string | null;
+  deleted_by: string | null;
+  deleted_at: string | null;
+  deletion_reason: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EvidencePublicationsRow {
+  id: string;
+  organization_id: string;
+  evidence_file_id: string;
+  consent_reference: string;
+  redaction_notes: string;
+  status: string;
+  published_by: string;
+  published_at: string;
+  revoked_by: string | null;
+  revoked_at: string | null;
+  revocation_reason: string | null;
+  created_at: string;
+}
+
 export interface FundAllocationsRow {
   id: string;
   organization_id: string;
@@ -1123,6 +1316,118 @@ export interface InventoryWarehousesRow {
   updated_by: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface LogisticsCouriersRow {
+  id: string;
+  organization_id: string;
+  code: string;
+  name: string;
+  courier_type: string;
+  contact_name: string | null;
+  contact_phone: string | null;
+  service_notes: string | null;
+  status: string;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LogisticsDeliveriesRow {
+  id: string;
+  organization_id: string;
+  shipment_id: string;
+  recipient_name: string;
+  relationship_to_recipient: string | null;
+  received_at: string;
+  confirmation_method: string;
+  notes: string | null;
+  confirmed_by: string;
+  created_at: string;
+}
+
+export interface LogisticsIdempotencyRecordsRow {
+  id: string;
+  organization_id: string;
+  idempotency_key: string;
+  command_type: string;
+  request_hash: string;
+  status: string;
+  response_snapshot: unknown | null;
+  created_by: string;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export interface LogisticsIncidentsRow {
+  id: string;
+  organization_id: string;
+  shipment_id: string;
+  incident_type: string;
+  severity: string;
+  occurred_at: string;
+  location: string | null;
+  description: string;
+  status: string;
+  resolution_notes: string | null;
+  reported_by: string;
+  resolved_by: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LogisticsReturnsRow {
+  id: string;
+  organization_id: string;
+  shipment_id: string;
+  reason_code: string;
+  reason_notes: string;
+  requested_at: string;
+  requested_by: string;
+  received_at: string | null;
+  received_by: string | null;
+  condition_on_return: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LogisticsShipmentsRow {
+  id: string;
+  organization_id: string;
+  reference_number: string;
+  packing_id: string;
+  courier_id: string;
+  tracking_number: string | null;
+  service_level: string | null;
+  destination_name: string;
+  destination_phone: string | null;
+  destination_address: string;
+  planned_dispatch_at: string | null;
+  dispatched_at: string | null;
+  delivered_at: string | null;
+  returned_at: string | null;
+  status: string;
+  notes: string | null;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LogisticsTrackingEventsRow {
+  id: string;
+  organization_id: string;
+  shipment_id: string;
+  event_type: string;
+  event_at: string;
+  location: string | null;
+  notes: string | null;
+  external_event_id: string | null;
+  created_by: string;
+  created_at: string;
 }
 
 export interface MembershipRolesRow {

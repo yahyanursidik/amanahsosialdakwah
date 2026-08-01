@@ -24,6 +24,40 @@ export function App() {
         }}
         resources={[
           {
+            name: "evidence_files",
+            list: "/evidence",
+            create: "/evidence/upload",
+            show: "/evidence/:id",
+            meta: { label: "Bukti & Dokumen" },
+          },
+          {
+            name: "logistics_shipments",
+            list: "/logistics",
+            create: "/logistics/shipments/new",
+            show: "/logistics/shipments/:id",
+            meta: { label: "Shipment Logistik" },
+          },
+          {
+            name: "logistics_couriers",
+            list: "/logistics",
+            create: "/logistics/couriers/new",
+            meta: { label: "Kurir Logistik" },
+          },
+          {
+            name: "aid_package_templates",
+            list: "/aid-packages",
+            create: "/aid-packages/templates/new",
+            show: "/aid-packages/templates/:id",
+            meta: { label: "Template Paket Bantuan" },
+          },
+          {
+            name: "aid_package_packings",
+            list: "/aid-packages",
+            create: "/aid-packages/packings/new",
+            show: "/aid-packages/packings/:id",
+            meta: { label: "Packing Paket Bantuan" },
+          },
+          {
             name: "procurement",
             list: "/procurement",
             create: "/procurement/new",

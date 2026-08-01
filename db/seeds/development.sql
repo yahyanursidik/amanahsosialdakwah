@@ -217,6 +217,106 @@ where r.organization_id is null
   and r.key = 'organization_owner'
 on conflict (role_id, permission_id) do nothing;
 
+insert into public.permissions (key, resource, action, description)
+values
+  ('logistics_couriers.read', 'logistics_couriers', 'read', 'Melihat master kurir logistik'),
+  ('logistics_couriers.manage', 'logistics_couriers', 'manage', 'Mengelola master kurir logistik'),
+  ('logistics_shipments.read', 'logistics_shipments', 'read', 'Melihat shipment dan tracking logistik'),
+  ('logistics_shipments.manage', 'logistics_shipments', 'manage', 'Membuat draft shipment logistik'),
+  ('logistics_shipments.dispatch', 'logistics_shipments', 'dispatch', 'Memberangkatkan shipment logistik'),
+  ('logistics_shipments.track', 'logistics_shipments', 'track', 'Mencatat tracking shipment append-only'),
+  ('logistics_shipments.deliver', 'logistics_shipments', 'deliver', 'Mengonfirmasi penerimaan shipment'),
+  ('logistics_shipments.return', 'logistics_shipments', 'return', 'Mengelola pengembalian shipment'),
+  ('logistics_incidents.read', 'logistics_incidents', 'read', 'Melihat insiden logistik'),
+  ('logistics_incidents.manage', 'logistics_incidents', 'manage', 'Melaporkan insiden logistik'),
+  ('logistics_incidents.resolve', 'logistics_incidents', 'resolve', 'Menyelesaikan insiden logistik')
+on conflict (key) do update
+set resource = excluded.resource,
+    action = excluded.action,
+    description = excluded.description,
+    updated_at = now();
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, role.id, permission.id
+from public.roles role
+join public.permissions permission on permission.resource in ('logistics_couriers', 'logistics_shipments', 'logistics_incidents')
+where role.organization_id is null and role.key in ('organization_owner', 'organization_admin')
+on conflict (role_id, permission_id) do nothing;
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, role.id, permission.id
+from public.roles role
+join public.permissions permission on permission.key in (
+  'logistics_couriers.read',
+  'logistics_shipments.read',
+  'logistics_shipments.manage',
+  'logistics_shipments.dispatch',
+  'logistics_shipments.track',
+  'logistics_shipments.deliver',
+  'logistics_shipments.return',
+  'logistics_incidents.read',
+  'logistics_incidents.manage'
+)
+where role.organization_id is null and role.key = 'field_officer'
+on conflict (role_id, permission_id) do nothing;
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, role.id, permission.id
+from public.roles role
+join public.permissions permission on permission.key in (
+  'logistics_couriers.read',
+  'logistics_shipments.read',
+  'logistics_incidents.read'
+)
+where role.organization_id is null and role.key = 'auditor'
+on conflict (role_id, permission_id) do nothing;
+
+insert into public.permissions (key, resource, action, description)
+values
+  ('aid_package_templates.read', 'aid_package_templates', 'read', 'Melihat template paket bantuan'),
+  ('aid_package_templates.manage', 'aid_package_templates', 'manage', 'Membuat template paket bantuan'),
+  ('aid_package_templates.publish', 'aid_package_templates', 'publish', 'Menerbitkan template paket bantuan'),
+  ('aid_package_packings.read', 'aid_package_packings', 'read', 'Melihat proses packing paket bantuan'),
+  ('aid_package_packings.manage', 'aid_package_packings', 'manage', 'Membuat rencana packing paket bantuan'),
+  ('aid_package_packings.pack', 'aid_package_packings', 'pack', 'Membukukan packing paket dari stok FEFO'),
+  ('aid_package_packings.unpack', 'aid_package_packings', 'unpack', 'Membalik packing paket ke stok'),
+  ('aid_package_packings.cancel', 'aid_package_packings', 'cancel', 'Membatalkan rencana packing')
+on conflict (key) do update
+set resource = excluded.resource,
+    action = excluded.action,
+    description = excluded.description,
+    updated_at = now();
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, r.id, p.id
+from public.roles r
+join public.permissions p on p.resource in ('aid_package_templates', 'aid_package_packings')
+where r.organization_id is null
+  and r.key in ('organization_owner', 'organization_admin')
+on conflict (role_id, permission_id) do nothing;
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, r.id, p.id
+from public.roles r
+join public.permissions p on p.key in (
+  'aid_package_templates.read',
+  'aid_package_packings.read',
+  'aid_package_packings.manage',
+  'aid_package_packings.pack'
+)
+where r.organization_id is null and r.key = 'field_officer'
+on conflict (role_id, permission_id) do nothing;
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, r.id, p.id
+from public.roles r
+join public.permissions p on p.key in (
+  'aid_package_templates.read',
+  'aid_package_packings.read'
+)
+where r.organization_id is null and r.key = 'auditor'
+on conflict (role_id, permission_id) do nothing;
+
 insert into public.role_permissions (organization_id, role_id, permission_id)
 select null, r.id, p.id
 from public.roles r
@@ -376,6 +476,42 @@ join public.permissions p on p.key in (
 )
 where r.organization_id is null
   and r.key = 'field_officer'
+on conflict (role_id, permission_id) do nothing;
+
+insert into public.permissions (key, resource, action, description)
+values
+  ('evidence_files.read', 'evidence_files', 'read', 'Melihat metadata bukti'),
+  ('evidence_files.restricted_read', 'evidence_files', 'restricted_read', 'Melihat bukti restricted'),
+  ('evidence_files.upload', 'evidence_files', 'upload', 'Membuat dan mengonfirmasi upload bukti'),
+  ('evidence_files.download', 'evidence_files', 'download', 'Membuat signed download URL'),
+  ('evidence_files.delete', 'evidence_files', 'delete', 'Menandai bukti terhapus'),
+  ('evidence_files.publish', 'evidence_files', 'publish', 'Mempublikasikan bukti dengan consent'),
+  ('evidence_audit.read', 'evidence_audit', 'read', 'Melihat audit akses bukti')
+on conflict (key) do update
+set resource = excluded.resource,
+    action = excluded.action,
+    description = excluded.description,
+    updated_at = now();
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, role.id, permission.id
+from public.roles role
+join public.permissions permission on permission.resource in ('evidence_files', 'evidence_audit')
+where role.organization_id is null and role.key in ('organization_owner', 'organization_admin')
+on conflict (role_id, permission_id) do nothing;
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, role.id, permission.id
+from public.roles role
+join public.permissions permission on permission.key in ('evidence_files.read', 'evidence_files.upload', 'evidence_files.download')
+where role.organization_id is null and role.key = 'field_officer'
+on conflict (role_id, permission_id) do nothing;
+
+insert into public.role_permissions (organization_id, role_id, permission_id)
+select null, role.id, permission.id
+from public.roles role
+join public.permissions permission on permission.key in ('evidence_files.read', 'evidence_files.restricted_read', 'evidence_files.download', 'evidence_audit.read')
+where role.organization_id is null and role.key = 'auditor'
 on conflict (role_id, permission_id) do nothing;
 
 insert into public.role_permissions (organization_id, role_id, permission_id)

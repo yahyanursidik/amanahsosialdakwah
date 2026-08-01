@@ -5,41 +5,49 @@ import { createPool, loadDotEnv } from "./shared.mjs";
 loadDotEnv();
 
 const branch = process.env.NEON_BRANCH;
+const isProduction = branch === "production";
 const authBaseUrl = process.env.NEON_AUTH_BASE_URL;
 const domain = process.env.NEON_ROLE_ACCOUNT_DOMAIN ?? "ihsanuladab.or.id";
 const organizationCode =
-  process.env.NEON_ROLE_ACCOUNT_ORGANIZATION_CODE ?? "IHSANUL-ADAB-DEV";
+  process.env.NEON_ROLE_ACCOUNT_ORGANIZATION_CODE ??
+  (isProduction ? "IHSANUL-ADAB" : "IHSANUL-ADAB-DEV");
 const organizationName =
-  process.env.NEON_ROLE_ACCOUNT_ORGANIZATION_NAME ?? "Ihsanul Adab Development";
+  process.env.NEON_ROLE_ACCOUNT_ORGANIZATION_NAME ??
+  (isProduction ? "Ihsanul Adab" : "Ihsanul Adab Development");
 
 if (!authBaseUrl) {
   throw new Error("NEON_AUTH_BASE_URL belum tersedia.");
 }
-if (!branch || branch === "production") {
+if (!branch) {
+  throw new Error("NEON_BRANCH belum tersedia.");
+}
+if (isProduction && process.env.NEON_ALLOW_PRODUCTION_ROLE_PROVISION !== "1") {
   throw new Error(
-    "Provisioning akun role hanya diizinkan pada branch development yang eksplisit.",
+    "Provisioning production memerlukan NEON_ALLOW_PRODUCTION_ROLE_PROVISION=1.",
   );
 }
+
+const accountNameSuffix = isProduction ? "" : " Development";
 
 const accountDefinitions = [
   {
     email: `owner@${domain}`,
-    name: "Owner Development",
+    name: `Owner${accountNameSuffix}`,
     role: "organization_owner",
   },
   {
     email: `admin@${domain}`,
-    name: "Admin Development",
+    name: `Admin${accountNameSuffix}`,
     role: "organization_admin",
   },
   {
     email: `field.officer@${domain}`,
-    name: "Petugas Lapangan Development",
+    name: `Petugas Lapangan${accountNameSuffix}`,
     role: "field_officer",
   },
   {
     email: `auditor@${domain}`,
-    name: "Auditor Development",
+    name: `Auditor${accountNameSuffix}`,
     role: "auditor",
   },
 ];
