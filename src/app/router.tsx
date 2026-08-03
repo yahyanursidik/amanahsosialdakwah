@@ -46,6 +46,9 @@ import { FundsDashboardPage } from "@/pages/funds/funds-dashboard-page";
 import { InventoryAdjustmentCreatePage } from "@/pages/inventory/inventory-adjustment-create-page";
 import { InventoryAdjustmentDetailPage } from "@/pages/inventory/inventory-adjustment-detail-page";
 import { InventoryListPage } from "@/pages/inventory/inventory-list-page";
+import { KafalahContractDetailPage } from "@/pages/kafalah/kafalah-contract-detail-page";
+import { KafalahCreatePage } from "@/pages/kafalah/kafalah-create-page";
+import { KafalahListPage } from "@/pages/kafalah/kafalah-list-page";
 import { LoginPage } from "@/pages/login/login-page";
 import { LogisticsCourierCreatePage } from "@/pages/logistics/logistics-courier-create-page";
 import { LogisticsListPage } from "@/pages/logistics/logistics-list-page";
@@ -199,6 +202,45 @@ export function AppRouter() {
             <Route element={<ProtectedRoute action="read" resource="cases" />}>
               <Route path="/cases" element={<CaseListPage />} />
               <Route path="/cases/:id" element={<CaseDetailPage />} />
+            </Route>
+            <Route
+              element={<ProtectedRoute action="read" resource="kafalah" />}
+            >
+              <Route path="/kafalah" element={<KafalahListPage />} />
+              <Route
+                path="/kafalah/contracts/:id"
+                element={<KafalahContractDetailPage />}
+              />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute action="manage" resource="kafalah_needs" />
+              }
+            >
+              <Route
+                path="/kafalah/needs/new"
+                element={<KafalahCreatePage kind="need" />}
+              />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute action="manage" resource="kafalah_matches" />
+              }
+            >
+              <Route
+                path="/kafalah/matches/new"
+                element={<KafalahCreatePage kind="match" />}
+              />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute action="manage" resource="kafalah_contracts" />
+              }
+            >
+              <Route
+                path="/kafalah/contracts/new"
+                element={<KafalahCreatePage kind="contract" />}
+              />
             </Route>
             <Route
               element={

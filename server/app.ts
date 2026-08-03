@@ -15,6 +15,7 @@ import { distributionsRoute } from "./routes/distributions";
 import { evidenceRoute } from "./routes/evidence";
 import { fundsRoute } from "./routes/funds";
 import { inventoryRoute } from "./routes/inventory";
+import { kafalahRoute } from "./routes/kafalah";
 import { logisticsRoute } from "./routes/logistics";
 import { procurementRoute } from "./routes/procurement";
 import type { AppEnv } from "./types";
@@ -88,6 +89,8 @@ app.use("/logistics", requestContextMiddleware);
 app.use("/logistics/*", requestContextMiddleware);
 app.use("/evidence", requestContextMiddleware);
 app.use("/evidence/*", requestContextMiddleware);
+app.use("/kafalah", requestContextMiddleware);
+app.use("/kafalah/*", requestContextMiddleware);
 
 app.route("/applications", applicationsRoute);
 app.route("/cases", casesRoute);
@@ -102,6 +105,7 @@ app.route("/inventory", inventoryRoute);
 app.route("/aid-packages", aidPackagesRoute);
 app.route("/logistics", logisticsRoute);
 app.route("/evidence", evidenceRoute);
+app.route("/kafalah", kafalahRoute);
 
 app.notFound((context) =>
   context.json(
