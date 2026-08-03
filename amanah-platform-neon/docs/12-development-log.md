@@ -540,3 +540,43 @@ npm run neon:test:isolation → 4 SQL tests pass
 
 - fase 18 Kafalah setelah bucket Evidence dikonfigurasi dan smoke test binary
   diselesaikan.
+
+## 2026-08-02 — Fase 18 Kafalah
+
+**Completed**
+
+- menambahkan kebutuhan, matching kafil, kontrak, jadwal, pembayaran,
+  penyaluran, monitoring, renewal, event, dan idempotency record;
+- menambahkan Hono REST `/api/v1/kafalah`, Refine resources, navigasi, halaman
+  daftar, form tiga tahap, dan workspace kontrak;
+- menggunakan Contact Master ber-role `kafil` dan `beneficiary` agar identitas
+  tidak diduplikasi;
+- menambahkan RLS eksplisit, composite tenant foreign key, no hard delete,
+  append-only financial records, maker-checker, audit, dan permission granular;
+- menerapkan migration pada branch Neon development `dev-kafalah-20260802` dan
+  memperbarui generated types menjadi 99 tabel;
+- menambahkan unit test domain/schema, SQL tenant isolation, dan concurrency
+  test untuk reservasi matching.
+
+**Decisions**
+
+- nilai uang tetap `numeric(20,2)` dan kapasitas dicadangkan atomik di
+  PostgreSQL;
+- pembayaran dan distribution menggunakan idempotency key;
+- aktivasi kontrak menghasilkan jadwal server-side;
+- renewal merupakan workflow baru dan tidak mengubah kontrak lama diam-diam;
+- binary evidence belum menjadi syarat aktivasi selama storage belum tersedia.
+
+**Known limitations**
+
+- object storage Evidence belum dikonfigurasi sehingga lampiran kontrak,
+  pembayaran, dan monitoring belum dapat diunggah end-to-end;
+- migration belum dipromosikan ke production dan wajib melalui rehearsal serta
+  persetujuan deployment;
+- completion otomatis kontrak setelah seluruh jadwal tersalurkan belum
+  diaktifkan.
+
+**Next recommended task**
+
+- fase 19 Wakaf setelah acceptance test Kafalah dan konfigurasi Evidence
+  production selesai.

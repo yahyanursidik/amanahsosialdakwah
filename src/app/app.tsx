@@ -24,6 +24,25 @@ export function App() {
         }}
         resources={[
           {
+            name: "kafalah_needs",
+            list: "/kafalah",
+            create: "/kafalah/needs/new",
+            meta: { label: "Kebutuhan Kafalah" },
+          },
+          {
+            name: "kafalah_matches",
+            list: "/kafalah",
+            create: "/kafalah/matches/new",
+            meta: { label: "Matching Kafalah" },
+          },
+          {
+            name: "kafalah_contracts",
+            list: "/kafalah",
+            create: "/kafalah/contracts/new",
+            show: "/kafalah/contracts/:id",
+            meta: { label: "Kontrak Kafalah" },
+          },
+          {
             name: "evidence_files",
             list: "/evidence",
             create: "/evidence/upload",

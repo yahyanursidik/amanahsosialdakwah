@@ -200,6 +200,36 @@ export interface Database {
       inventory_warehouses: {
         Row: InventoryWarehousesRow;
       };
+      kafalah_contracts: {
+        Row: KafalahContractsRow;
+      };
+      kafalah_distributions: {
+        Row: KafalahDistributionsRow;
+      };
+      kafalah_events: {
+        Row: KafalahEventsRow;
+      };
+      kafalah_idempotency_records: {
+        Row: KafalahIdempotencyRecordsRow;
+      };
+      kafalah_matches: {
+        Row: KafalahMatchesRow;
+      };
+      kafalah_monitoring_reports: {
+        Row: KafalahMonitoringReportsRow;
+      };
+      kafalah_needs: {
+        Row: KafalahNeedsRow;
+      };
+      kafalah_payments: {
+        Row: KafalahPaymentsRow;
+      };
+      kafalah_renewals: {
+        Row: KafalahRenewalsRow;
+      };
+      kafalah_schedules: {
+        Row: KafalahSchedulesRow;
+      };
       logistics_couriers: {
         Row: LogisticsCouriersRow;
       };
@@ -1314,6 +1344,161 @@ export interface InventoryWarehousesRow {
   status: string;
   created_by: string;
   updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KafalahContractsRow {
+  id: string;
+  organization_id: string;
+  reference_number: string;
+  match_id: string;
+  frequency: string;
+  periodic_amount: string;
+  start_date: string;
+  end_date: string;
+  terms: string;
+  status: string;
+  activated_by: string | null;
+  activated_at: string | null;
+  completed_at: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KafalahDistributionsRow {
+  id: string;
+  organization_id: string;
+  schedule_id: string;
+  payment_id: string;
+  amount: string;
+  distributed_at: string;
+  method: string;
+  confirmation_notes: string;
+  status: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface KafalahEventsRow {
+  id: string;
+  organization_id: string;
+  entity_type: string;
+  entity_id: string;
+  event_type: string;
+  event_data: unknown | null;
+  created_by: string;
+  created_at: string;
+}
+
+export interface KafalahIdempotencyRecordsRow {
+  id: string;
+  organization_id: string;
+  idempotency_key: string;
+  command_type: string;
+  request_hash: string;
+  status: string;
+  response_snapshot: unknown | null;
+  created_by: string;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export interface KafalahMatchesRow {
+  id: string;
+  organization_id: string;
+  reference_number: string;
+  need_id: string;
+  sponsor_contact_id: string;
+  matched_amount: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+  activated_by: string | null;
+  activated_at: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KafalahMonitoringReportsRow {
+  id: string;
+  organization_id: string;
+  contract_id: string;
+  period_start: string;
+  period_end: string;
+  outcome: string;
+  summary: string;
+  status: string;
+  submitted_by: string;
+  submitted_at: string;
+  verified_by: string | null;
+  verified_at: string | null;
+  verification_notes: string | null;
+}
+
+export interface KafalahNeedsRow {
+  id: string;
+  organization_id: string;
+  reference_number: string;
+  beneficiary_contact_id: string;
+  case_id: string | null;
+  need_type: string;
+  title: string;
+  description: string;
+  approved_amount: string;
+  matched_amount: string;
+  currency: unknown;
+  period_months: number;
+  status: string;
+  approved_by: string | null;
+  approved_at: string | null;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KafalahPaymentsRow {
+  id: string;
+  organization_id: string;
+  schedule_id: string;
+  payment_reference: string;
+  amount: string;
+  paid_at: string;
+  channel: string;
+  status: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface KafalahRenewalsRow {
+  id: string;
+  organization_id: string;
+  contract_id: string;
+  requested_start_date: string;
+  requested_end_date: string;
+  periodic_amount: string;
+  reason: string;
+  status: string;
+  requested_by: string;
+  requested_at: string;
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_notes: string | null;
+}
+
+export interface KafalahSchedulesRow {
+  id: string;
+  organization_id: string;
+  contract_id: string;
+  installment_number: number;
+  due_date: string;
+  amount: string;
+  paid_amount: string;
+  distributed_amount: string;
+  status: string;
   created_at: string;
   updated_at: string;
 }
