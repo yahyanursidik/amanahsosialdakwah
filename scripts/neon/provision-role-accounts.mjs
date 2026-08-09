@@ -9,11 +9,9 @@ const isProduction = branch === "production";
 const authBaseUrl = process.env.NEON_AUTH_BASE_URL;
 const domain = process.env.NEON_ROLE_ACCOUNT_DOMAIN ?? "ihsanuladab.or.id";
 const organizationCode =
-  process.env.NEON_ROLE_ACCOUNT_ORGANIZATION_CODE ??
-  (isProduction ? "IHSANUL-ADAB" : "IHSANUL-ADAB-DEV");
+  process.env.NEON_ROLE_ACCOUNT_ORGANIZATION_CODE ?? "IHSANUL-ADAB";
 const organizationName =
-  process.env.NEON_ROLE_ACCOUNT_ORGANIZATION_NAME ??
-  (isProduction ? "Ihsanul Adab" : "Ihsanul Adab Development");
+  process.env.NEON_ROLE_ACCOUNT_ORGANIZATION_NAME ?? "Ihsanul Adab";
 
 if (!authBaseUrl) {
   throw new Error("NEON_AUTH_BASE_URL belum tersedia.");
@@ -27,7 +25,7 @@ if (isProduction && process.env.NEON_ALLOW_PRODUCTION_ROLE_PROVISION !== "1") {
   );
 }
 
-const accountNameSuffix = isProduction ? "" : " Development";
+const accountNameSuffix = "";
 
 const accountDefinitions = [
   {

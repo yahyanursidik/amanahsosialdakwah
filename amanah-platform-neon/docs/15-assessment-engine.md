@@ -117,11 +117,11 @@ depth.
 - `drizzle/0003_famous_xorn.sql`: schema, RLS, permission, trigger, grant.
 - `drizzle/0004_eminent_valkyrie.sql`: case policy untuk workflow asesmen.
 - `drizzle/0005_aspiring_thanos.sql`: composite tenant foreign keys.
-- branch uji: `dev-neon-foundation`.
+- target database saat ini: branch Neon `production`.
 
 Untuk environment shared, rollback dilakukan dengan menonaktifkan route dan
 permission lalu migration korektif. Jangan drop tabel asesmen yang sudah
-berisi keputusan resmi. Branch disposable dapat dihapus dan dibuat ulang.
+berisi keputusan resmi.
 
 ## Tests
 

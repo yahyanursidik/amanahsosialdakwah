@@ -89,7 +89,6 @@ permission dan PostgreSQL RLS tetap menjadi batas keamanan terakhir.
 ```powershell
 npm run db:check
 npm run neon:migrate
-npm run neon:seed
 npm run neon:test:isolation
 npm run neon:test:fund-concurrency
 npm run neon:types
@@ -97,8 +96,9 @@ npm run quality
 npm run build
 ```
 
-Migration dan test harus dijalankan pada branch Neon development, bukan branch
-production.
+Migration dan test saat ini dijalankan terhadap branch Neon `production`
+karena tidak ada branch development aktif. Jangan jalankan seed/reset dummy
+tanpa guard production eksplisit.
 
 ## Batas fase
 

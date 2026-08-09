@@ -10,10 +10,14 @@ Workspace saat ini menggunakan branch Neon `production` sebagai sumber data
 aktif untuk aplikasi lokal dan deployment production. File `.neon` dan `.env`
 lokal harus menunjukkan `NEON_BRANCH=production`.
 
-Perubahan schema tetap tidak diuji pertama kali pada production. Buat clone
-sementara dari production, jalankan migration dan seluruh SQL isolation test di
-clone tersebut, lalu terapkan migration immutable yang sama ke production.
-Seed development dan reset database tidak boleh dijalankan pada production.
+Keputusan operasional saat ini: tidak memakai branch development persisten.
+Sumber kebenaran aktif hanya branch `production`.
+
+Karena seluruh koneksi mengarah ke production, migration wajib diperlakukan
+sebagai operasi production: buat backup/snapshot dari Neon Console bila
+dibutuhkan, jalankan audit/check terlebih dahulu, lalu terapkan migration
+secara sadar. Seed dummy dan reset database tetap diblokir secara default pada
+production.
 
 ## Setup awal
 
@@ -29,22 +33,19 @@ File `.neon` berisi `orgId`, `projectId`, dan branch aktif. File ini tidak
 berisi secret. File `.env` berisi `DATABASE_URL`, `DATABASE_URL_UNPOOLED`,
 `NEON_AUTH_BASE_URL`, dan `NEON_AUTH_JWKS_URL`; file tersebut diabaikan Git.
 
-## Rehearsal sebelum migration production
+## Menarik konfigurasi production
 
-Jangan menguji migration baru pertama kali di branch `production`.
+Gunakan perintah berikut bila `.env` lokal perlu disamakan ulang dengan branch
+`production`:
 
 ```powershell
-npx.cmd -y neon branches create --name dev-nama-fitur --project-id damp-dew-93728221
-npx.cmd -y neon checkout dev-nama-fitur
+npx.cmd -y neon env pull
 ```
 
-`checkout` akan memperbarui `.neon` dan menarik `.env` untuk branch aktif.
-
-## Migration dan seed
+## Migration production
 
 ```powershell
 npm.cmd run neon:migrate
-npm.cmd run neon:seed
 npm.cmd run neon:test:isolation
 npm.cmd run neon:types
 ```
@@ -54,21 +55,22 @@ npm.cmd run neon:types
 - `drizzle/0000_*` adalah baseline hasil introspeksi dan sengaja tidak
   diterapkan ulang. Migration runner mulai menerapkan migration Drizzle dari
   `0001_*`.
-- Seed development berada di `db/seeds`.
+- Seed dummy berada di `db/seeds`, tetapi `npm.cmd run neon:seed` diblokir pada
+  production kecuali operator set `NEON_ALLOW_PRODUCTION_SEED=1` secara sadar.
 - SQL test berada di `db/tests`.
 - Types hasil introspeksi berada di `src/generated/neon/database.ts`.
 
 ## Provisioning akun role
 
-Setelah migration dan seed selesai, buat satu akun Neon Auth untuk setiap role
+Setelah migration selesai, buat satu akun Neon Auth untuk setiap role
 sistem:
 
 ```powershell
 npm.cmd run neon:provision:roles
 ```
 
-Pada development script berjalan tanpa flag tambahan. Pada production, operator
-wajib memberikan guard eksplisit berikut setelah memastikan organisasi tujuan:
+Karena workspace diarahkan ke production, operator wajib memberikan guard
+eksplisit berikut setelah memastikan organisasi tujuan:
 
 ```powershell
 $env:NEON_ALLOW_PRODUCTION_ROLE_PROVISION="1"
@@ -113,15 +115,13 @@ variabel `VITE_*`.
 Reset bersifat destruktif dan diblokir secara default.
 
 ```powershell
-$env:NEON_ALLOW_RESET="1"
 npm.cmd run neon:reset
 npm.cmd run neon:migrate
-npm.cmd run neon:seed
 ```
 
-Branch `production` tetap diblokir kecuali `NEON_ALLOW_PRODUCTION_RESET=1`
-diset secara eksplisit. Hindari ini kecuali dalam prosedur recovery yang sudah
-disetujui.
+Branch `production` diblokir kecuali `NEON_ALLOW_RESET=1` dan
+`NEON_ALLOW_PRODUCTION_RESET=1` diset secara eksplisit. Hindari ini kecuali
+dalam prosedur recovery yang sudah disetujui.
 
 ## Catatan keamanan
 

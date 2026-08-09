@@ -83,6 +83,12 @@ export interface Database {
       case_assessments: {
         Row: CaseAssessmentsRow;
       };
+      complaints: {
+        Row: ComplaintsRow;
+      };
+      corrective_actions: {
+        Row: CorrectiveActionsRow;
+      };
       crm_beneficiary_profiles: {
         Row: CrmBeneficiaryProfilesRow;
       };
@@ -178,6 +184,12 @@ export interface Database {
       };
       goods_receipts: {
         Row: GoodsReceiptsRow;
+      };
+      governance_events: {
+        Row: GovernanceEventsRow;
+      };
+      governance_incidents: {
+        Row: GovernanceIncidentsRow;
       };
       inventory_adjustment_requests: {
         Row: InventoryAdjustmentRequestsRow;
@@ -293,6 +305,9 @@ export interface Database {
       purchase_orders: {
         Row: PurchaseOrdersRow;
       };
+      risk_flags: {
+        Row: RiskFlagsRow;
+      };
       role_permissions: {
         Row: RolePermissionsRow;
       };
@@ -301,6 +316,36 @@ export interface Database {
       };
       vendor_invoices: {
         Row: VendorInvoicesRow;
+      };
+      waqf_assets: {
+        Row: WaqfAssetsRow;
+      };
+      waqf_benefit_distributions: {
+        Row: WaqfBenefitDistributionsRow;
+      };
+      waqf_events: {
+        Row: WaqfEventsRow;
+      };
+      waqf_idempotency_records: {
+        Row: WaqfIdempotencyRecordsRow;
+      };
+      waqf_income_records: {
+        Row: WaqfIncomeRecordsRow;
+      };
+      waqf_legal_documents: {
+        Row: WaqfLegalDocumentsRow;
+      };
+      waqf_maintenance_records: {
+        Row: WaqfMaintenanceRecordsRow;
+      };
+      waqf_nazhir_assignments: {
+        Row: WaqfNazhirAssignmentsRow;
+      };
+      waqf_utilizations: {
+        Row: WaqfUtilizationsRow;
+      };
+      waqf_valuations: {
+        Row: WaqfValuationsRow;
       };
     };
   };
@@ -711,6 +756,52 @@ export interface CaseAssessmentsRow {
   reviewed_at: string | null;
   created_by: string | null;
   updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ComplaintsRow {
+  id: string;
+  organization_id: string;
+  reference_number: string;
+  channel: string;
+  category: string;
+  classification: string;
+  complainant_contact_id: string | null;
+  is_anonymous: boolean;
+  title: string;
+  description: string;
+  received_at: string;
+  recorded_by: string;
+  assigned_to: string | null;
+  status: string;
+  response_due_at: string;
+  resolution_due_at: string;
+  resolution_notes: string | null;
+  resolved_by: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CorrectiveActionsRow {
+  id: string;
+  organization_id: string;
+  reference_number: string;
+  source_type: string;
+  source_id: string;
+  title: string;
+  description: string;
+  owner_profile_id: string;
+  due_at: string;
+  status: string;
+  completion_notes: string | null;
+  completed_by: string | null;
+  completed_at: string | null;
+  effectiveness_notes: string | null;
+  verified_by: string | null;
+  verified_at: string | null;
+  created_by: string;
   created_at: string;
   updated_at: string;
 }
@@ -1236,6 +1327,40 @@ export interface GoodsReceiptsRow {
   received_at: string;
   received_by: string;
   created_at: string;
+}
+
+export interface GovernanceEventsRow {
+  id: string;
+  organization_id: string;
+  entity_type: string;
+  entity_id: string;
+  event_type: string;
+  event_data: unknown | null;
+  actor_profile_id: string;
+  request_id: string;
+  created_at: string;
+}
+
+export interface GovernanceIncidentsRow {
+  id: string;
+  organization_id: string;
+  reference_number: string;
+  category: string;
+  severity: string;
+  title: string;
+  description: string;
+  occurred_at: string;
+  reported_by: string;
+  owner_profile_id: string | null;
+  status: string;
+  response_due_at: string;
+  resolution_due_at: string;
+  containment_notes: string | null;
+  resolution_notes: string | null;
+  resolved_by: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface InventoryAdjustmentRequestsRow {
@@ -1814,6 +1939,30 @@ export interface PurchaseOrdersRow {
   updated_at: string;
 }
 
+export interface RiskFlagsRow {
+  id: string;
+  organization_id: string;
+  reference_number: string;
+  subject_type: string;
+  subject_id: string | null;
+  risk_type: string;
+  severity: string;
+  source: string;
+  title: string;
+  description: string;
+  status: string;
+  owner_profile_id: string | null;
+  response_due_at: string;
+  resolution_due_at: string;
+  resolution_notes: string | null;
+  resolved_by: string | null;
+  resolved_at: string | null;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface RolePermissionsRow {
   id: string;
   organization_id: string | null;
@@ -1846,6 +1995,169 @@ export interface VendorInvoicesRow {
   currency: string;
   payment_reference: string | null;
   status: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface WaqfAssetsRow {
+  id: string;
+  organization_id: string;
+  reference_number: string;
+  asset_type: string;
+  name: string;
+  description: string;
+  donor_contact_id: string | null;
+  acquisition_date: string | null;
+  acquisition_value: string | null;
+  currency: unknown;
+  location_text: string | null;
+  legal_status: string;
+  operational_status: string;
+  registration_notes: string | null;
+  registered_by: string | null;
+  registered_at: string | null;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WaqfBenefitDistributionsRow {
+  id: string;
+  organization_id: string;
+  asset_id: string;
+  income_record_id: string | null;
+  beneficiary_contact_id: string | null;
+  program_id: string | null;
+  distribution_reference: string;
+  amount: string;
+  currency: unknown;
+  distributed_at: string;
+  benefit_type: string;
+  notes: string;
+  status: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface WaqfEventsRow {
+  id: string;
+  organization_id: string;
+  entity_type: string;
+  entity_id: string;
+  event_type: string;
+  event_data: unknown | null;
+  created_by: string;
+  created_at: string;
+}
+
+export interface WaqfIdempotencyRecordsRow {
+  id: string;
+  organization_id: string;
+  idempotency_key: string;
+  command_type: string;
+  request_hash: string;
+  status: string;
+  response_snapshot: unknown | null;
+  created_by: string;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export interface WaqfIncomeRecordsRow {
+  id: string;
+  organization_id: string;
+  asset_id: string;
+  utilization_id: string | null;
+  income_reference: string;
+  income_type: string;
+  amount: string;
+  currency: unknown;
+  received_at: string;
+  payer_contact_id: string | null;
+  notes: string;
+  status: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface WaqfLegalDocumentsRow {
+  id: string;
+  organization_id: string;
+  asset_id: string;
+  document_type: string;
+  document_number: string;
+  issuer: string | null;
+  issued_at: string | null;
+  verification_status: string;
+  verification_notes: string | null;
+  evidence_file_id: string | null;
+  created_by: string;
+  verified_by: string | null;
+  verified_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WaqfMaintenanceRecordsRow {
+  id: string;
+  organization_id: string;
+  asset_id: string;
+  maintenance_type: string;
+  occurred_at: string;
+  amount: string;
+  currency: unknown;
+  vendor_contact_id: string | null;
+  description: string;
+  status: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface WaqfNazhirAssignmentsRow {
+  id: string;
+  organization_id: string;
+  asset_id: string;
+  contact_id: string;
+  assignment_scope: string;
+  start_date: string;
+  end_date: string | null;
+  status: string;
+  created_by: string;
+  ended_by: string | null;
+  ended_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WaqfUtilizationsRow {
+  id: string;
+  organization_id: string;
+  asset_id: string;
+  utilization_type: string;
+  beneficiary_contact_id: string | null;
+  program_id: string | null;
+  start_date: string;
+  end_date: string | null;
+  expected_benefit: string;
+  status: string;
+  created_by: string;
+  completed_by: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WaqfValuationsRow {
+  id: string;
+  organization_id: string;
+  asset_id: string;
+  valuation_date: string;
+  amount: string;
+  currency: unknown;
+  method: string;
+  appraiser: string | null;
+  notes: string;
   created_by: string;
   created_at: string;
 }

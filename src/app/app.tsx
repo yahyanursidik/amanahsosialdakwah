@@ -24,6 +24,47 @@ export function App() {
         }}
         resources={[
           {
+            name: "risk_flags",
+            list: "/governance",
+            create: "/governance/new/risk",
+            meta: { label: "Risk Flags" },
+          },
+          {
+            name: "governance_incidents",
+            list: "/governance",
+            create: "/governance/new/incident",
+            meta: { label: "Insiden Tata Kelola" },
+          },
+          {
+            name: "complaints",
+            list: "/governance",
+            create: "/governance/new/complaint",
+            meta: { label: "Pengaduan" },
+          },
+          {
+            name: "corrective_actions",
+            list: "/governance",
+            create: "/governance/new/corrective-action",
+            meta: { label: "Corrective Actions" },
+          },
+          {
+            name: "audit_events",
+            list: "/governance",
+            meta: { label: "Audit Trail" },
+          },
+          {
+            name: "reports",
+            list: "/reports",
+            meta: { label: "Laporan & Dashboard" },
+          },
+          {
+            name: "waqf_assets",
+            list: "/waqf",
+            create: "/waqf/assets/new",
+            show: "/waqf/assets/:id",
+            meta: { label: "Aset Wakaf" },
+          },
+          {
             name: "kafalah_needs",
             list: "/kafalah",
             create: "/kafalah/needs/new",

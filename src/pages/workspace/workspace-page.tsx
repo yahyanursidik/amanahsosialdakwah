@@ -14,6 +14,7 @@ import { Link } from "react-router";
 import { CanAccess } from "@/components/access-control/can-access";
 import { StatusBadge } from "@/components/design-system";
 import { useOrganization } from "@/features/organizations/organization-context";
+import { WorkspaceReportSummary } from "@/features/reports/workspace-report-summary";
 
 const primaryActions = [
   {
@@ -107,6 +108,10 @@ export function WorkspacePage() {
           <StatusBadge tone="success">Aktif</StatusBadge>
         </div>
       </header>
+
+      <CanAccess action="read" resource="reports">
+        <WorkspaceReportSummary />
+      </CanAccess>
 
       <section className="workspace-actions" aria-labelledby="quick-actions-title">
         <div className="workspace-section-heading">

@@ -69,7 +69,7 @@ dipakai modul berikutnya.
 
 - `drizzle/0001_applications_cases.sql`;
 - `drizzle/0002_harden_application_case_audit_policies.sql`;
-- Neon branch `dev-neon-foundation`;
+- branch uji Neon lama;
 - kedua migration diterapkan dan SQL isolation test lulus.
 
 **Security impact**
@@ -141,7 +141,7 @@ dan review independen.
 **Migration**
 
 - ketiga migration Assessment Engine diterapkan;
-- Neon branch `dev-neon-foundation`;
+- branch uji Neon lama;
 - seed permission diterapkan;
 - TypeScript database types diperbarui untuk 37 tabel;
 - tiga SQL isolation test lulus.
@@ -202,14 +202,14 @@ sistem.
   permission-aware;
 - provisioning idempotent Neon Auth untuk owner, admin, field officer, dan
   auditor;
-- seluruh akun diikat ke membership aktif organisasi `IHSANUL-ADAB-DEV` dan
+- seluruh akun diikat ke membership aktif organisasi `IHSANUL-ADAB` dan
   login password diverifikasi.
 
 **Migration**
 
 - `drizzle/0006_wealthy_madame_web.sql`;
 - `drizzle/0007_dusty_sauron.sql`;
-- Neon branch `dev-neon-foundation`;
+- branch uji Neon lama;
 - migration diterapkan dan empat SQL isolation test lulus.
 
 **Security impact**
@@ -263,7 +263,7 @@ npm run neon:test:isolation → 4 SQL tests pass
   dan concurrency test;
 - menerapkan migration `drizzle/0008_magenta_boomer.sql`, sinkronisasi policy
   `drizzle/0009_lyrical_mongoose.sql`, dan hardening least-privilege
-  `drizzle/0010_optimal_sebastian_shaw.sql` pada branch Neon development,
+  `drizzle/0010_optimal_sebastian_shaw.sql`,
   menjalankan seed, dan meregenerasi types.
 
 **Decisions**
@@ -305,8 +305,8 @@ npm run neon:test:isolation → 4 SQL tests pass
 - menambahkan list, create, dan detail workflow berbasis Refine dengan action
   permission-aware;
 - menambahkan unit test aturan/status dan SQL tenant isolation;
-- menerapkan `drizzle/0011_magenta_morlocks.sql` pada branch
-  `dev-neon-foundation`, menjalankan seed, dan memperbarui types untuk 60 tabel.
+- menerapkan `drizzle/0011_magenta_morlocks.sql`, menjalankan seed, dan
+  memperbarui types untuk 60 tabel.
 
 **Decisions**
 
@@ -553,8 +553,8 @@ npm run neon:test:isolation → 4 SQL tests pass
   tidak diduplikasi;
 - menambahkan RLS eksplisit, composite tenant foreign key, no hard delete,
   append-only financial records, maker-checker, audit, dan permission granular;
-- menerapkan migration pada branch Neon development `dev-kafalah-20260802` dan
-  memperbarui generated types menjadi 99 tabel;
+- menerapkan migration pada Neon dan memperbarui generated types menjadi 99
+  tabel;
 - menambahkan unit test domain/schema, SQL tenant isolation, dan concurrency
   test untuk reservasi matching.
 
@@ -571,8 +571,8 @@ npm run neon:test:isolation → 4 SQL tests pass
 
 - object storage Evidence belum dikonfigurasi sehingga lampiran kontrak,
   pembayaran, dan monitoring belum dapat diunggah end-to-end;
-- migration belum dipromosikan ke production dan wajib melalui rehearsal serta
-  persetujuan deployment;
+- target aktif kini disederhanakan ke branch Neon `production`; perubahan
+  berikutnya wajib mengikuti guard production;
 - completion otomatis kontrak setelah seluruh jadwal tersalurkan belum
   diaktifkan.
 
@@ -580,3 +580,101 @@ npm run neon:test:isolation → 4 SQL tests pass
 
 - fase 19 Wakaf setelah acceptance test Kafalah dan konfigurasi Evidence
   production selesai.
+
+## 2026-08-09 — Fase 19 Wakaf
+
+**Completed**
+
+- menambahkan migration `drizzle/0022_waqf_vertical_slice.sql` untuk aset,
+  dokumen legal, nazhir, valuasi, pemanfaatan, maintenance, income, benefit
+  distribution, event, idempotency, permission, RLS, dan trigger append-only;
+- menambahkan Hono REST `/api/v1/waqf` dengan command registrasi, verifikasi
+  dokumen, pencatatan valuasi, pemanfaatan, maintenance, income, dan manfaat;
+- menambahkan UI Refine untuk daftar, create, dan detail aset wakaf;
+- menambahkan unit test rules/schema dan SQL tenant isolation test.
+
+**Decisions**
+
+- metadata dokumen legal dibuat siap Evidence Service, tetapi tidak memaksa S3
+  sampai credential dan bucket production tersedia;
+- contact master aktif dipakai sebagai kandidat wakif/nazhir tanpa mengubah
+  constraint role CRM lama;
+- distribusi manfaat yang ditautkan ke income dikunci agar tidak melampaui
+  pendapatan sumbernya.
+
+**Known limitations**
+
+- upload/download binary dokumen wakaf menunggu konfigurasi S3 production;
+- integrasi income/manfaat wakaf ke ledger dana belum otomatis;
+- laporan wakaf lintas periode masuk fase Reports.
+
+**Next recommended task**
+
+- terapkan migration production secara sadar, generate types, lalu lanjut
+  Reports/Dashboard atau hardening CRM/Program ke Hono service pattern.
+
+## 2026-08-09 — Fase 20 Reports and Dashboard
+
+**Completed**
+
+- menambahkan permission `reports.read` untuk owner, admin, dan auditor;
+- menambahkan endpoint laporan organisasi dengan rentang 30/90/365 hari;
+- menambahkan laporan program, arus dana per mata uang, inventory, distribusi,
+  kafalah, wakaf, dan antrean tindakan lintas modul;
+- menambahkan halaman laporan, navigasi permission-aware, dan ringkasan dinamis
+  pada workspace;
+- menambahkan indeks reporting, unit test range/schema, dan SQL tenant
+  isolation.
+
+**Decisions**
+
+- agregat dihitung server-side dan tetap memakai transaction-local RLS;
+- `reports.read` tidak melewati permission sumber: bagian tanpa izin baca tidak
+  dihitung atau dikirim;
+- tidak ada nilai uang yang dijumlahkan lintas mata uang;
+- field officer tidak menerima laporan organisasi secara default;
+- S3 tidak diaktifkan dalam fase ini sesuai keputusan konfigurasi berikutnya.
+
+**Migration**
+
+- `drizzle/0023_reports_dashboard.sql`;
+- migration aditif diterapkan ke Neon branch `production` tanpa reset atau seed.
+
+**Known limitations**
+
+- export, scheduled report, configurable SLA, dan agregat historis belum ada;
+- Fase 21 Audit and Risk menjadi pekerjaan berikutnya.
+
+**Next recommended task**
+
+- fase 21 Audit and Risk.
+
+## 2026-08-09 — Fase 21 Audit and Risk
+
+**Completed**
+
+- menambahkan risk flag, insiden tata kelola, pengaduan, corrective action,
+  governance event, SLA, dan audit trail UI;
+- menambahkan command create dan transition dengan Zod, permission,
+  transaction-local RLS, maker-checker, serta audit event;
+- mengamankan pengaduan restricted dan menghilangkan uraian/identitas dari
+  response daftar;
+- menambahkan state-machine database trigger, no-hard-delete policy, indeks,
+  unit test, API protection test, dan SQL tenant isolation.
+
+**Decisions**
+
+- insiden logistik tetap berada pada bounded context Logistics; insiden fase 21
+  menangani risiko tata kelola lintas modul;
+- SLA awal berbasis severity dan dihitung server-side;
+- pelapor tidak boleh menutup laporan sendiri;
+- corrective action memerlukan verifikator berbeda dari pelaksana;
+- file lampiran tetap menunggu S3 production.
+
+**Migration**
+
+- `drizzle/0024_audit_risk.sql`.
+
+**Next recommended task**
+
+- fase 22 Production Hardening.

@@ -422,6 +422,194 @@
     color: var(--color-muted);
   }
 
+  .workspace-report,
+  .report-money-grid article,
+  .report-metric {
+    border: var(--rule-thin) solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-paper);
+  }
+
+  .workspace-report {
+    display: grid;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+  }
+
+  .workspace-section-heading > a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    color: var(--color-accent);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .workspace-report__metrics,
+  .report-metric-grid,
+  .report-money-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--space-sm);
+  }
+
+  .workspace-report__metrics article,
+  .report-metric {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-xs);
+    min-width: 0;
+    padding: var(--space-md);
+    background: var(--color-paper-2);
+  }
+
+  .workspace-report__metrics svg,
+  .report-metric svg,
+  .report-money-grid svg {
+    color: var(--color-accent);
+  }
+
+  .workspace-report__metrics span,
+  .report-metric span,
+  .report-money-grid > article > span {
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+    font-weight: 700;
+  }
+
+  .workspace-report__metrics strong,
+  .report-metric strong {
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+  }
+
+  .workspace-report__attention small {
+    grid-column: 2 / -1;
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+  }
+
+  .report-range {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .report-money-grid article {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-xs) var(--space-sm);
+    padding: var(--space-lg);
+  }
+
+  .report-money-list {
+    display: grid;
+    grid-column: 1 / -1;
+    gap: var(--space-2xs);
+    font-size: var(--text-lg);
+  }
+
+  .report-empty-value {
+    grid-column: 1 / -1;
+    color: var(--color-muted);
+  }
+
+  .report-action-list {
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  .report-action-list a {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    border: var(--rule-thin) solid var(--color-rule);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+
+  .report-action-list a:hover {
+    background: var(--color-paper-2);
+  }
+
+  .report-action-list > a > svg:first-child {
+    color: var(--color-warning, var(--color-accent));
+  }
+
+  .report-action-list span,
+  .report-table-note {
+    display: grid;
+    min-width: 0;
+  }
+
+  .report-action-list small,
+  .report-table-note,
+  .report-generated-at {
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+  }
+
+  .report-clear-state {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border-radius: var(--radius-sm);
+    background: var(--color-success-paper);
+  }
+
+  .report-clear-state > svg {
+    color: var(--color-success);
+  }
+
+  .governance-transition {
+    position: relative;
+  }
+
+  .governance-transition summary {
+    cursor: pointer;
+    color: var(--color-accent);
+    font-size: var(--text-xs);
+    font-weight: 700;
+  }
+
+  .governance-transition form {
+    position: absolute;
+    z-index: var(--z-dropdown);
+    inset-inline-end: 0;
+    display: grid;
+    width: min(20rem, 80vw);
+    gap: var(--space-xs);
+    padding: var(--space-sm);
+    border: var(--rule-thin) solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-paper);
+    box-shadow: 0 1rem 2rem color-mix(in oklch, var(--color-ink) 12%, transparent);
+  }
+
+  .governance-transition select,
+  .governance-transition textarea {
+    width: 100%;
+    padding: var(--space-xs);
+    border: var(--rule-thin) solid var(--color-rule-strong);
+    border-radius: var(--radius-sm);
+    background: var(--color-paper);
+  }
+
+  .governance-check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 2.75rem;
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+
   .access-state {
     display: grid;
     gap: var(--space-xs);
