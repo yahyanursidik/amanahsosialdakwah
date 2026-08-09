@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { withTenantTransaction } from "../db/client";
 import {
   assertEvidenceFile,
@@ -171,7 +173,7 @@ export async function createEvidenceUploadIntent(
       [input.entity_id, context.organizationId],
     );
     if (!entity.rows[0]) notFound("Entitas tujuan bukti tidak ditemukan.");
-    let logicalFileId: string = crypto.randomUUID();
+    let logicalFileId: string = randomUUID();
     let version = 1;
     let previousId: string | null = null;
     if (input.previous_file_id) {
@@ -201,7 +203,7 @@ export async function createEvidenceUploadIntent(
       version = record.version + 1;
       previousId = input.previous_file_id;
     }
-    const fileId = crypto.randomUUID();
+    const fileId = randomUUID();
     const objectKey = evidenceObjectKey({
       classification: input.classification,
       entityId: input.entity_id,

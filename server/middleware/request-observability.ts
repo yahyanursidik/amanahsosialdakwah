@@ -1,3 +1,6 @@
+import { randomUUID } from "node:crypto";
+import { performance } from "node:perf_hooks";
+
 import type { MiddlewareHandler } from "hono";
 
 import type { AppEnv } from "../types";
@@ -6,7 +9,7 @@ const requestIdPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function resolveRequestId(value: string | undefined): string {
-  return value && requestIdPattern.test(value) ? value : crypto.randomUUID();
+  return value && requestIdPattern.test(value) ? value : randomUUID();
 }
 
 export const requestObservabilityMiddleware: MiddlewareHandler<AppEnv> = async (

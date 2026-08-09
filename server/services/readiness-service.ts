@@ -1,3 +1,5 @@
+import { performance } from "node:perf_hooks";
+
 import type { Pool } from "@neondatabase/serverless";
 
 import { getDatabasePool } from "../db/client";
