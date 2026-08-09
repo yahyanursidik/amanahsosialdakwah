@@ -365,19 +365,39 @@ export async function readJsonBody(request) {
   return raw ? JSON.parse(raw) : {};
 }
 
-export async function readRawBody(request) {
+export async function readRawBody(
+  request,
+  maxBytes = Number.POSITIVE_INFINITY,
+) {
+  const assertWithinLimit = (body) => {
+    if (Buffer.byteLength(body) > maxBytes) {
+      const error = new Error("Ukuran permintaan melebihi batas.");
+      error.statusCode = 413;
+      throw error;
+    }
+    return body;
+  };
+
   if (typeof request.body === "string" || Buffer.isBuffer(request.body)) {
-    return request.body;
+    return assertWithinLimit(request.body);
   }
 
   if (request.body && typeof request.body === "object") {
-    return JSON.stringify(request.body);
+    return assertWithinLimit(JSON.stringify(request.body));
   }
 
   const chunks = [];
+  let totalBytes = 0;
 
   for await (const chunk of request) {
-    chunks.push(chunk);
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    totalBytes += buffer.length;
+    if (totalBytes > maxBytes) {
+      const error = new Error("Ukuran permintaan melebihi batas.");
+      error.statusCode = 413;
+      throw error;
+    }
+    chunks.push(buffer);
   }
 
   return Buffer.concat(chunks);
@@ -514,9 +534,10 @@ export async function withRuntimeContext(profileId, organizationId, callback) {
 
   try {
     await client.query("begin");
-    await client.query("select set_config('app.current_profile_id', $1, true)", [
-      profileId,
-    ]);
+    await client.query(
+      "select set_config('app.current_profile_id', $1, true)",
+      [profileId],
+    );
     await client.query(
       "select set_config('app.current_organization_id', $1, true)",
       [organizationId ?? ""],

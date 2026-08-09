@@ -13,25 +13,32 @@ describe("Hono API foundation", () => {
     vi.unstubAllEnvs();
   });
 
-  it(
-    "mengembalikan health envelope dan request ID",
-    async () => {
-      const { app } = await import("./app");
-      const response = await app.request("http://localhost/api/v1/health");
-      const payload = (await response.json()) as {
-        data: { status: string };
-        meta: { requestId: string };
-      };
+  it("mengembalikan health envelope dan request ID", async () => {
+    const { app } = await import("./app");
+    const response = await app.request("http://localhost/api/v1/health");
+    const payload = (await response.json()) as {
+      data: { status: string };
+      meta: { requestId: string };
+    };
 
-      expect(response.status).toBe(200);
-      expect(payload.data.status).toBe("ok");
-      expect(payload.meta.requestId).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-      );
-      expect(response.headers.get("x-request-id")).toBe(payload.meta.requestId);
-    },
-    15_000,
-  );
+    expect(response.status).toBe(200);
+    expect(payload.data.status).toBe("ok");
+    expect(payload.meta.requestId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    );
+    expect(response.headers.get("x-request-id")).toBe(payload.meta.requestId);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+  }, 15_000);
+
+  it("meneruskan request ID UUID untuk korelasi log", async () => {
+    const { app } = await import("./app");
+    const requestId = "a30a7117-bb01-4d5e-82f8-0db2137bb330";
+    const response = await app.request("http://localhost/api/v1/health", {
+      headers: { "x-request-id": requestId },
+    });
+
+    expect(response.headers.get("x-request-id")).toBe(requestId);
+  });
 
   it("mengembalikan error envelope konsisten untuk endpoint asing", async () => {
     const { app } = await import("./app");
@@ -47,9 +54,7 @@ describe("Hono API foundation", () => {
 
   it("melindungi endpoint asesmen dengan konteks organisasi server-side", async () => {
     const { app } = await import("./app");
-    const response = await app.request(
-      "http://localhost/api/v1/assessments",
-    );
+    const response = await app.request("http://localhost/api/v1/assessments");
     const payload = (await response.json()) as {
       error: { code: string; requestId: string };
     };

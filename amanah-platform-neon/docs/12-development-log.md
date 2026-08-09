@@ -678,3 +678,46 @@ npm run neon:test:isolation → 4 SQL tests pass
 **Next recommended task**
 
 - fase 22 Production Hardening.
+
+## 2026-08-09 â€” Fase 22 Production Hardening
+
+**Completed**
+
+- memecah seluruh halaman menjadi route-level lazy chunks; initial JavaScript
+  production turun dari sekitar 946,56 kB menjadi 468,10 kB;
+- menambahkan health dan database readiness probe yang tidak membaca data
+  tenant;
+- menambahkan request ID tervalidasi, structured request log tanpa PII, API
+  no-store, body limit auth, dan error auth proxy yang aman;
+- menambahkan security headers Vercel dan immutable cache untuk hashed assets;
+- menambahkan migration status verifier serta smoke test deployment;
+- memperbarui Hono dan dependency transitive untuk menutup seluruh advisori
+  production yang terdeteksi oleh `npm audit`.
+
+**Decisions**
+
+- rate limiting terdistribusi ditempatkan di Vercel Firewall; limiter
+  in-memory tidak konsisten pada serverless dan Postgres tidak dijadikan
+  counter untuk setiap request;
+- readiness hanya menjalankan `select 1`, sedangkan health tetap bebas
+  dependency agar liveness dan readiness dapat dibedakan;
+- S3 tetap tidak dikonfigurasi sesuai keputusan pengguna.
+
+**Database**
+
+- tidak ada migration baru;
+- verifier memastikan 29 migration repository telah ada pada Neon
+  `production`;
+- seluruh 16 suite SQL tenant isolation lulus.
+
+**Known limitations**
+
+- aturan rate limit Vercel Firewall masih memerlukan konfigurasi operator;
+- smoke production baru dapat dijalankan setelah perubahan ini dideploy;
+- latihan recovery/PITR harus dilakukan melalui Neon Console sesuai retention
+  paket dan tidak boleh memakai reset production.
+
+**Next recommended task**
+
+- deploy branch hardening, jalankan smoke production, aktifkan rate limit
+  Vercel, lalu lakukan acceptance/UAT lintas role sebelum go-live.

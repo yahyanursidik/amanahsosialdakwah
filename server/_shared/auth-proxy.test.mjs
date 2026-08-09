@@ -74,6 +74,8 @@ describe("handleAuthProxy", () => {
       origin: "https://amanahsosialdakwah.vercel.app",
     });
     expect(response.statusCode).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+    expect(response.headers.get("x-request-id")).toMatch(/^[0-9a-f-]{36}$/i);
     expect(response.headers.get("set-cookie")).toEqual(
       expect.arrayContaining([expect.stringContaining("session=secure")]),
     );
@@ -87,6 +89,29 @@ describe("handleAuthProxy", () => {
     await handleAuthProxy({ method: "GET", query: {}, headers: {} }, response);
 
     expect(response.statusCode).toBe(500);
-    expect(response.body).toContain("NEON_AUTH_BASE_URL");
+    expect(JSON.parse(response.body).error.code).toBe(
+      "AUTH_CONFIGURATION_ERROR",
+    );
+  });
+
+  it("menolak body auth yang melebihi 64 KiB", async () => {
+    process.env.NEON_AUTH_BASE_URL = "https://auth.example.test/api/auth";
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const response = createResponse();
+
+    await handleAuthProxy(
+      {
+        method: "POST",
+        query: { path: "sign-in/email" },
+        headers: {},
+        body: "x".repeat(64 * 1024 + 1),
+      },
+      response,
+    );
+
+    expect(response.statusCode).toBe(413);
+    expect(JSON.parse(response.body).error.code).toBe("REQUEST_TOO_LARGE");
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
