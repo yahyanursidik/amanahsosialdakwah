@@ -1,6 +1,13 @@
-import { listSqlFiles, readWorkspaceFile, runSqlText } from "./shared.mjs";
+import {
+  assertSeedIsAllowed,
+  listSqlFiles,
+  readWorkspaceFile,
+  runSqlText,
+} from "./shared.mjs";
 
 const seeds = listSqlFiles("db/seeds");
+
+assertSeedIsAllowed();
 
 if (seeds.length === 0) {
   console.log("Tidak ada seed SQL pada db/seeds.");

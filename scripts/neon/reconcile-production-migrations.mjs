@@ -135,6 +135,21 @@ const baseline = [
       "procurement_idempotency_records",
     ],
   },
+  {
+    version: "drizzle/0021_kafalah.sql",
+    tables: [
+      "kafalah_needs",
+      "kafalah_matches",
+      "kafalah_contracts",
+      "kafalah_schedules",
+      "kafalah_payments",
+      "kafalah_distributions",
+      "kafalah_monitoring_reports",
+      "kafalah_renewals",
+      "kafalah_events",
+      "kafalah_idempotency_records",
+    ],
+  },
 ];
 
 const pool = createPool({ direct: true });

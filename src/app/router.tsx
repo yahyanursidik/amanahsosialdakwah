@@ -34,6 +34,8 @@ import { ContactListPage } from "@/pages/crm/contact-list-page";
 import { InstitutionProfilePage } from "@/pages/crm/institution-profile-page";
 import { TagListPage } from "@/pages/crm/tag-list-page";
 import { ForgotPasswordPage } from "@/pages/forgot-password/forgot-password-page";
+import { GovernanceCreatePage } from "@/pages/governance/governance-create-page";
+import { GovernancePage } from "@/pages/governance/governance-page";
 import { DistributionCreatePage } from "@/pages/distributions/distribution-create-page";
 import { DistributionDetailPage } from "@/pages/distributions/distribution-detail-page";
 import { DistributionListPage } from "@/pages/distributions/distribution-list-page";
@@ -62,8 +64,12 @@ import { ProgramShowPage } from "@/pages/programs/program-show-page";
 import { ProcurementCreatePage } from "@/pages/procurement/procurement-create-page";
 import { ProcurementDetailPage } from "@/pages/procurement/procurement-detail-page";
 import { ProcurementListPage } from "@/pages/procurement/procurement-list-page";
+import { ReportsPage } from "@/pages/reports/reports-page";
 import { UnauthorizedPage } from "@/pages/unauthorized/unauthorized-page";
 import { UpdatePasswordPage } from "@/pages/update-password/update-password-page";
+import { WaqfCreatePage } from "@/pages/waqf/waqf-create-page";
+import { WaqfDetailPage } from "@/pages/waqf/waqf-detail-page";
+import { WaqfListPage } from "@/pages/waqf/waqf-list-page";
 import { FoundationResourcePage } from "@/pages/workspace/foundation-resource-page";
 import { WorkspacePage } from "@/pages/workspace/workspace-page";
 
@@ -94,6 +100,28 @@ export function AppRouter() {
         <Route element={<OrganizationGuard />}>
           <Route element={<AppLayout />}>
             <Route index element={<WorkspacePage />} />
+            <Route
+              element={<ProtectedRoute action="read" resource="risk_flags" />}
+            >
+              <Route path="/governance" element={<GovernancePage />} />
+            </Route>
+            <Route element={<ProtectedRoute action="manage" resource="risk_flags" />}>
+              <Route path="/governance/new/risk" element={<GovernanceCreatePage kind="risk" />} />
+            </Route>
+            <Route element={<ProtectedRoute action="report" resource="governance_incidents" />}>
+              <Route path="/governance/new/incident" element={<GovernanceCreatePage kind="incident" />} />
+            </Route>
+            <Route element={<ProtectedRoute action="record" resource="complaints" />}>
+              <Route path="/governance/new/complaint" element={<GovernanceCreatePage kind="complaint" />} />
+            </Route>
+            <Route element={<ProtectedRoute action="manage" resource="corrective_actions" />}>
+              <Route path="/governance/new/corrective-action" element={<GovernanceCreatePage kind="corrective-action" />} />
+            </Route>
+            <Route
+              element={<ProtectedRoute action="read" resource="reports" />}
+            >
+              <Route path="/reports" element={<ReportsPage />} />
+            </Route>
             <Route
               element={
                 <ProtectedRoute action="read" resource="organizations" />
@@ -241,6 +269,17 @@ export function AppRouter() {
                 path="/kafalah/contracts/new"
                 element={<KafalahCreatePage kind="contract" />}
               />
+            </Route>
+            <Route element={<ProtectedRoute action="read" resource="waqf" />}>
+              <Route path="/waqf" element={<WaqfListPage />} />
+              <Route path="/waqf/assets/:id" element={<WaqfDetailPage />} />
+            </Route>
+            <Route
+              element={
+                <ProtectedRoute action="manage" resource="waqf_assets" />
+              }
+            >
+              <Route path="/waqf/assets/new" element={<WaqfCreatePage />} />
             </Route>
             <Route
               element={

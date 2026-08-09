@@ -42,6 +42,7 @@ type RestEnvelope<TData> = {
 };
 
 const restResourcePaths = new Map([
+  ["audit_events", "governance/audit-events"],
   ["aid_package_packings", "aid-packages/packings"],
   ["aid_package_templates", "aid-packages/templates"],
   ["fund_allocations", "funds/allocations"],
@@ -51,12 +52,15 @@ const restResourcePaths = new Map([
   ["fund_reconciliations", "funds/reconciliations"],
   ["fund_restrictions", "funds/restrictions"],
   ["distributions", "distributions"],
+  ["complaints", "governance/complaints"],
+  ["corrective_actions", "governance/corrective-actions"],
   ["evidence_files", "evidence/files"],
   ["inventory_adjustments", "inventory/adjustments"],
   ["inventory_balances", "inventory/balances"],
   ["inventory_movements", "inventory/movements"],
   ["inventory_products", "inventory/products"],
   ["inventory_warehouses", "inventory/warehouses"],
+  ["governance_incidents", "governance/incidents"],
   ["kafalah_beneficiaries", "kafalah/beneficiaries"],
   ["kafalah_contracts", "kafalah/contracts"],
   ["kafalah_matches", "kafalah/matches"],
@@ -65,6 +69,9 @@ const restResourcePaths = new Map([
   ["logistics_couriers", "logistics/couriers"],
   ["logistics_shipments", "logistics/shipments"],
   ["procurement", "procurement"],
+  ["risk_flags", "governance/risks"],
+  ["waqf_assets", "waqf/assets"],
+  ["waqf_contacts", "waqf/contacts"],
 ]);
 const restResources = new Set([
   "aid_package_packings",
@@ -90,6 +97,8 @@ const restResources = new Set([
   "logistics_couriers",
   "logistics_shipments",
   "procurement",
+  "waqf_assets",
+  "waqf_contacts",
   ...restResourcePaths.keys(),
 ]);
 

@@ -74,12 +74,11 @@ RLS tetap menjadi defense in depth.
 - Feature: `drizzle/0001_applications_cases.sql`.
 - Policy hardening:
   `drizzle/0002_harden_application_case_audit_policies.sql`.
-- Branch uji: `dev-neon-foundation`.
+- Target database saat ini: branch Neon `production`.
 
-Rollback tidak boleh menghapus data yang sudah dipakai. Untuk branch disposable,
-hapus branch. Untuk environment shared, nonaktifkan route/permission terlebih
-dahulu dan lakukan migration korektif; jangan drop tabel transaksi secara
-langsung.
+Rollback tidak boleh menghapus data yang sudah dipakai. Untuk environment
+production, nonaktifkan route/permission terlebih dahulu dan lakukan migration
+korektif; jangan drop tabel transaksi secara langsung.
 
 ## Tests
 

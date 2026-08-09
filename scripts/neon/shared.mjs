@@ -93,7 +93,20 @@ export function assertResetIsAllowed() {
     process.env.NEON_ALLOW_PRODUCTION_RESET !== "1"
   ) {
     throw new Error(
-      "Reset branch production diblokir. Buat branch Neon development atau set NEON_ALLOW_PRODUCTION_RESET=1 secara sadar.",
+      "Reset branch production diblokir. Set NEON_ALLOW_PRODUCTION_RESET=1 hanya dalam prosedur recovery yang disetujui.",
+    );
+  }
+}
+
+export function assertSeedIsAllowed() {
+  loadDotEnv();
+
+  if (
+    process.env.NEON_BRANCH === "production" &&
+    process.env.NEON_ALLOW_PRODUCTION_SEED !== "1"
+  ) {
+    throw new Error(
+      "Seed diblokir pada branch production. Set NEON_ALLOW_PRODUCTION_SEED=1 hanya jika benar-benar ingin mengisi data seed ke production.",
     );
   }
 }

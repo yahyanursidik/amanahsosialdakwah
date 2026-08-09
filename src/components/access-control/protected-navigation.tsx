@@ -1,6 +1,7 @@
 import { NavLink } from "react-router";
 import {
   Building2,
+  ChartNoAxesCombined,
   ClipboardCheck,
   ClipboardList,
   FolderHeart,
@@ -16,6 +17,8 @@ import {
   PackageCheck,
   PackageOpen,
   PackageSearch,
+  Sprout,
+  ShieldAlert,
   Tags,
   Truck,
   UsersRound,
@@ -27,6 +30,20 @@ import { CanAccess } from "./can-access";
 const navigationGroups = [
   {
     items: [
+      {
+        action: "read",
+        icon: ChartNoAxesCombined,
+        label: "Laporan & dashboard",
+        resource: "reports",
+        to: "/reports",
+      },
+      {
+        action: "read",
+        icon: ShieldAlert,
+        label: "Audit & risiko",
+        resource: "risk_flags",
+        to: "/governance",
+      },
       {
         action: "read",
         icon: Layers3,
@@ -68,6 +85,13 @@ const navigationGroups = [
         label: "Kafalah",
         resource: "kafalah",
         to: "/kafalah",
+      },
+      {
+        action: "read",
+        icon: Sprout,
+        label: "Wakaf",
+        resource: "waqf",
+        to: "/waqf",
       },
     ],
     label: "Program & layanan",

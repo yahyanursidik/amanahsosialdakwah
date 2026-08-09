@@ -28,7 +28,8 @@
     "neon:types": "node scripts/neon/generate-types.mjs",
     "neon:test:isolation": "node scripts/neon/test-tenant-isolation.mjs",
     "neon:test:fund-concurrency": "node scripts/neon/test-fund-concurrency.mjs",
-    "neon:test:kafalah-concurrency": "node scripts/neon/test-kafalah-concurrency.mjs"
+    "neon:test:kafalah-concurrency": "node scripts/neon/test-kafalah-concurrency.mjs",
+    "neon:smoke:reports": "node --env-file=.env --import tsx scripts/neon/smoke-reports.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1101.0",

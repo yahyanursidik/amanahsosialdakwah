@@ -69,7 +69,9 @@ export function OrganizationProvider({
       const requestId = ++latestRequest.current;
 
       try {
-        setStatus("loading");
+        setStatus((currentStatus) =>
+          currentStatus === "ready" ? currentStatus : "loading",
+        );
         setError(null);
         const preferredOrganizationId =
           requestedOrganizationId === undefined
@@ -113,8 +115,15 @@ export function OrganizationProvider({
   }, [load]);
 
   useEffect(() => {
+    let lastFocusValidationAt = 0;
+
     const handleFocus = () => {
-      if (document.visibilityState === "visible") {
+      const now = Date.now();
+      if (
+        document.visibilityState === "visible" &&
+        now - lastFocusValidationAt > 30_000
+      ) {
+        lastFocusValidationAt = now;
         void load(activeOrganization?.organization.$id);
       }
     };

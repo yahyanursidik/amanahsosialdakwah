@@ -92,9 +92,10 @@ request context server-side.
 - distribution tidak dapat melampaui payment maupun saldo terbayar jadwal;
 - hard delete tidak tersedia.
 
-## Validasi development
+## Validasi production
 
-Gunakan branch Neon development, lalu jalankan:
+Workspace saat ini hanya diarahkan ke branch Neon `production`. Jalankan
+validasi tanpa seed dummy:
 
 ```bash
 npm run db:check
@@ -106,5 +107,5 @@ npm run quality
 npm run build
 ```
 
-Jangan menerapkan migration langsung ke production sebelum rehearsal branch,
-SQL isolation suite, concurrency test, dan build semuanya lulus.
+Seed dummy tetap diblokir pada production kecuali operator mengaktifkan
+`NEON_ALLOW_PRODUCTION_SEED=1` secara sadar.

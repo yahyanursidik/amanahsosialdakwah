@@ -14,10 +14,13 @@ import { casesRoute } from "./routes/cases";
 import { distributionsRoute } from "./routes/distributions";
 import { evidenceRoute } from "./routes/evidence";
 import { fundsRoute } from "./routes/funds";
+import { governanceRoute } from "./routes/governance";
 import { inventoryRoute } from "./routes/inventory";
 import { kafalahRoute } from "./routes/kafalah";
 import { logisticsRoute } from "./routes/logistics";
 import { procurementRoute } from "./routes/procurement";
+import { reportsRoute } from "./routes/reports";
+import { waqfRoute } from "./routes/waqf";
 import type { AppEnv } from "./types";
 
 export const app = new Hono<AppEnv>({ strict: false }).basePath("/api/v1");
@@ -91,6 +94,12 @@ app.use("/evidence", requestContextMiddleware);
 app.use("/evidence/*", requestContextMiddleware);
 app.use("/kafalah", requestContextMiddleware);
 app.use("/kafalah/*", requestContextMiddleware);
+app.use("/waqf", requestContextMiddleware);
+app.use("/waqf/*", requestContextMiddleware);
+app.use("/reports", requestContextMiddleware);
+app.use("/reports/*", requestContextMiddleware);
+app.use("/governance", requestContextMiddleware);
+app.use("/governance/*", requestContextMiddleware);
 
 app.route("/applications", applicationsRoute);
 app.route("/cases", casesRoute);
@@ -106,6 +115,9 @@ app.route("/aid-packages", aidPackagesRoute);
 app.route("/logistics", logisticsRoute);
 app.route("/evidence", evidenceRoute);
 app.route("/kafalah", kafalahRoute);
+app.route("/waqf", waqfRoute);
+app.route("/reports", reportsRoute);
+app.route("/governance", governanceRoute);
 
 app.notFound((context) =>
   context.json(
