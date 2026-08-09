@@ -1,11 +1,32 @@
 import { readRawBody } from "./neon.mjs";
 
 export async function handleAuthProxy(request, response) {
+  const startedAt = performance.now();
+  const incomingRequestId = request.headers["x-request-id"];
+  const requestId =
+    typeof incomingRequestId === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      incomingRequestId,
+    )
+      ? incomingRequestId
+      : crypto.randomUUID();
+  response.setHeader("x-request-id", requestId);
+  response.setHeader("cache-control", "private, no-store");
+
   const authBaseUrl = process.env.NEON_AUTH_BASE_URL;
 
   if (!authBaseUrl) {
     response.statusCode = 500;
-    response.end("NEON_AUTH_BASE_URL belum tersedia.");
+    response.setHeader("content-type", "application/json; charset=utf-8");
+    response.end(
+      JSON.stringify({
+        error: {
+          code: "AUTH_CONFIGURATION_ERROR",
+          message: "Layanan autentikasi belum dikonfigurasi.",
+          requestId,
+        },
+      }),
+    );
     return;
   }
 
@@ -28,14 +49,54 @@ export async function handleAuthProxy(request, response) {
     "user-agent": request.headers["user-agent"] ?? "AmanahOS",
   };
   const hasBody = !["GET", "HEAD"].includes(request.method ?? "GET");
-  const authResponse = await fetch(targetUrl, {
-    method: request.method,
-    headers,
-    body: hasBody ? await readRawBody(request) : undefined,
-    redirect: "manual",
-  });
-
-  response.statusCode = authResponse.status;
+  let authResponse;
+  try {
+    authResponse = await fetch(targetUrl, {
+      method: request.method,
+      headers,
+      body: hasBody ? await readRawBody(request, 64 * 1024) : undefined,
+      redirect: "manual",
+    });
+    response.statusCode = authResponse.status;
+  } catch (error) {
+    const statusCode = error?.statusCode === 413 ? 413 : 502;
+    response.statusCode = statusCode;
+    response.setHeader("content-type", "application/json; charset=utf-8");
+    response.end(
+      JSON.stringify({
+        error: {
+          code:
+            statusCode === 413
+              ? "REQUEST_TOO_LARGE"
+              : "AUTH_SERVICE_UNAVAILABLE",
+          message:
+            statusCode === 413
+              ? "Ukuran permintaan melebihi batas."
+              : "Layanan autentikasi sedang tidak tersedia.",
+          requestId,
+        },
+      }),
+    );
+    console.error(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error",
+        event: "auth_proxy_failed",
+        requestId,
+        status: statusCode,
+      }),
+    );
+    return;
+  } finally {
+    console.info(
+      JSON.stringify({
+        durationMs: Math.round((performance.now() - startedAt) * 100) / 100,
+        event: "auth_proxy_request",
+        method: request.method ?? "GET",
+        requestId,
+        status: response.statusCode,
+      }),
+    );
+  }
 
   const contentType = authResponse.headers.get("content-type");
   if (contentType) {

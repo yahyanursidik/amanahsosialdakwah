@@ -4,6 +4,7 @@ import { secureHeaders } from "hono/secure-headers";
 
 import { DomainError } from "./domain/errors";
 import { requestContextMiddleware } from "./middleware/request-context";
+import { requestObservabilityMiddleware } from "./middleware/request-observability";
 import { applicationsRoute } from "./routes/applications";
 import { aidPackagesRoute } from "./routes/aid-packages";
 import { approvalRequestsRoute } from "./routes/approval-requests";
@@ -21,17 +22,13 @@ import { logisticsRoute } from "./routes/logistics";
 import { procurementRoute } from "./routes/procurement";
 import { reportsRoute } from "./routes/reports";
 import { waqfRoute } from "./routes/waqf";
+import { checkDatabaseReadiness } from "./services/readiness-service";
 import type { AppEnv } from "./types";
 
 export const app = new Hono<AppEnv>({ strict: false }).basePath("/api/v1");
 
 app.use("*", secureHeaders());
-app.use("*", async (context, next) => {
-  const requestId = crypto.randomUUID();
-  context.set("requestId", requestId);
-  await next();
-  context.header("x-request-id", requestId);
-});
+app.use("*", requestObservabilityMiddleware);
 app.use(
   "*",
   bodyLimit({
@@ -65,6 +62,34 @@ app.get("/health", (context) =>
     meta: { requestId: context.get("requestId") },
   }),
 );
+
+app.get("/ready", async (context) => {
+  try {
+    const readiness = await checkDatabaseReadiness();
+    return context.json({
+      data: { status: "ready", ...readiness },
+      meta: { requestId: context.get("requestId") },
+    });
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error",
+        event: "readiness_failed",
+        requestId: context.get("requestId"),
+      }),
+    );
+    return context.json(
+      {
+        error: {
+          code: "DEPENDENCY_UNAVAILABLE",
+          message: "Koneksi database belum siap.",
+          requestId: context.get("requestId"),
+        },
+      },
+      503,
+    );
+  }
+});
 
 app.use("/applications", requestContextMiddleware);
 app.use("/applications/*", requestContextMiddleware);

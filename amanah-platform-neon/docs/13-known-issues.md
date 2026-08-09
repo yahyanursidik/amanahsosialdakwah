@@ -130,5 +130,14 @@ Roadmap fase 17 — Evidence Service.
 
 ## Bundle frontend besar
 
-- Bundle utama melebihi 500 kB setelah minification.
-- Perlu route-level lazy loading/code splitting pada hardening berikutnya.
+- Route-level lazy loading telah diterapkan pada Fase 22. Pantau ukuran initial
+  chunk pada setiap build dan pecah dependency vendor hanya jika hasil ukur
+  menunjukkan initial chunk kembali melewati batas 500 kB.
+
+## Rate limiting terdistribusi belum diaktifkan
+
+- API telah memiliki body limit, same-site mutation guard, request ID, dan
+  header keamanan.
+- Rate limiting terdistribusi perlu diaktifkan melalui Vercel Firewall. Limiter
+  in-memory sengaja tidak digunakan karena tidak konsisten antar-instance.
+- Lihat `docs/production-hardening.md` untuk deployment gate dan baseline.
