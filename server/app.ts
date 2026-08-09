@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { secureHeaders } from "hono/secure-headers";
@@ -39,7 +41,7 @@ app.use(
           error: {
             code: "VALIDATION_ERROR",
             message: "Ukuran permintaan melebihi batas.",
-            requestId: context.get("requestId") ?? crypto.randomUUID(),
+            requestId: context.get("requestId") ?? randomUUID(),
           },
         },
         400,
@@ -150,7 +152,7 @@ app.notFound((context) =>
       error: {
         code: "NOT_FOUND",
         message: "Endpoint tidak ditemukan.",
-        requestId: context.get("requestId") ?? crypto.randomUUID(),
+        requestId: context.get("requestId") ?? randomUUID(),
       },
     },
     404,
@@ -158,7 +160,7 @@ app.notFound((context) =>
 );
 
 app.onError((error, context) => {
-  const requestId = context.get("requestId") ?? crypto.randomUUID();
+  const requestId = context.get("requestId") ?? randomUUID();
 
   if (error instanceof DomainError) {
     return context.json(

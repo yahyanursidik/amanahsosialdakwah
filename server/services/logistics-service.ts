@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 import type { PoolClient } from "@neondatabase/serverless";
 
@@ -33,7 +33,7 @@ function notFound(message: string): never {
 }
 
 function shipmentReference(): string {
-  return `SHP-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+  return `SHP-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().slice(0, 8).toUpperCase()}`;
 }
 
 function hashRequest(command: string, input: unknown): string {

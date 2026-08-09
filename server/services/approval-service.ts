@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import type { PoolClient } from "@neondatabase/serverless";
 
 import {
@@ -26,7 +28,7 @@ import { requirePermission } from "./request-authorization";
 type Row = Record<string, unknown> & { id: string };
 
 function referenceNumber(): string {
-  return `APR-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+  return `APR-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().slice(0, 8).toUpperCase()}`;
 }
 
 function asStatus(value: unknown): ApprovalRequestStatus {

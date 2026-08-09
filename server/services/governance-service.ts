@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { withTenantTransaction, type TenantDatabase } from "../db/client";
 import { DomainError } from "../domain/errors";
 import {
@@ -22,7 +24,7 @@ import { requirePermission } from "./request-authorization";
 type Row = Record<string, unknown> & { id: string };
 
 function reference(prefix: string): string {
-  return `${prefix}-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+  return `${prefix}-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().slice(0, 8).toUpperCase()}`;
 }
 
 function notFound(message: string): never {

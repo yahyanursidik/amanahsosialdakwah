@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 import type { PoolClient } from "@neondatabase/serverless";
 
@@ -27,7 +27,7 @@ import { requirePermission } from "./request-authorization";
 type Row = Record<string, unknown> & { id: string };
 
 function adjustmentReference(): string {
-  return `INV-ADJ-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+  return `INV-ADJ-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().slice(0, 8).toUpperCase()}`;
 }
 
 function notFound(message = "Data inventory tidak ditemukan."): never {

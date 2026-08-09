@@ -1,3 +1,6 @@
+import { randomUUID } from "node:crypto";
+import { performance } from "node:perf_hooks";
+
 import { readRawBody } from "./neon.mjs";
 
 export async function handleAuthProxy(request, response) {
@@ -9,7 +12,7 @@ export async function handleAuthProxy(request, response) {
       incomingRequestId,
     )
       ? incomingRequestId
-      : crypto.randomUUID();
+      : randomUUID();
   response.setHeader("x-request-id", requestId);
   response.setHeader("cache-control", "private, no-store");
 

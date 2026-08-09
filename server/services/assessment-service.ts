@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import {
   and,
   count,
@@ -66,7 +68,7 @@ type AssessmentRow = typeof caseAssessments.$inferSelect;
 
 function createReference(): string {
   const date = new Date().toISOString().slice(0, 10).replaceAll("-", "");
-  const suffix = crypto.randomUUID().slice(0, 8).toUpperCase();
+  const suffix = randomUUID().slice(0, 8).toUpperCase();
   return `ASM-${date}-${suffix}`;
 }
 

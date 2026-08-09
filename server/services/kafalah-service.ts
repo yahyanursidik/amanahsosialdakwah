@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import type { PoolClient } from "@neondatabase/serverless";
 
 import { withTenantTransaction, type TenantDatabase } from "../db/client";
@@ -29,7 +29,7 @@ const missing = (message: string): never => {
   throw new DomainError("NOT_FOUND", message, 404);
 };
 const reference = (prefix: string) =>
-  `${prefix}-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+  `${prefix}-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().slice(0, 8).toUpperCase()}`;
 const hashRequest = (command: string, input: unknown) =>
   createHash("sha256").update(JSON.stringify({ command, input })).digest("hex");
 const page = (query: KafalahListQuery) => ({
