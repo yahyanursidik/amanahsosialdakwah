@@ -19,6 +19,7 @@ export default tseslint.config(
       "test-results/",
       ".vercel/",
       "server/build-output/*.mjs",
+      "server/build-output/assets/",
     ],
   },
   eslint.configs.recommended,

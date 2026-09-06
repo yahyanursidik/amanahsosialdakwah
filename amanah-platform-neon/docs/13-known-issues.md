@@ -144,8 +144,9 @@ Roadmap fase 17 — Evidence Service.
 
 ## API Vercel menunggu verifikasi redeploy
 
-- Perbaikan bundel ESM telah tersedia di repository: artefak API dibuat sebelum
-  Vercel melakukan file tracing dan diikutkan secara eksplisit ke fungsi.
+- Perbaikan bundel ESM telah tersedia di repository: entry API beserta seluruh
+  dependency runtime dibuat sebelum Vercel melakukan file tracing dan
+  diikutkan secara eksplisit ke fungsi.
 - Tidak ada perubahan migration, kredensial, atau konfigurasi Neon pada
   perbaikan ini.
 - Status tetap perlu diverifikasi dengan `npm run smoke:production` setelah
