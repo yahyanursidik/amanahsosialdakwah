@@ -721,3 +721,36 @@ npm run neon:test:isolation → 4 SQL tests pass
 
 - deploy branch hardening, jalankan smoke production, aktifkan rate limit
   Vercel, lalu lakukan acceptance/UAT lintas role sebelum go-live.
+
+## 2026-09-06 — Perbaikan bundel API Vercel
+
+**Completed**
+
+- menambahkan build API server-side menjadi satu artefak ESM native;
+- catch-all `/api/v1` kini mengimpor artefak build, bukan file TypeScript
+  lintas folder;
+- menambahkan `vercel-build` dan `functions.includeFiles` agar artefak hadir
+  saat file tracing Vercel;
+- mengecualikan artefak hasil build dari lint dan Git, tanpa mengecualikan
+  deklarasi tipe entrypoint.
+
+**Reason**
+
+Deployment sebelumnya gagal memuat `server/index` pada runtime Node ESM. Ini
+merupakan masalah packaging Vercel, bukan koneksi Neon atau konfigurasi database.
+
+**Validation**
+
+```text
+npm run build:api → artefak ESM dibuat
+handler /api/v1/health dari artefak → 200
+npm run typecheck → pass
+npm run lint → pass
+npm run test → 43 files / 148 tests pass
+npm run build → pass
+```
+
+**Next recommended task**
+
+- deploy ke Vercel, jalankan `npm run smoke:production`, lalu lakukan UAT
+  login dan workspace untuk owner, admin, field officer, serta auditor.
