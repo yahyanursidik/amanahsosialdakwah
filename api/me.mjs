@@ -23,19 +23,41 @@ export default async function handler(request, response) {
         const result = await client.query(`
           select
             m.id as membership_id,
-            o.*
+            o.*,
+            coalesce(granted_permissions.permission_keys, '{}'::text[])
+              as permission_keys
           from public.memberships m
           join public.organizations o on o.id = m.organization_id
+          left join lateral (
+            select array_agg(distinct permission.key order by permission.key)
+              as permission_keys
+            from public.membership_roles membership_role
+            join public.roles role on role.id = membership_role.role_id
+            join public.role_permissions role_permission
+              on role_permission.role_id = role.id
+            join public.permissions permission
+              on permission.id = role_permission.permission_id
+            where membership_role.membership_id = m.id
+              and membership_role.organization_id = m.organization_id
+              and (role.organization_id is null or role.organization_id = m.organization_id)
+              and (
+                role_permission.organization_id is null
+                or role_permission.organization_id = m.organization_id
+              )
+          ) granted_permissions on true
           where m.profile_id = private.current_profile_id()
             and m.status = 'active'
             and o.status = 'active'
           order by o.name asc
         `);
 
-        return result.rows.map((row) => ({
-          membershipId: row.membership_id,
-          organization: toClientDocument("organizations", row),
-        }));
+        return result.rows.map(
+          ({ membership_id, permission_keys, ...organization }) => ({
+            membershipId: membership_id,
+            organization: toClientDocument("organizations", organization),
+            permissionKeys: permission_keys,
+          }),
+        );
       },
     );
 

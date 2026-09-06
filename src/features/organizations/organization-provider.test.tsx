@@ -6,12 +6,14 @@ import { describe, expect, it, vi } from "vitest";
 import { OrganizationProvider } from "./organization-provider";
 import { useOrganization } from "./organization-context";
 import type { OrganizationAccessRepository } from "./organization-access";
+import { getCurrentAccessContext } from "@/features/access-control/access-context";
 
 function organizationResponse(name = "Organisasi A") {
   return {
     organizations: [
       {
         membershipId: "membership-a",
+        permissionKeys: ["programs.read"],
         organization: {
           $collectionId: "organizations",
           $createdAt: "2026-01-01T00:00:00.000Z",
@@ -115,5 +117,27 @@ describe("OrganizationProvider", () => {
     refresh.resolve(organizationResponse("Organisasi A Terverifikasi"));
 
     expect(await screen.findByText("ready")).toBeInTheDocument();
+  });
+
+  it("menyimpan snapshot permission dari server pada konteks organisasi aktif", async () => {
+    const repository: OrganizationAccessRepository = {
+      getAccess: vi.fn(async () => organizationResponse()),
+    };
+
+    render(
+      <MemoryRouter>
+        <OrganizationProvider repository={repository}>
+          <Probe />
+        </OrganizationProvider>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText("ready")).toBeInTheDocument();
+    expect(getCurrentAccessContext()).toEqual({
+      membershipId: "membership-a",
+      organizationId: "organization-a",
+      permissionKeys: ["programs.read"],
+      userId: "profile-a",
+    });
   });
 });

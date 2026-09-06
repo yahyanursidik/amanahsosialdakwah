@@ -6,6 +6,8 @@ export type AccessAction =
 export type AccessContext = {
   membershipId: string;
   organizationId: string;
+  /** Permission snapshot returned by the server for the active membership. */
+  permissionKeys?: readonly string[];
   userId: string;
 };
 
@@ -169,7 +171,10 @@ function normalizeAction(action: AccessAction): string {
   return actionAliases[action] ?? action;
 }
 
-function permissionKeyFor(resource: string | undefined, action: AccessAction) {
+export function permissionKeyFor(
+  resource: string | undefined,
+  action: AccessAction,
+) {
   const normalizedAction = normalizeAction(action);
 
   if (!resource) {
@@ -177,6 +182,39 @@ function permissionKeyFor(resource: string | undefined, action: AccessAction) {
   }
 
   return `${resource}.${normalizedAction}`;
+}
+
+/**
+ * Returns a UI-only decision when the current membership has a server-issued
+ * permission snapshot. `null` deliberately keeps compatibility with older
+ * responses and delegates those checks to the server endpoint.
+ */
+export function resolveSnapshotPermission(
+  context: AccessContext | null,
+  resource: string | undefined,
+  action: AccessAction,
+): PermissionDecision | null {
+  if (!context?.permissionKeys) {
+    return null;
+  }
+
+  const permissionKey = permissionKeyFor(resource, action);
+
+  if (!permissionKey) {
+    return {
+      can: false,
+      reason: "Resource tidak didefinisikan.",
+    };
+  }
+
+  if (context.permissionKeys.includes(permissionKey)) {
+    return { can: true };
+  }
+
+  return {
+    can: false,
+    reason: `Permission ${permissionKey} belum diberikan.`,
+  };
 }
 
 function isRoleInScope(role: RoleDocument, organizationId: string) {

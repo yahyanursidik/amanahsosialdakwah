@@ -10,6 +10,7 @@ import type {
   AccessContext,
   PermissionDecision,
 } from "@/features/access-control/permission-resolver";
+import { resolveSnapshotPermission } from "@/features/access-control/permission-resolver";
 import { apiFetch } from "@/lib/neon/http";
 
 export type AccessDecisionRepository = {
@@ -57,6 +58,16 @@ export function createAccessControlProvider(
           can: false,
           reason: "Resource tidak didefinisikan.",
         };
+      }
+
+      const snapshotDecision = resolveSnapshotPermission(
+        context,
+        resource,
+        params.action,
+      );
+
+      if (snapshotDecision) {
+        return snapshotDecision;
       }
 
       const decision = await repository.can({

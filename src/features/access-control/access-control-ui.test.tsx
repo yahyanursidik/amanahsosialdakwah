@@ -2,11 +2,12 @@ import type { AccessControlProvider } from "@refinedev/core";
 import { Refine } from "@refinedev/core";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { CanAccess } from "@/components/access-control/can-access";
 import { ProtectedActionButton } from "@/components/access-control/protected-action-button";
 import { ProtectedRoute } from "@/components/access-control/protected-route";
+import { setCurrentAccessContext } from "@/features/access-control/access-context";
 import type { ActiveOrganization } from "@/features/organizations/organization-access";
 import type { OrganizationContextValue } from "@/features/organizations/organization-context";
 import { OrganizationContext } from "@/features/organizations/organization-context";
@@ -64,6 +65,35 @@ function renderWithAccess(
 }
 
 describe("access control UI", () => {
+  afterEach(() => {
+    setCurrentAccessContext(null);
+  });
+
+  it("menyelesaikan permission menu dari snapshot tanpa state loading", () => {
+    const can = vi.fn(async () => ({ can: false }));
+    setCurrentAccessContext({
+      membershipId: "membership-organization-a",
+      organizationId: "organization-a",
+      permissionKeys: ["programs.read"],
+      userId: "user-a",
+    });
+
+    renderWithAccess(
+      <CanAccess
+        action="read"
+        loading={<p>Memeriksa menu</p>}
+        resource="programs"
+      >
+        <p>Program terbuka</p>
+      </CanAccess>,
+      { can },
+    );
+
+    expect(screen.getByText("Program terbuka")).toBeInTheDocument();
+    expect(screen.queryByText("Memeriksa menu")).not.toBeInTheDocument();
+    expect(can).not.toHaveBeenCalled();
+  });
+
   it("pengguna tanpa permission tidak melihat tombol", async () => {
     renderWithAccess(
       <ProtectedActionButton action="manage" resource="memberships">

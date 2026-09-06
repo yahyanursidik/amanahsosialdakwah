@@ -2,6 +2,10 @@ import type { AuthProvider } from "@refinedev/core";
 
 import { setCurrentAccessContext } from "@/features/access-control/access-context";
 import { clearActiveOrganizationPreference } from "@/features/organizations/active-organization-storage";
+import {
+  clearCurrentSessionCache,
+  getCurrentSession,
+} from "@/features/session/current-session";
 import { apiFetch, ApiError } from "@/lib/neon/http";
 
 export type LoginCredentials = {
@@ -69,6 +73,7 @@ export function createAuthProvider(): AuthProvider {
   return {
     login: async ({ email, password }: LoginCredentials) => {
       try {
+        clearCurrentSessionCache();
         await apiFetch("/api/auth/sign-in/email", {
           method: "POST",
           body: JSON.stringify({
@@ -77,6 +82,7 @@ export function createAuthProvider(): AuthProvider {
             rememberMe: true,
           }),
         });
+        clearCurrentSessionCache();
 
         return {
           success: true,
@@ -107,6 +113,7 @@ export function createAuthProvider(): AuthProvider {
       }
 
       clearActiveOrganizationPreference();
+      clearCurrentSessionCache();
       setCurrentAccessContext(null);
 
       return {
@@ -174,12 +181,13 @@ export function createAuthProvider(): AuthProvider {
     },
     check: async () => {
       try {
-        await apiFetch<MeResponse>("/api/me");
+        await getCurrentSession<MeResponse>();
 
         return {
           authenticated: true,
         };
       } catch (error) {
+        clearCurrentSessionCache();
         setCurrentAccessContext(null);
 
         return {
@@ -198,6 +206,7 @@ export function createAuthProvider(): AuthProvider {
     },
     onError: async (error: unknown) => {
       if (error instanceof ApiError && error.status === 401) {
+        clearCurrentSessionCache();
         return {
           error: new Error("Sesi berakhir."),
           logout: true,
@@ -212,7 +221,7 @@ export function createAuthProvider(): AuthProvider {
     getPermissions: async () => null,
     getIdentity: async () => {
       try {
-        const me = await apiFetch<MeResponse>("/api/me");
+        const me = await getCurrentSession<MeResponse>();
 
         return {
           id: me.user.id,
