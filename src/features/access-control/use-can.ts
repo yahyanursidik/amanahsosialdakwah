@@ -2,7 +2,11 @@ import { useCan as useRefineCan } from "@refinedev/core";
 
 import { useOrganization } from "@/features/organizations/organization-context";
 
-import type { AccessAction } from "./permission-resolver";
+import { getCurrentAccessContext } from "./access-context";
+import {
+  resolveSnapshotPermission,
+  type AccessAction,
+} from "./permission-resolver";
 
 export type UseCanParams = {
   action: AccessAction;
@@ -15,6 +19,11 @@ export function useCan({ action, resource }: UseCanParams) {
   const userId = organization.user?.$id;
   const enabled =
     organization.status === "ready" && !!activeOrganization && !!userId;
+  const snapshotDecision = resolveSnapshotPermission(
+    getCurrentAccessContext(),
+    resource,
+    action,
+  );
   const query = useRefineCan({
     action,
     resource,
@@ -24,7 +33,7 @@ export function useCan({ action, resource }: UseCanParams) {
       userId,
     },
     queryOptions: {
-      enabled,
+      enabled: enabled && snapshotDecision === null,
     },
   });
 
@@ -44,6 +53,15 @@ export function useCan({ action, resource }: UseCanParams) {
         can: false,
         reason: "Konteks organisasi aktif belum tersedia.",
       },
+      isLoading: false,
+      isPending: false,
+    };
+  }
+
+  if (snapshotDecision) {
+    return {
+      ...query,
+      data: snapshotDecision,
       isLoading: false,
       isPending: false,
     };

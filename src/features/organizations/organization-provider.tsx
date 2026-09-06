@@ -54,6 +54,9 @@ export function OrganizationProvider({
           membershipId: selectedOrganization.membershipId,
           organizationId: selectedOrganization.organization.$id,
           userId: currentUser.$id,
+          ...(selectedOrganization.permissionKeys
+            ? { permissionKeys: selectedOrganization.permissionKeys }
+            : {}),
         });
         writeActiveOrganizationPreference(selectedOrganization.organization.$id);
       } else {

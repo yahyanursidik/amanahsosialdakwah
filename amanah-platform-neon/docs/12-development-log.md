@@ -754,3 +754,34 @@ npm run build → pass
 
 - deploy ke Vercel, jalankan `npm run smoke:production`, lalu lakukan UAT
   login dan workspace untuk owner, admin, field officer, serta auditor.
+
+## 2026-09-06 — Perbaikan pemuatan permission workspace
+
+**Completed**
+
+- endpoint sesi kini mengirim snapshot permission yang tervalidasi untuk setiap
+  membership aktif;
+- navigasi dan route guard memakai snapshot tersebut untuk keputusan UI,
+  sehingga tidak lagi membuat request permission terpisah untuk setiap menu;
+- pemeriksaan sesi awal Refine dan konteks organisasi berbagi satu request
+  singkat dalam memori browser; cache dihapus saat login, logout, atau sesi
+  tidak valid.
+
+**Security decision**
+
+- snapshot hanya mempercepat UX dan tidak menjadi sumber otorisasi backend;
+  seluruh command dan API bisnis tetap memverifikasi membership serta
+  permission dari database pada server.
+
+**Validation**
+
+```text
+npm run typecheck → pass
+npm run lint → pass
+npm run test → 44 files / 150 tests pass
+```
+
+**Next recommended task**
+
+- deploy perubahan ini bersama perbaikan bundle API Vercel, lalu ukur ulang
+  login dan perpindahan workspace pada deployment production.

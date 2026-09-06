@@ -51,4 +51,28 @@ describe("accessControlProvider", () => {
       resource: "programs",
     });
   });
+
+  it("menggunakan snapshot permission tervalidasi tanpa request terpisah per menu", async () => {
+    const repository: AccessDecisionRepository = {
+      can: vi.fn(async () => ({ can: false })),
+    };
+    const provider = createAccessControlProvider(repository);
+    setCurrentAccessContext({
+      membershipId: "membership-a",
+      organizationId: "organization-a",
+      permissionKeys: ["programs.read"],
+      userId: "profile-a",
+    });
+
+    await expect(
+      provider.can({ action: "read", resource: "programs" }),
+    ).resolves.toEqual({ can: true });
+    await expect(
+      provider.can({ action: "manage", resource: "programs" }),
+    ).resolves.toEqual({
+      can: false,
+      reason: "Permission programs.manage belum diberikan.",
+    });
+    expect(repository.can).not.toHaveBeenCalled();
+  });
 });

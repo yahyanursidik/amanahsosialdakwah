@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/neon/http";
+import { getCurrentSession } from "@/features/session/current-session";
 import type { NeonAuthUser } from "@/providers/auth-provider";
 
 export type NeonDocument = {
@@ -21,6 +21,8 @@ export type ActiveOrganization = NeonDocument & {
 export type OrganizationOption = {
   membershipId: string;
   organization: ActiveOrganization;
+  /** Server-validated permissions for this membership and organization. */
+  permissionKeys?: readonly string[];
 };
 
 export type OrganizationAccessResult = {
@@ -40,7 +42,7 @@ export type OrganizationAccessRepository = {
 
 export const organizationAccessRepository: OrganizationAccessRepository = {
   getAccess() {
-    return apiFetch<MeOrganizationResponse>("/api/me");
+    return getCurrentSession<MeOrganizationResponse>();
   },
 };
 
