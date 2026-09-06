@@ -18,6 +18,7 @@ export default tseslint.config(
       "playwright-report/",
       "test-results/",
       ".vercel/",
+      "server/build-output/*.mjs",
     ],
   },
   eslint.configs.recommended,

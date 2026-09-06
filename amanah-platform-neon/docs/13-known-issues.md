@@ -141,3 +141,12 @@ Roadmap fase 17 — Evidence Service.
 - Rate limiting terdistribusi perlu diaktifkan melalui Vercel Firewall. Limiter
   in-memory sengaja tidak digunakan karena tidak konsisten antar-instance.
 - Lihat `docs/production-hardening.md` untuk deployment gate dan baseline.
+
+## API Vercel menunggu verifikasi redeploy
+
+- Perbaikan bundel ESM telah tersedia di repository: artefak API dibuat sebelum
+  Vercel melakukan file tracing dan diikutkan secara eksplisit ke fungsi.
+- Tidak ada perubahan migration, kredensial, atau konfigurasi Neon pada
+  perbaikan ini.
+- Status tetap perlu diverifikasi dengan `npm run smoke:production` setelah
+  deployment production selesai.

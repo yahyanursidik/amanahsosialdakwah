@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run build:api && tsc -b && vite build",
+    "build:api": "vite build --config vite.server.config.ts",
+    "vercel-build": "npm run build",
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint .",
