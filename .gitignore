@@ -13,3 +13,4 @@ Thumbs.db
 
 .vercel
 server/build-output/*.mjs
+server/build-output/assets/

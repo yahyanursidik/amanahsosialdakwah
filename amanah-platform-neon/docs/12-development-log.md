@@ -726,7 +726,7 @@ npm run neon:test:isolation → 4 SQL tests pass
 
 **Completed**
 
-- menambahkan build API server-side menjadi satu artefak ESM native;
+- menambahkan build API server-side menjadi bundle ESM native mandiri;
 - catch-all `/api/v1` kini mengimpor artefak build, bukan file TypeScript
   lintas folder;
 - menambahkan `vercel-build` dan `functions.includeFiles` agar artefak hadir

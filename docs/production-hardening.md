@@ -13,9 +13,9 @@ tanpa mengaktifkan object storage yang masih ditunda.
   dan log JSON berisi method, path, status, serta durasi. Log tidak menyimpan
   body, email, cookie, token, query string, atau data tenant.
 - Request ID dari upstream hanya diterima jika berbentuk UUID.
-- `npm run build:api` membundel Hono API menjadi satu modul ESM sebelum file
-  tracing Vercel. Catch-all `/api/v1` hanya mengimpor artefak tersebut; Vercel
-  juga mengikutkannya secara eksplisit melalui `functions.includeFiles`.
+- `npm run build:api` membuat bundle ESM mandiri untuk Hono API sebelum file
+  tracing Vercel. Catch-all `/api/v1` hanya mengimpor bundle tersebut; Vercel
+  juga mengikutkan entry dan chunk-nya melalui `functions.includeFiles`.
 
 ## Deployment gate
 
