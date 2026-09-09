@@ -35,12 +35,16 @@ export function ApplicationCreatePage() {
   const roleQuery = useList<CrmContactRolesDocument>({
     resource: "crm_contact_roles",
     filters: [
-      { field: "role_type", operator: "eq", value: "beneficiary" },
+      {
+        field: "role_type",
+        operator: "in",
+        value: ["beneficiary", "applicant"],
+      },
       { field: "status", operator: "eq", value: "active" },
     ],
     pagination: { currentPage: 1, pageSize: 500, mode: "server" },
   });
-  const beneficiaryIds = new Set(
+  const applicantIds = new Set(
     (roleQuery.result?.data ?? []).map((role) => role.contact_id),
   );
   const contactQuery = useList<CrmContactsDocument>({
@@ -48,8 +52,8 @@ export function ApplicationCreatePage() {
     filters: [{ field: "status", operator: "eq", value: "active" }],
     pagination: { currentPage: 1, pageSize: 500, mode: "server" },
   });
-  const beneficiaries = (contactQuery.result?.data ?? []).filter((contact) =>
-    beneficiaryIds.has(contact.$id),
+  const applicants = (contactQuery.result?.data ?? []).filter((contact) =>
+    applicantIds.has(contact.$id),
   );
   const programs = programQuery.result?.data ?? [];
   const {
@@ -112,13 +116,13 @@ export function ApplicationCreatePage() {
         >
           <div className="form-grid">
             <div className="auth-field">
-              <Label htmlFor="applicant_contact_id">Penerima manfaat</Label>
+              <Label htmlFor="applicant_contact_id">Pengaju</Label>
               <select
                 id="applicant_contact_id"
                 {...register("applicant_contact_id")}
               >
-                <option value="">Pilih penerima</option>
-                {beneficiaries.map((contact) => (
+                <option value="">Pilih pengaju atau penerima</option>
+                {applicants.map((contact) => (
                   <option key={contact.$id} value={contact.$id}>
                     {contact.display_name} — {contact.city ?? "Kota belum diisi"}
                   </option>

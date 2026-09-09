@@ -229,7 +229,9 @@ begin
     (v_org, v_contact_donor, 'donor', 'active', now() - interval '180 days', v_actor),
     (v_org, v_contact_kafil, 'kafil', 'active', now() - interval '60 days', v_actor),
     (v_org, v_contact_vendor, 'donor', 'active', now() - interval '30 days', v_actor),
-    (v_org, v_contact_institution, 'volunteer', 'active', now() - interval '120 days', v_actor)
+    (v_org, v_contact_institution, 'volunteer', 'active', now() - interval '120 days', v_actor),
+    (v_org, v_contact_institution, 'distribution_partner', 'active', now() - interval '120 days', v_actor),
+    (v_org, v_contact_beneficiary_2, 'applicant', 'active', now() - interval '20 days', v_actor)
   on conflict (contact_id, organization_id, role_type) do update
   set status = excluded.status,
       updated_at = now();

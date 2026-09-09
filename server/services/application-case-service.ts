@@ -394,7 +394,7 @@ export async function createApplication(
       );
     }
 
-    const [beneficiary] = await database
+    const [applicant] = await database
       .select({ id: crmContacts.id })
       .from(crmContacts)
       .innerJoin(
@@ -402,7 +402,10 @@ export async function createApplication(
         and(
           eq(crmContactRoles.contactId, crmContacts.id),
           eq(crmContactRoles.organizationId, context.organizationId),
-          eq(crmContactRoles.roleType, "beneficiary"),
+          or(
+            eq(crmContactRoles.roleType, "beneficiary"),
+            eq(crmContactRoles.roleType, "applicant"),
+          ),
           eq(crmContactRoles.status, "active"),
         ),
       )
@@ -415,10 +418,10 @@ export async function createApplication(
       )
       .limit(1);
 
-    if (!beneficiary) {
+    if (!applicant) {
       throw new DomainError(
         "VALIDATION_ERROR",
-        "Kontak pemohon harus merupakan penerima manfaat aktif.",
+        "Kontak pemohon harus memiliki peran Pengaju atau Penerima aktif.",
         400,
       );
     }

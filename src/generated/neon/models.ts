@@ -109,6 +109,10 @@ export interface ProgramsDocument extends NeonDocument {
   target_beneficiary_type: "individual" | "family" | "institution" | "community" | "disaster_area" | "mosque" | "school";
   target_beneficiary_count?: number;
   budget_amount: number;
+  support_modes: Array<"cash" | "in_kind" | "logistics">;
+  cash_budget_amount: number;
+  goods_budget_amount: number;
+  logistics_budget_amount: number;
   allocated_amount: number;
   disbursed_amount: number;
   fund_type: "zakat" | "infaq" | "sedekah" | "waqf" | "humanitarian" | "education" | "health" | "general";
@@ -162,7 +166,7 @@ export interface CrmContactsDocument extends NeonDocument {
 export interface CrmContactRolesDocument extends NeonDocument {
   organization_id: string;
   contact_id: string;
-  role_type: "donor" | "kafil" | "volunteer" | "beneficiary";
+  role_type: "donor" | "kafil" | "volunteer" | "beneficiary" | "distribution_partner" | "applicant";
   status: "active" | "inactive" | "paused" | "ended";
   started_at?: string;
   ended_at?: string;

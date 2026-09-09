@@ -1,6 +1,8 @@
 export type InventoryProduct = {
   base_unit: string;
   category?: string | null;
+  category_id?: string | null;
+  category_name?: string | null;
   created_at: string;
   id: string;
   name: string;
@@ -8,6 +10,16 @@ export type InventoryProduct = {
   status: "active" | "archived" | "inactive";
   track_batch: boolean;
   track_expiry: boolean;
+  updated_at: string;
+};
+
+export type InventoryProductCategory = {
+  code: string;
+  created_at: string;
+  description?: string | null;
+  id: string;
+  name: string;
+  status: "active" | "archived" | "inactive";
   updated_at: string;
 };
 
@@ -52,12 +64,7 @@ export type InventoryMovement = {
 };
 
 export type InventoryAdjustmentStatus =
-  | "approved"
-  | "cancelled"
-  | "draft"
-  | "posted"
-  | "rejected"
-  | "submitted";
+  "approved" | "cancelled" | "draft" | "posted" | "rejected" | "submitted";
 
 export type InventoryAdjustment = {
   adjustment_type: string;

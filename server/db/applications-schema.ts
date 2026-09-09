@@ -80,6 +80,8 @@ const canWriteAuditTrail = sql`private.has_active_membership(organization_id) an
   or private.has_permission(organization_id, 'distributions.complete')
   or private.has_permission(organization_id, 'distributions.cancel')
   or private.has_permission(organization_id, 'distribution_evidence.manage')
+  or private.has_permission(organization_id, 'programs.manage')
+  or private.has_permission(organization_id, 'aid_package_packings.manage')
 )`;
 
 export const aidApplications = pgTable(

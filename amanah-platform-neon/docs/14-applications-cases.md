@@ -93,4 +93,47 @@ korektif; jangan drop tabel transaksi secara langsung.
 
 List/detail melakukan join ke Program, Contact, dan Profile. Custom role yang
 memakai modul ini perlu permission baca pada resource terkait agar data relasi
-tidak disembunyikan RLS.
+tidak disembunyikan RLS. Intake menerima contact aktif dengan role `beneficiary`
+atau `applicant`; lihat `19-partners-and-applicants.md` untuk batasan pengaju
+atas nama penerima lain.
+
+## Program beneficiary journey
+
+Halaman detail Program menyediakan read model lintas alur untuk calon penerima:
+
+```text
+Pengajuan -> kasus -> asesmen -> approval -> rencana distribusi -> PIC pelaksana
+```
+
+Endpoint `GET /api/v1/programs/:id/beneficiary-journey` selalu memvalidasi
+membership aktif, organisasi aktif, dan `programs.read`. Data setiap tahap hanya
+dimasukkan bila pemanggil juga memiliki permission baca tahap tersebut:
+
+- `applications.read` untuk pengajuan dan kebutuhan;
+- `cases.read` untuk status kasus;
+- `crm_contacts.read` untuk nama, alamat non-sensitif, dan tautan profil;
+- `assessments.read` untuk hasil asesmen;
+- `approval_requests.read` untuk status serta aktor approval;
+- `distributions.read` untuk rencana, status, dan PIC pelaksana.
+
+Identitas sensitif tidak masuk ke endpoint atau tabel daftar. PIC yang tersedia
+sekarang adalah petugas organisasi dari `distribution_assignments`, bukan kontak
+mitra eksternal.
+
+Untuk program dengan banyak pengajuan, endpoint menerima query server-side
+`page`, `pageSize` (10–100), `q`, dan `stage`. Filter tahap tersedia untuk
+`needs_action`, `in_distribution`, dan `completed`; pencarian mencakup nama
+penerima, nomor pengajuan, kebutuhan, dan nomor kasus. Respons membawa metadata
+pagination sehingga browser tidak perlu memuat seluruh jejak sekaligus.
+
+Paket gudang, shipment, dan PIC mitra diikat melalui
+`program_beneficiary_fulfillments` (migration `0026`). Record mengikat
+pengajuan, penerima, packing paket, mitra, dan PIC; warehouse dibaca dari
+packing dan status pengiriman dibaca dari `logistics_shipments`, sehingga tidak
+ada status operasional kedua yang dapat menyimpang. Command pembuatan memeriksa
+kapasitas packing dalam transaksi, active role `distribution_partner`, tenant,
+dan `Idempotency-Key`, lalu mencatat audit event.
+
+Migration belum dijalankan otomatis pada database production. Sampai migration
+diterapkan, halaman Program secara eksplisit menunjukkan bahwa jejak fulfilment
+belum tersedia dan tidak membuat asosiasi gudang/mitra semu.

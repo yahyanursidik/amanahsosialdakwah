@@ -20,6 +20,10 @@ import {
 import {
   fundTypes,
   programFormSchema,
+  programSupportModeLabels,
+  programSupportModes,
+  resolveProgramSupportModes,
+  sumProgramSupportBudget,
   targetBeneficiaryTypes,
   type ControlledEditFormValues,
   type ProgramFormValues,
@@ -53,6 +57,8 @@ export function ProgramEditPage() {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ProgramFormValues>({
     resolver: zodResolver(programFormSchema),
@@ -69,6 +75,10 @@ export function ProgramEditPage() {
         target_beneficiary_type: program.target_beneficiary_type,
         target_beneficiary_count: program.target_beneficiary_count ?? 0,
         budget_amount: program.budget_amount,
+        support_modes: resolveProgramSupportModes(program.support_modes),
+        cash_budget_amount: program.cash_budget_amount ?? program.budget_amount,
+        goods_budget_amount: program.goods_budget_amount ?? 0,
+        logistics_budget_amount: program.logistics_budget_amount ?? 0,
         fund_type: program.fund_type,
         starts_at: program.starts_at ? program.starts_at.slice(0, 10) : "",
         ends_at: program.ends_at ? program.ends_at.slice(0, 10) : "",
@@ -104,6 +114,30 @@ export function ProgramEditPage() {
   const isFreeEditAllowed = canFreeEditProgram(program);
   const isControlledEditAllowed = canPerformControlledEdit(program);
   const isUpdating = updateMutation?.isPending ?? false;
+  const supportModes = watch("support_modes") ?? [];
+  const plannedBudget = sumProgramSupportBudget({
+    cash_budget_amount: Number(watch("cash_budget_amount") ?? 0),
+    goods_budget_amount: Number(watch("goods_budget_amount") ?? 0),
+    logistics_budget_amount: Number(watch("logistics_budget_amount") ?? 0),
+  });
+
+  const toggleSupportMode = (
+    mode: (typeof programSupportModes)[number],
+    checked: boolean,
+  ) => {
+    const nextModes = checked
+      ? [...supportModes, mode]
+      : supportModes.filter((value) => value !== mode);
+    setValue("support_modes", nextModes, { shouldValidate: true });
+    if (!checked) {
+      const budgetField = {
+        cash: "cash_budget_amount",
+        in_kind: "goods_budget_amount",
+        logistics: "logistics_budget_amount",
+      } as const;
+      setValue(budgetField[mode], 0, { shouldValidate: true });
+    }
+  };
 
   const onSubmitDraft: SubmitHandler<ProgramFormValues> = (values) => {
     if (!id || !activeOrgId) return;
@@ -114,6 +148,7 @@ export function ProgramEditPage() {
         id,
         values: {
           ...values,
+          budget_amount: sumProgramSupportBudget(values),
         },
       },
       {
@@ -273,10 +308,26 @@ export function ProgramEditPage() {
             </div>
           </div>
 
+          <fieldset className="border-border bg-muted/20 space-y-4 rounded-lg border p-4">
+            <legend className="px-1 text-sm font-semibold">Bentuk dukungan program</legend>
+            <p className="text-muted-foreground text-xs">
+              Barang memakai valuasi rencana. Stok dan paket aktual dikelola terpisah di Gudang & Paket Bantuan.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {programSupportModes.map((mode) => (
+                <label className="border-border bg-background flex cursor-pointer items-start gap-3 rounded-md border p-3 text-sm" key={mode}>
+                  <input checked={supportModes.includes(mode)} className="mt-0.5" onChange={(event) => toggleSupportMode(mode, event.target.checked)} type="checkbox" />
+                  <span>{programSupportModeLabels[mode]}</span>
+                </label>
+              ))}
+            </div>
+            {errors.support_modes ? <p className="text-destructive text-xs">{errors.support_modes.message}</p> : null}
+          </fieldset>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-1">
               <Label htmlFor="fund_type" className="required">
-                Jenis Dana
+                Klasifikasi Amanah
               </Label>
               <select
                 id="fund_type"
@@ -289,23 +340,6 @@ export function ProgramEditPage() {
                   </option>
                 ))}
               </select>
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="budget_amount" className="required">
-                Target Anggaran (Rp)
-              </Label>
-              <Input
-                id="budget_amount"
-                type="number"
-                min={0}
-                {...register("budget_amount")}
-              />
-              {errors.budget_amount && (
-                <p className="text-destructive text-xs">
-                  {errors.budget_amount.message}
-                </p>
-              )}
             </div>
 
             <div className="space-y-1">
@@ -324,6 +358,14 @@ export function ProgramEditPage() {
                 ))}
               </select>
             </div>
+          </div>
+
+          <input type="hidden" {...register("budget_amount", { valueAsNumber: true })} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {supportModes.includes("cash") ? <div className="space-y-1"><Label htmlFor="cash_budget_amount">Rencana Dana (Rp)</Label><Input id="cash_budget_amount" min={0} type="number" {...register("cash_budget_amount")} />{errors.cash_budget_amount ? <p className="text-destructive text-xs">{errors.cash_budget_amount.message}</p> : null}</div> : null}
+            {supportModes.includes("in_kind") ? <div className="space-y-1"><Label htmlFor="goods_budget_amount">Valuasi Barang (Rp)</Label><Input id="goods_budget_amount" min={0} type="number" {...register("goods_budget_amount")} />{errors.goods_budget_amount ? <p className="text-destructive text-xs">{errors.goods_budget_amount.message}</p> : null}</div> : null}
+            {supportModes.includes("logistics") ? <div className="space-y-1"><Label htmlFor="logistics_budget_amount">Logistik & Kirim (Rp)</Label><Input id="logistics_budget_amount" min={0} type="number" {...register("logistics_budget_amount")} />{errors.logistics_budget_amount ? <p className="text-destructive text-xs">{errors.logistics_budget_amount.message}</p> : null}</div> : null}
+            <div className="border-primary/30 bg-primary/5 rounded-md border p-3 sm:col-span-3"><p className="text-muted-foreground text-xs">Total rencana dukungan</p><p className="text-lg font-semibold">Rp {plannedBudget.toLocaleString("id-ID")}</p></div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

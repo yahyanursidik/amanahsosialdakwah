@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const applicationFormSchema = z.object({
-  applicant_contact_id: z.string().uuid("Pilih penerima manfaat."),
+  applicant_contact_id: z.string().uuid("Pilih pengaju atau penerima manfaat."),
   channel: z.enum(["walk_in", "referral", "partner", "online", "field"]),
   notes: z.string().trim().max(4000).optional(),
   program_id: z.string().uuid("Pilih program aktif."),

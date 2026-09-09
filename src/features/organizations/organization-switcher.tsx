@@ -42,10 +42,10 @@ export function OrganizationSwitcher({
     >
       <Building2 className="size-4" aria-hidden />
       <label className="sr-only" htmlFor={fieldId}>
-        Organisasi aktif
+        Konteks kerja organisasi
       </label>
       {variant === "sidebar" ? (
-        <span className="organization-switcher__label">Organisasi aktif</span>
+        <span className="organization-switcher__label">Konteks kerja</span>
       ) : null}
       <select
         id={fieldId}

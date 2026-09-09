@@ -4,6 +4,8 @@ import type { CrmContactRolesDocument } from "@/generated/neon/models";
 const roleLabels: Record<CrmContactRolesDocument["role_type"], string> = {
   beneficiary: "Penerima",
   donor: "Donatur",
+  distribution_partner: "Mitra penyaluran",
+  applicant: "Pengaju",
   kafil: "Kafil",
   volunteer: "Relawan",
 };

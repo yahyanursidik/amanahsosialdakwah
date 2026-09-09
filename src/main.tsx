@@ -3,6 +3,8 @@ import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
 import "@/styles/globals.css";
 import "@/styles/brand-refresh.css";
+import "@/styles/program-detail.css";
+import "@/styles/public-program.css";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useList, useNavigation, type CrudFilters } from "@refinedev/core";
-import { Eye, Edit, Plus, ShieldAlert } from "lucide-react";
+import { Edit, Eye, Grid2X2, List, Plus, Settings2, ShieldAlert } from "lucide-react";
 
 import { ProtectedActionButton } from "@/components/access-control/protected-action-button";
 import {
@@ -19,7 +19,17 @@ import {
   canFreeEditProgram,
   canPerformControlledEdit,
 } from "@/features/programs/program-service";
+import {
+  programSupportModeLabels,
+  resolveProgramSupportModes,
+} from "@/features/programs/schemas";
 import type { ProgramsDocument } from "@/generated/neon/models";
+
+function supportModeSummary(program: ProgramsDocument): string {
+  return resolveProgramSupportModes(program.support_modes)
+    .map((mode) => programSupportModeLabels[mode])
+    .join(", ");
+}
 
 export function ProgramListPage() {
   const { activeOrganization } = useOrganization();
@@ -27,6 +37,7 @@ export function ProgramListPage() {
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"cards" | "table">("table");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -94,16 +105,19 @@ export function ProgramListPage() {
       ),
     },
     {
-      header: "Jenis Dana",
-      key: "fund_type",
+      header: "Bentuk Dukungan",
+      key: "support_modes",
       render: (item: ProgramsDocument) => (
-        <span className="bg-muted rounded-sm px-2 py-0.5 text-xs font-medium capitalize">
-          {item.fund_type}
-        </span>
+        <div className="space-y-1">
+          <span className="bg-muted rounded-sm px-2 py-0.5 text-xs font-medium">
+            {supportModeSummary(item)}
+          </span>
+          <p className="text-muted-foreground text-xs capitalize">{item.fund_type}</p>
+        </div>
       ),
     },
     {
-      header: "Target Anggaran",
+      header: "Rencana Dukungan",
       key: "budget_amount",
       render: (item: ProgramsDocument) => (
         <MoneyDisplay amount={item.budget_amount} />
@@ -154,6 +168,18 @@ export function ProgramListPage() {
               <ShieldAlert className="h-4 w-4 text-amber-500" />
             </Button>
           )}
+
+          <ProtectedActionButton
+            action="manage"
+            resource="programs"
+            variant="outline"
+            size="sm"
+            onClick={() => show("programs", item.$id)}
+            title="Kelola Program"
+          >
+            <Settings2 className="h-4 w-4" />
+            <span className="sr-only xl:not-sr-only">Kelola</span>
+          </ProtectedActionButton>
         </div>
       ),
     },
@@ -200,6 +226,37 @@ export function ProgramListPage() {
         searchPlaceholder="Cari berdasarkan nama atau kode program..."
         searchValue={search}
         onSearchChange={setSearch}
+        actions={
+          <div
+            className="border-border bg-background inline-flex rounded-md border p-0.5"
+            aria-label="Pilih tampilan daftar program"
+          >
+            <Button
+              aria-label="Tampilkan sebagai tabel"
+              aria-pressed={viewMode === "table"}
+              className="min-h-8 px-2"
+              onClick={() => setViewMode("table")}
+              size="sm"
+              title="Tampilan tabel"
+              variant={viewMode === "table" ? "default" : "ghost"}
+            >
+              <List aria-hidden="true" className="h-4 w-4" />
+              <span className="hidden lg:inline">Tabel</span>
+            </Button>
+            <Button
+              aria-label="Tampilkan sebagai kartu"
+              aria-pressed={viewMode === "cards"}
+              className="min-h-8 px-2"
+              onClick={() => setViewMode("cards")}
+              size="sm"
+              title="Tampilan kartu"
+              variant={viewMode === "cards" ? "default" : "ghost"}
+            >
+              <Grid2X2 aria-hidden="true" className="h-4 w-4" />
+              <span className="hidden lg:inline">Kartu</span>
+            </Button>
+          </div>
+        }
       >
         <div className="flex items-center gap-2">
           <select
@@ -221,7 +278,7 @@ export function ProgramListPage() {
         </div>
       </FilterBar>
 
-      <div className="hidden md:block">
+      {viewMode === "table" ? (
         <ResourceTable
           columns={columns}
           items={items}
@@ -249,23 +306,26 @@ export function ProgramListPage() {
             />
           }
         />
-      </div>
+      ) : null}
 
-      <div className="block space-y-3 md:hidden">
+      {viewMode === "cards" ? (
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {query.isLoading ? (
-          <div className="text-muted-foreground p-6 text-center text-sm">
+          <div className="text-muted-foreground col-span-full p-6 text-center text-sm">
             Memuat daftar program...
           </div>
         ) : items.length === 0 ? (
-          <EmptyState
-            title="Belum ada program"
-            description="Tidak ada program ditemukan."
-          />
+          <div className="col-span-full">
+            <EmptyState
+              title="Belum ada program"
+              description="Tidak ada program ditemukan."
+            />
+          </div>
         ) : (
           items.map((item: ProgramsDocument) => (
             <div
               key={item.$id}
-              className="border-border bg-card space-y-3 rounded-xl border p-4 shadow-2xs"
+              className="border-border bg-card flex min-h-72 flex-col space-y-4 rounded-xl border p-5 shadow-2xs"
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
@@ -282,22 +342,28 @@ export function ProgramListPage() {
                 />
               </div>
 
-              <div className="border-border/50 grid grid-cols-2 gap-2 border-y py-2 text-xs">
+              {item.objective ? (
+                <p className="text-muted-foreground line-clamp-2 text-sm">
+                  {item.objective}
+                </p>
+              ) : null}
+
+              <div className="border-border/50 grid grid-cols-2 gap-3 border-y py-3 text-xs">
                 <div>
                   <span className="text-muted-foreground block">
-                    Jenis Dana:
+                    Bentuk dukungan:
                   </span>
-                  <span className="font-medium capitalize">
-                    {item.fund_type}
+                  <span className="font-medium">
+                    {supportModeSummary(item)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block">Anggaran:</span>
+                  <span className="text-muted-foreground block">Total rencana:</span>
                   <MoneyDisplay amount={item.budget_amount} />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-1">
+              <div className="mt-auto flex flex-wrap items-center justify-end gap-2 pt-1">
                 <Button
                   variant="outline"
                   size="sm"
@@ -306,21 +372,22 @@ export function ProgramListPage() {
                   <Eye className="mr-1 h-4 w-4" />
                   Detail
                 </Button>
-                {canFreeEditProgram(item) && (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => edit("programs", item.$id)}
-                  >
-                    <Edit className="mr-1 h-4 w-4" />
-                    Edit
-                  </Button>
-                )}
+                <ProtectedActionButton
+                  action="manage"
+                  resource="programs"
+                  variant="default"
+                  size="sm"
+                  onClick={() => show("programs", item.$id)}
+                >
+                  <Settings2 className="mr-1 h-4 w-4" />
+                  Kelola program
+                </ProtectedActionButton>
               </div>
             </div>
           ))
         )}
       </div>
+      ) : null}
 
       {totalPages > 1 && (
         <div className="border-border flex items-center justify-between border-t pt-4 text-xs">

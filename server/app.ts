@@ -22,6 +22,8 @@ import { inventoryRoute } from "./routes/inventory";
 import { kafalahRoute } from "./routes/kafalah";
 import { logisticsRoute } from "./routes/logistics";
 import { procurementRoute } from "./routes/procurement";
+import { programsRoute } from "./routes/programs";
+import { publicProgramsRoute } from "./routes/public-programs";
 import { reportsRoute } from "./routes/reports";
 import { waqfRoute } from "./routes/waqf";
 import { checkDatabaseReadiness } from "./services/readiness-service";
@@ -125,9 +127,12 @@ app.use("/waqf", requestContextMiddleware);
 app.use("/waqf/*", requestContextMiddleware);
 app.use("/reports", requestContextMiddleware);
 app.use("/reports/*", requestContextMiddleware);
+app.use("/programs", requestContextMiddleware);
+app.use("/programs/*", requestContextMiddleware);
 app.use("/governance", requestContextMiddleware);
 app.use("/governance/*", requestContextMiddleware);
 
+app.route("/public/programs", publicProgramsRoute);
 app.route("/applications", applicationsRoute);
 app.route("/cases", casesRoute);
 app.route("/assessment-templates", assessmentTemplatesRoute);
@@ -144,6 +149,7 @@ app.route("/evidence", evidenceRoute);
 app.route("/kafalah", kafalahRoute);
 app.route("/waqf", waqfRoute);
 app.route("/reports", reportsRoute);
+app.route("/programs", programsRoute);
 app.route("/governance", governanceRoute);
 
 app.notFound((context) =>

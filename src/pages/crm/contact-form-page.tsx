@@ -7,7 +7,7 @@ import {
   useUpdate,
   type CrudFilters,
 } from "@refinedev/core";
-import { useParams } from "react-router";
+import { useParams, useSearchParams } from "react-router";
 import { ArrowLeft, Save } from "lucide-react";
 import { useForm, useWatch, type SubmitHandler } from "react-hook-form";
 
@@ -39,8 +39,10 @@ type ContactFormValues = {
   display_name: string;
   district?: string;
   gender?: CrmContactsDocument["gender"];
+  is_applicant?: boolean;
   is_beneficiary?: boolean;
   is_donor?: boolean;
+  is_distribution_partner?: boolean;
   is_kafil?: boolean;
   is_volunteer?: boolean;
   legal_name?: string;
@@ -57,19 +59,26 @@ const roleFields = [
   ["is_kafil", "kafil", "Kafil"],
   ["is_volunteer", "volunteer", "Relawan"],
   ["is_beneficiary", "beneficiary", "Penerima"],
+  ["is_distribution_partner", "distribution_partner", "Mitra penyaluran"],
+  ["is_applicant", "applicant", "Pengaju bantuan"],
 ] as const;
 
 export function ContactFormPage() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const { activeOrganization, user } = useOrganization();
   const { list, show } = useNavigation();
   const isEdit = !!id;
   const activeOrgId = activeOrganization?.organization.$id;
-  const { mutate: createContact, mutation: createContactMutation } =
+  const requestedRole = searchParams.get("role");
+  const { mutateAsync: createContact, mutation: createContactMutation } =
     useCreate<CrmContactsDocument>();
-  const { mutate: updateContact, mutation: updateContactMutation } =
+  const { mutateAsync: updateContact, mutation: updateContactMutation } =
     useUpdate<CrmContactsDocument>();
-  const { mutate: createRole } = useCreate<CrmContactRolesDocument>();
+  const { mutateAsync: createRole, mutation: createRoleMutation } =
+    useCreate<CrmContactRolesDocument>();
+  const { mutateAsync: updateRole, mutation: updateRoleMutation } =
+    useUpdate<CrmContactRolesDocument>();
   const contactQuery = useOne<CrmContactsDocument>({
     resource: "crm_contacts",
     id: id ?? "",
@@ -84,6 +93,19 @@ export function ContactFormPage() {
     pagination: { currentPage: 1, pageSize: 500, mode: "server" },
     queryOptions: { enabled: !!activeOrgId },
   });
+  const roleFilters: CrudFilters =
+    activeOrgId && id
+      ? [
+          { field: "organization_id", operator: "eq", value: activeOrgId },
+          { field: "contact_id", operator: "eq", value: id },
+        ]
+      : [];
+  const rolesQuery = useList<CrmContactRolesDocument>({
+    resource: "crm_contact_roles",
+    filters: roleFilters,
+    pagination: { currentPage: 1, pageSize: 100, mode: "server" },
+    queryOptions: { enabled: !!activeOrgId && isEdit },
+  });
 
   const { control, handleSubmit, register, reset } = useForm<ContactFormValues>(
     {
@@ -91,8 +113,10 @@ export function ContactFormPage() {
         contact_type: "person",
         display_name: "",
         gender: "unknown",
+        is_applicant: requestedRole === "applicant",
         is_beneficiary: false,
         is_donor: false,
+        is_distribution_partner: requestedRole === "distribution_partner",
         is_kafil: false,
         is_volunteer: false,
         status: "active",
@@ -106,6 +130,12 @@ export function ContactFormPage() {
       return;
     }
 
+    const activeRoleTypes = new Set(
+      (rolesQuery.result?.data ?? [])
+        .filter((role) => role.status === "active")
+        .map((role) => role.role_type),
+    );
+
     reset({
       address_line: contact.address_line ?? "",
       city: contact.city ?? "",
@@ -113,6 +143,12 @@ export function ContactFormPage() {
       display_name: contact.display_name,
       district: contact.district ?? "",
       gender: contact.gender ?? "unknown",
+      is_applicant: activeRoleTypes.has("applicant"),
+      is_beneficiary: activeRoleTypes.has("beneficiary"),
+      is_donor: activeRoleTypes.has("donor"),
+      is_distribution_partner: activeRoleTypes.has("distribution_partner"),
+      is_kafil: activeRoleTypes.has("kafil"),
+      is_volunteer: activeRoleTypes.has("volunteer"),
       legal_name: contact.legal_name ?? "",
       notes: contact.notes ?? "",
       primary_email: contact.primary_email ?? "",
@@ -121,7 +157,7 @@ export function ContactFormPage() {
       village: contact.village ?? "",
       whatsapp_phone: contact.whatsapp_phone ?? "",
     });
-  }, [contactQuery.result, reset]);
+  }, [contactQuery.result, reset, rolesQuery.result?.data]);
   const duplicateCandidates = useMemo(
     () =>
       findDuplicateCandidates(
@@ -145,7 +181,46 @@ export function ContactFormPage() {
     ],
   );
 
-  const onSubmit: SubmitHandler<ContactFormValues> = (values) => {
+  const syncRoles = async (contactId: string, values: ContactFormValues) => {
+    const existingRoles = rolesQuery.result?.data ?? [];
+
+    await Promise.all(
+      roleFields.map(async ([field, roleType]) => {
+        const existingRole = existingRoles.find(
+          (role) => role.role_type === roleType,
+        );
+        const shouldBeActive = Boolean(values[field]);
+
+        if (!existingRole && shouldBeActive) {
+          await createRole({
+            resource: "crm_contact_roles",
+            values: {
+              contact_id: contactId,
+              created_by: user?.$id,
+              organization_id: activeOrgId,
+              role_type: roleType,
+              started_at: new Date().toISOString(),
+              status: "active",
+            },
+          });
+          return;
+        }
+
+        if (
+          existingRole &&
+          (existingRole.status === "active") !== shouldBeActive
+        ) {
+          await updateRole({
+            id: existingRole.$id,
+            resource: "crm_contact_roles",
+            values: { status: shouldBeActive ? "active" : "inactive" },
+          });
+        }
+      }),
+    );
+  };
+
+  const onSubmit: SubmitHandler<ContactFormValues> = async (values) => {
     if (!activeOrgId) {
       return;
     }
@@ -173,43 +248,22 @@ export function ContactFormPage() {
     };
 
     if (isEdit && id) {
-      updateContact(
-        {
-          id,
-          resource: "crm_contacts",
-          values: contactValues,
-        },
-        { onSuccess: () => show("crm_contacts", id) },
-      );
+      await updateContact({
+        id,
+        resource: "crm_contacts",
+        values: contactValues,
+      });
+      await syncRoles(id, values);
+      show("crm_contacts", id);
       return;
     }
 
-    createContact(
-      {
-        resource: "crm_contacts",
-        values: contactValues,
-      },
-      {
-        onSuccess: ({ data }) => {
-          for (const [field, roleType] of roleFields) {
-            if (values[field]) {
-              createRole({
-                resource: "crm_contact_roles",
-                values: {
-                  contact_id: data.$id,
-                  created_by: user?.$id,
-                  organization_id: activeOrgId,
-                  role_type: roleType,
-                  status: "active",
-                  started_at: new Date().toISOString(),
-                },
-              });
-            }
-          }
-          show("crm_contacts", data.$id);
-        },
-      },
-    );
+    const { data } = await createContact({
+      resource: "crm_contacts",
+      values: contactValues,
+    });
+    await syncRoles(data.$id, values);
+    show("crm_contacts", data.$id);
   };
 
   return (
@@ -339,12 +393,16 @@ export function ContactFormPage() {
             type="submit"
             disabled={
               createContactMutation?.isPending ||
-              updateContactMutation?.isPending
+              updateContactMutation?.isPending ||
+              createRoleMutation?.isPending ||
+              updateRoleMutation?.isPending
             }
           >
             <Save aria-hidden="true" size={16} />
             {createContactMutation?.isPending ||
-            updateContactMutation?.isPending
+            updateContactMutation?.isPending ||
+            createRoleMutation?.isPending ||
+            updateRoleMutation?.isPending
               ? "Menyimpan..."
               : "Simpan kontak"}
           </Button>
