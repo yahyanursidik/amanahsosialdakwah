@@ -33,15 +33,37 @@ export const inventoryIdempotencyKeySchema = z
 export const createInventoryProductSchema = z.object({
   base_unit: z.string().trim().min(1).max(32),
   category: z.string().trim().max(120).optional(),
+  category_id: z.string().uuid().optional(),
   name: z.string().trim().min(3).max(200),
-  sku: z.string().trim().min(2).max(80).regex(/^[A-Za-z0-9._:-]+$/),
+  sku: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[A-Za-z0-9._:-]+$/),
   track_batch: z.boolean().default(false),
   track_expiry: z.boolean().default(false),
 });
 
+export const createInventoryProductCategorySchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[A-Za-z0-9._:-]+$/),
+  description: z.string().trim().max(1_000).optional(),
+  name: z.string().trim().min(2).max(120),
+});
+
 export const createInventoryWarehouseSchema = z.object({
   address_notes: z.string().trim().max(1000).optional(),
-  code: z.string().trim().min(2).max(80).regex(/^[A-Za-z0-9._:-]+$/),
+  code: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[A-Za-z0-9._:-]+$/),
   name: z.string().trim().min(3).max(200),
   type: z.enum(["central", "field", "partner", "virtual"]).default("central"),
 });
@@ -67,17 +89,20 @@ export const inventoryDecisionSchema = z.object({
 });
 
 export const postGoodsReceiptInventorySchema = z.object({
-  items: z.array(
-    z.object({
-      batch_number: z.string().trim().max(120).optional(),
-      expires_at: z.string().date().optional(),
-      product_id: z.string().uuid(),
-      quantity: quantitySchema,
-      source_item_name: z.string().trim().max(200).optional(),
-      unit: z.string().trim().min(1).max(32),
-      warehouse_id: z.string().uuid(),
-    }),
-  ).min(1).max(50),
+  items: z
+    .array(
+      z.object({
+        batch_number: z.string().trim().max(120).optional(),
+        expires_at: z.string().date().optional(),
+        product_id: z.string().uuid(),
+        quantity: quantitySchema,
+        source_item_name: z.string().trim().max(200).optional(),
+        unit: z.string().trim().min(1).max(32),
+        warehouse_id: z.string().uuid(),
+      }),
+    )
+    .min(1)
+    .max(50),
   notes: z.string().trim().max(2000).optional(),
   occurred_at: dateTime,
 });
@@ -85,6 +110,9 @@ export const postGoodsReceiptInventorySchema = z.object({
 export type InventoryListQuery = z.infer<typeof inventoryListQuerySchema>;
 export type CreateInventoryProductInput = z.infer<
   typeof createInventoryProductSchema
+>;
+export type CreateInventoryProductCategoryInput = z.infer<
+  typeof createInventoryProductCategorySchema
 >;
 export type CreateInventoryWarehouseInput = z.infer<
   typeof createInventoryWarehouseSchema

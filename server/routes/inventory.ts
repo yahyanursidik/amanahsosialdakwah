@@ -6,10 +6,12 @@ import {
   approveInventoryAdjustment,
   cancelInventoryAdjustment,
   createInventoryAdjustment,
+  createInventoryProductCategory,
   createInventoryProduct,
   createInventoryWarehouse,
   getInventoryAdjustment,
   listInventoryAdjustments,
+  listInventoryProductCategories,
   listInventoryBalances,
   listInventoryMovements,
   listInventoryProducts,
@@ -21,6 +23,7 @@ import {
 import type { AppEnv } from "../types";
 import {
   createInventoryAdjustmentSchema,
+  createInventoryProductCategorySchema,
   createInventoryProductSchema,
   createInventoryWarehouseSchema,
   inventoryDecisionSchema,
@@ -85,6 +88,28 @@ inventoryRoute.post(
   async (context) => {
     const requestContext = context.get("requestContext");
     const data = await createInventoryProduct(
+      requestContext,
+      context.req.valid("json"),
+    );
+    return context.json(
+      { data, meta: { requestId: requestContext.requestId } },
+      201,
+    );
+  },
+);
+
+inventoryRoute.get("/product-categories", async (context) => {
+  const requestContext = context.get("requestContext");
+  const data = await listInventoryProductCategories(requestContext);
+  return context.json({ data, meta: { requestId: requestContext.requestId } });
+});
+
+inventoryRoute.post(
+  "/product-categories",
+  zValidator("json", createInventoryProductCategorySchema, validationHook),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    const data = await createInventoryProductCategory(
       requestContext,
       context.req.valid("json"),
     );
@@ -220,7 +245,10 @@ inventoryRoute.get(
       requestContext,
       context.req.valid("param").id,
     );
-    return context.json({ data, meta: { requestId: requestContext.requestId } });
+    return context.json({
+      data,
+      meta: { requestId: requestContext.requestId },
+    });
   },
 );
 
@@ -235,7 +263,10 @@ inventoryRoute.post(
       context.req.valid("param").id,
       context.req.valid("json"),
     );
-    return context.json({ data, meta: { requestId: requestContext.requestId } });
+    return context.json({
+      data,
+      meta: { requestId: requestContext.requestId },
+    });
   },
 );
 
@@ -250,7 +281,10 @@ inventoryRoute.post(
       context.req.valid("param").id,
       context.req.valid("json"),
     );
-    return context.json({ data, meta: { requestId: requestContext.requestId } });
+    return context.json({
+      data,
+      meta: { requestId: requestContext.requestId },
+    });
   },
 );
 
@@ -265,7 +299,10 @@ inventoryRoute.post(
       context.req.valid("param").id,
       context.req.valid("json"),
     );
-    return context.json({ data, meta: { requestId: requestContext.requestId } });
+    return context.json({
+      data,
+      meta: { requestId: requestContext.requestId },
+    });
   },
 );
 
@@ -279,7 +316,10 @@ inventoryRoute.post(
       context.req.valid("param").id,
       idempotencyKey(context),
     );
-    return context.json({ data, meta: { requestId: requestContext.requestId } });
+    return context.json({
+      data,
+      meta: { requestId: requestContext.requestId },
+    });
   },
 );
 
@@ -295,6 +335,9 @@ inventoryRoute.post(
       context.req.valid("json"),
       idempotencyKey(context),
     );
-    return context.json({ data, meta: { requestId: requestContext.requestId } });
+    return context.json({
+      data,
+      meta: { requestId: requestContext.requestId },
+    });
   },
 );

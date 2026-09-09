@@ -557,6 +557,29 @@
   color: var(--color-muted);
 }
 
+.workspace-section-heading__icon {
+  flex: none;
+  color: var(--color-accent);
+}
+
+.workspace-page__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-inline-start: 3px solid var(--color-accent);
+  background: color-mix(in oklch, var(--color-accent) 7%, var(--color-paper));
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.workspace-page__notice > svg {
+  flex: none;
+  margin-block-start: 0.15em;
+  color: var(--color-accent);
+}
+
 .workspace-actions__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

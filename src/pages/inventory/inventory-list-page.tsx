@@ -1,4 +1,9 @@
-import { useCreate, useList, useNavigation, type CrudFilters } from "@refinedev/core";
+import {
+  useCreate,
+  useList,
+  useNavigation,
+  type CrudFilters,
+} from "@refinedev/core";
 import { Eye, PackagePlus, Warehouse } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
@@ -22,12 +27,15 @@ import type {
   InventoryBalance,
   InventoryMovement,
   InventoryProduct,
+  InventoryProductCategory,
   InventoryWarehouse,
 } from "@/features/inventory/types";
 
 function statusTone(status: string) {
-  if (["active", "approved", "posted"].includes(status)) return "success" as const;
-  if (["cancelled", "inactive", "rejected"].includes(status)) return "danger" as const;
+  if (["active", "approved", "posted"].includes(status))
+    return "success" as const;
+  if (["cancelled", "inactive", "rejected"].includes(status))
+    return "danger" as const;
   if (status === "submitted") return "info" as const;
   return "neutral" as const;
 }
@@ -37,12 +45,13 @@ export function InventoryListPage() {
   const [search, setSearch] = useState("");
   const [productForm, setProductForm] = useState({
     base_unit: "pcs",
-    category: "",
+    category_id: "",
     name: "",
     sku: "",
     track_batch: false,
     track_expiry: false,
   });
+  const [categoryForm, setCategoryForm] = useState({ code: "", name: "" });
   const [warehouseForm, setWarehouseForm] = useState({
     address_notes: "",
     code: "",
@@ -51,6 +60,8 @@ export function InventoryListPage() {
   });
   const { mutate: createProduct, mutation: productMutation } =
     useCreate<InventoryProduct>();
+  const { mutate: createProductCategory, mutation: categoryMutation } =
+    useCreate<InventoryProductCategory>();
   const { mutate: createWarehouse, mutation: warehouseMutation } =
     useCreate<InventoryWarehouse>();
   const filters: CrudFilters = search.trim()
@@ -63,6 +74,10 @@ export function InventoryListPage() {
   const products = useList<InventoryProduct>({
     resource: "inventory_products",
     ...listOptions,
+  });
+  const productCategories = useList<InventoryProductCategory>({
+    resource: "inventory_product_categories",
+    pagination: { currentPage: 1, pageSize: 100, mode: "server" },
   });
   const warehouses = useList<InventoryWarehouse>({
     resource: "inventory_warehouses",
@@ -82,8 +97,19 @@ export function InventoryListPage() {
   });
 
   const productColumns: ResourceTableColumn<InventoryProduct>[] = [
-    { header: "SKU", key: "sku", render: (item) => <span className="font-mono text-xs font-semibold">{item.sku}</span> },
+    {
+      header: "SKU",
+      key: "sku",
+      render: (item) => (
+        <span className="font-mono text-xs font-semibold">{item.sku}</span>
+      ),
+    },
     { header: "Produk", key: "name", render: (item) => item.name },
+    {
+      header: "Kategori",
+      key: "category",
+      render: (item) => item.category_name ?? item.category ?? "-",
+    },
     { header: "Satuan", key: "unit", render: (item) => item.base_unit },
     {
       header: "Tracking",
@@ -96,17 +122,52 @@ export function InventoryListPage() {
     {
       header: "Status",
       key: "status",
-      render: (item) => <StatusBadge tone={statusTone(item.status)}>{item.status}</StatusBadge>,
+      render: (item) => (
+        <StatusBadge tone={statusTone(item.status)}>{item.status}</StatusBadge>
+      ),
     },
   ];
+  const productCategoryColumns: ResourceTableColumn<InventoryProductCategory>[] =
+    [
+      {
+        header: "Kode",
+        key: "code",
+        render: (item) => (
+          <span className="font-mono text-xs font-semibold">{item.code}</span>
+        ),
+      },
+      { header: "Kategori", key: "name", render: (item) => item.name },
+      {
+        header: "Keterangan",
+        key: "description",
+        render: (item) => item.description ?? "-",
+      },
+      {
+        header: "Status",
+        key: "status",
+        render: (item) => (
+          <StatusBadge tone={statusTone(item.status)}>
+            {item.status}
+          </StatusBadge>
+        ),
+      },
+    ];
   const warehouseColumns: ResourceTableColumn<InventoryWarehouse>[] = [
-    { header: "Kode", key: "code", render: (item) => <span className="font-mono text-xs font-semibold">{item.code}</span> },
+    {
+      header: "Kode",
+      key: "code",
+      render: (item) => (
+        <span className="font-mono text-xs font-semibold">{item.code}</span>
+      ),
+    },
     { header: "Gudang", key: "name", render: (item) => item.name },
     { header: "Tipe", key: "type", render: (item) => item.type },
     {
       header: "Status",
       key: "status",
-      render: (item) => <StatusBadge tone={statusTone(item.status)}>{item.status}</StatusBadge>,
+      render: (item) => (
+        <StatusBadge tone={statusTone(item.status)}>{item.status}</StatusBadge>
+      ),
     },
   ];
   const balanceColumns: ResourceTableColumn<InventoryBalance>[] = [
@@ -120,8 +181,16 @@ export function InventoryListPage() {
         </div>
       ),
     },
-    { header: "Gudang", key: "warehouse", render: (item) => `${item.warehouse_code} / ${item.warehouse_name}` },
-    { header: "Batch", key: "batch", render: (item) => item.batch_number ?? "-" },
+    {
+      header: "Gudang",
+      key: "warehouse",
+      render: (item) => `${item.warehouse_code} / ${item.warehouse_name}`,
+    },
+    {
+      header: "Batch",
+      key: "batch",
+      render: (item) => item.batch_number ?? "-",
+    },
     {
       align: "right",
       header: "On hand",
@@ -149,8 +218,16 @@ export function InventoryListPage() {
   ];
   const movementColumns: ResourceTableColumn<InventoryMovement>[] = [
     { header: "Produk", key: "product", render: (item) => item.product_name },
-    { header: "Gudang", key: "warehouse", render: (item) => item.warehouse_code },
-    { header: "Tipe", key: "type", render: (item) => item.movement_type.replaceAll("_", " ") },
+    {
+      header: "Gudang",
+      key: "warehouse",
+      render: (item) => item.warehouse_code,
+    },
+    {
+      header: "Tipe",
+      key: "type",
+      render: (item) => item.movement_type.replaceAll("_", " "),
+    },
     {
       align: "right",
       header: "Jumlah",
@@ -163,12 +240,28 @@ export function InventoryListPage() {
         />
       ),
     },
-    { header: "Sumber", key: "source", render: (item) => item.source_type.replaceAll("_", " ") },
+    {
+      header: "Sumber",
+      key: "source",
+      render: (item) => item.source_type.replaceAll("_", " "),
+    },
   ];
   const adjustmentColumns: ResourceTableColumn<InventoryAdjustment>[] = [
-    { header: "Referensi", key: "reference", render: (item) => <span className="font-mono text-xs font-semibold">{item.reference_number}</span> },
+    {
+      header: "Referensi",
+      key: "reference",
+      render: (item) => (
+        <span className="font-mono text-xs font-semibold">
+          {item.reference_number}
+        </span>
+      ),
+    },
     { header: "Produk", key: "product", render: (item) => item.product_name },
-    { header: "Gudang", key: "warehouse", render: (item) => item.warehouse_code },
+    {
+      header: "Gudang",
+      key: "warehouse",
+      render: (item) => item.warehouse_code,
+    },
     {
       align: "right",
       header: "Delta",
@@ -199,20 +292,32 @@ export function InventoryListPage() {
         resource: "inventory_products",
         values: {
           ...productForm,
-          category: productForm.category || undefined,
+          category_id: productForm.category_id || undefined,
         },
       },
       {
         onSuccess: () => {
           setProductForm({
             base_unit: "pcs",
-            category: "",
+            category_id: "",
             name: "",
             sku: "",
             track_batch: false,
             track_expiry: false,
           });
           void products.query.refetch();
+        },
+      },
+    );
+  };
+  const submitCategory = (event: FormEvent) => {
+    event.preventDefault();
+    createProductCategory(
+      { resource: "inventory_product_categories", values: categoryForm },
+      {
+        onSuccess: () => {
+          setCategoryForm({ code: "", name: "" });
+          void productCategories.query.refetch();
         },
       },
     );
@@ -241,7 +346,12 @@ export function InventoryListPage() {
     );
   };
 
-  if (products.query.isError || warehouses.query.isError || balances.query.isError) {
+  if (
+    products.query.isError ||
+    warehouses.query.isError ||
+    balances.query.isError ||
+    productCategories.query.isError
+  ) {
     return (
       <section className="workspace-page">
         <PageHeader title="Inventory & Gudang" eyebrow="Operasional Barang" />
@@ -252,6 +362,7 @@ export function InventoryListPage() {
             void products.query.refetch();
             void warehouses.query.refetch();
             void balances.query.refetch();
+            void productCategories.query.refetch();
           }}
         />
       </section>
@@ -339,16 +450,24 @@ export function InventoryListPage() {
                 </div>
                 <div className="auth-field">
                   <Label htmlFor="inventory_category">Kategori</Label>
-                  <input
+                  <select
                     id="inventory_category"
-                    value={productForm.category}
+                    value={productForm.category_id}
                     onChange={(event) =>
                       setProductForm((current) => ({
                         ...current,
-                        category: event.target.value,
+                        category_id: event.target.value,
                       }))
                     }
-                  />
+                    disabled={productCategories.query.isLoading}
+                  >
+                    <option value="">Tanpa kategori</option>
+                    {(productCategories.result?.data ?? []).map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name} ({category.code})
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <label className="auth-field">
                   <span>Tracking batch</span>
@@ -376,6 +495,53 @@ export function InventoryListPage() {
                     }
                   />
                 </label>
+              </div>
+            </FormSection>
+          </form>
+        </CanAccess>
+
+        <CanAccess action="manage" resource="inventory_products">
+          <form className="crm-form" onSubmit={submitCategory}>
+            <FormSection
+              title="Kategori Produk"
+              description="Kategori dipakai bersama oleh master produk dan rencana barang Program."
+              footer={
+                <Button type="submit" disabled={categoryMutation.isPending}>
+                  Simpan Kategori
+                </Button>
+              }
+            >
+              <div className="form-grid">
+                <div className="auth-field">
+                  <Label htmlFor="inventory_category_code">Kode kategori</Label>
+                  <input
+                    id="inventory_category_code"
+                    required
+                    value={categoryForm.code}
+                    onChange={(event) =>
+                      setCategoryForm((current) => ({
+                        ...current,
+                        code: event.target.value,
+                      }))
+                    }
+                    placeholder="PANGAN"
+                  />
+                </div>
+                <div className="auth-field">
+                  <Label htmlFor="inventory_category_name">Nama kategori</Label>
+                  <input
+                    id="inventory_category_name"
+                    required
+                    value={categoryForm.name}
+                    onChange={(event) =>
+                      setCategoryForm((current) => ({
+                        ...current,
+                        name: event.target.value,
+                      }))
+                    }
+                    placeholder="Pangan & Sembako"
+                  />
+                </div>
               </div>
             </FormSection>
           </form>
@@ -482,6 +648,18 @@ export function InventoryListPage() {
         getRowId={(item) => item.id}
         isLoading={products.query.isLoading}
         items={products.result?.data ?? []}
+      />
+      <ResourceTable
+        columns={productCategoryColumns}
+        empty={
+          <EmptyState
+            title="Belum ada kategori produk"
+            description="Buat kategori agar master produk dan rencana barang konsisten."
+          />
+        }
+        getRowId={(item) => item.id}
+        isLoading={productCategories.query.isLoading}
+        items={productCategories.result?.data ?? []}
       />
       <ResourceTable
         columns={warehouseColumns}

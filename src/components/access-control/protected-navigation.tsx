@@ -161,6 +161,13 @@ const navigationGroups = [
       },
       {
         action: "read",
+        icon: UsersRound,
+        label: "Mitra & pengaju",
+        resource: "crm_contact_roles",
+        to: "/crm/partners",
+      },
+      {
+        action: "read",
         icon: Tags,
         label: "Tag CRM",
         resource: "crm_tags",

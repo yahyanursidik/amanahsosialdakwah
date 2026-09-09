@@ -41,7 +41,7 @@ export function AppLayout() {
         <OrganizationSwitcher variant="sidebar" />
         <ProtectedNavigation />
         <p className="app-layout__sidebar-note">
-          Menu ditampilkan sesuai permission organisasi aktif.
+          Menu operasional mengikuti permission pada konteks kerja yang dipilih.
         </p>
       </aside>
       {navigationOpen ? (

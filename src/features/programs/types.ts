@@ -7,6 +7,7 @@ import type {
 export type ProgramStatus = ProgramsDocument["status"];
 export type TargetBeneficiaryType = ProgramsDocument["target_beneficiary_type"];
 export type FundType = ProgramsDocument["fund_type"];
+export type ProgramSupportMode = ProgramsDocument["support_modes"][number];
 export type RevisionActionType = ProgramRevisionsDocument["action_type"];
 
 export interface ProgramItem extends ProgramsDocument {
@@ -26,6 +27,10 @@ export interface CreateProgramPayload {
   target_beneficiary_type: TargetBeneficiaryType;
   target_beneficiary_count?: number | undefined;
   budget_amount: number;
+  support_modes: ProgramSupportMode[];
+  cash_budget_amount: number;
+  goods_budget_amount: number;
+  logistics_budget_amount: number;
   fund_type: FundType;
   starts_at?: string | undefined;
   ends_at?: string | undefined;
@@ -41,6 +46,10 @@ export interface UpdateDraftProgramPayload {
   target_beneficiary_type?: TargetBeneficiaryType | undefined;
   target_beneficiary_count?: number | undefined;
   budget_amount?: number | undefined;
+  support_modes?: ProgramSupportMode[] | undefined;
+  cash_budget_amount?: number | undefined;
+  goods_budget_amount?: number | undefined;
+  logistics_budget_amount?: number | undefined;
   fund_type?: FundType | undefined;
   starts_at?: string | undefined;
   ends_at?: string | undefined;

@@ -14,6 +14,7 @@ import {
 import { DomainError } from "../domain/errors";
 import type {
   CreateInventoryAdjustmentInput,
+  CreateInventoryProductCategoryInput,
   CreateInventoryProductInput,
   CreateInventoryWarehouseInput,
   InventoryDecisionInput,
@@ -331,7 +332,9 @@ export async function listInventoryProducts(
     }
     if (query.q) {
       values.push(`%${query.q}%`);
-      filters.push(`(sku ilike $${values.length} or name ilike $${values.length})`);
+      filters.push(
+        `(sku ilike $${values.length} or name ilike $${values.length})`,
+      );
     }
     const where = filters.join(" and ");
     const count = await client.query<{ total: number }>(
@@ -342,8 +345,12 @@ export async function listInventoryProducts(
     values.push(query.pageSize, offset);
     const result = await client.query<Row>(
       `
-        select * from public.inventory_products
-        where ${where}
+        select product.*, category.name as category_name
+        from public.inventory_products product
+        left join public.inventory_product_categories category
+          on category.id = product.category_id
+         and category.organization_id = product.organization_id
+        where ${where.replaceAll("organization_id", "product.organization_id").replaceAll("status", "product.status").replaceAll("sku", "product.sku").replaceAll("name", "product.name")}
         order by name asc
         limit $${values.length - 1} offset $${values.length}
       `,
@@ -364,19 +371,36 @@ export async function createInventoryProduct(
 ) {
   requirePermission(context, "inventory_products.manage");
   return withTenantTransaction(context, async (database, client) => {
+    let categoryName = input.category ?? null;
+    if (input.category_id) {
+      const category = await client.query<{ name: string }>(
+        `select name from public.inventory_product_categories
+         where id = $1 and organization_id = $2 and status = 'active'`,
+        [input.category_id, context.organizationId],
+      );
+      if (!category.rows[0]) {
+        throw new DomainError(
+          "VALIDATION_ERROR",
+          "Kategori produk tidak aktif atau bukan milik organisasi.",
+          400,
+        );
+      }
+      categoryName = category.rows[0].name;
+    }
     const result = await client.query<Row>(
       `
         insert into public.inventory_products (
-          organization_id, sku, name, category, base_unit,
+          organization_id, sku, name, category, category_id, base_unit,
           track_batch, track_expiry, created_by, updated_by
-        ) values ($1, $2, $3, $4, $5, $6, $7, $8, $8)
+        ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)
         returning *
       `,
       [
         context.organizationId,
         input.sku.toUpperCase(),
         input.name,
-        input.category ?? null,
+        categoryName,
+        input.category_id ?? null,
         input.base_unit,
         input.track_batch,
         input.track_expiry,
@@ -389,6 +413,48 @@ export async function createInventoryProduct(
       after: record,
       entityId: record.id,
       entityType: "inventory_product",
+    });
+    return record;
+  });
+}
+
+export async function listInventoryProductCategories(context: RequestContext) {
+  requirePermission(context, "inventory_product_categories.read");
+  return withTenantTransaction(context, async (_database, client) => {
+    const result = await client.query<Row>(
+      `select * from public.inventory_product_categories
+       where organization_id = $1 and status = 'active'
+       order by name asc`,
+      [context.organizationId],
+    );
+    return result.rows;
+  });
+}
+
+export async function createInventoryProductCategory(
+  context: RequestContext,
+  input: CreateInventoryProductCategoryInput,
+) {
+  requirePermission(context, "inventory_product_categories.manage");
+  return withTenantTransaction(context, async (database, client) => {
+    const result = await client.query<Row>(
+      `insert into public.inventory_product_categories (
+         organization_id, code, name, description, created_by, updated_by
+       ) values ($1,$2,$3,$4,$5,$5) returning *`,
+      [
+        context.organizationId,
+        input.code.toUpperCase(),
+        input.name,
+        input.description ?? null,
+        context.profileId,
+      ],
+    );
+    const record = result.rows[0]!;
+    await insertAuditEvent(database, context, {
+      action: "inventory.product_category_created",
+      after: record,
+      entityId: record.id,
+      entityType: "inventory_product_category",
     });
     return record;
   });
@@ -408,7 +474,9 @@ export async function listInventoryWarehouses(
     }
     if (query.q) {
       values.push(`%${query.q}%`);
-      filters.push(`(code ilike $${values.length} or name ilike $${values.length})`);
+      filters.push(
+        `(code ilike $${values.length} or name ilike $${values.length})`,
+      );
     }
     const where = filters.join(" and ");
     const count = await client.query<{ total: number }>(
@@ -853,7 +921,9 @@ export async function postInventoryAdjustment(
         current.rows[0] ?? notFound("Adjustment inventory tidak ditemukan.");
       transitionAdjustment(adjustment.status, "posted");
       const movementType =
-        Number(adjustment.expected_delta) > 0 ? "adjustment_in" : "adjustment_out";
+        Number(adjustment.expected_delta) > 0
+          ? "adjustment_in"
+          : "adjustment_out";
       const quantity = String(Math.abs(Number(adjustment.expected_delta)));
       const movement = await applyMovement(client, context, {
         batchNumber: adjustment.batch_number as string | null,
@@ -933,9 +1003,9 @@ export async function postGoodsReceiptToInventory(
 
       const movements: Row[] = [];
       for (const item of input.items) {
-      const movement = await applyMovement(client, context, {
-        batchNumber: item.batch_number ?? null,
-        expiresAt: item.expires_at ?? null,
+        const movement = await applyMovement(client, context, {
+          batchNumber: item.batch_number ?? null,
+          expiresAt: item.expires_at ?? null,
           movementType: "receipt_in",
           notes: input.notes ?? item.source_item_name ?? null,
           occurredAt: input.occurred_at,

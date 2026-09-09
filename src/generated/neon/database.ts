@@ -293,8 +293,23 @@ export interface Database {
       profiles: {
         Row: ProfilesRow;
       };
+      program_application_allocations: {
+        Row: ProgramApplicationAllocationsRow;
+      };
+      program_beneficiary_fulfillments: {
+        Row: ProgramBeneficiaryFulfillmentsRow;
+      };
       program_categories: {
         Row: ProgramCategoriesRow;
+      };
+      program_delivery_areas: {
+        Row: ProgramDeliveryAreasRow;
+      };
+      program_partner_assignments: {
+        Row: ProgramPartnerAssignmentsRow;
+      };
+      program_publications: {
+        Row: ProgramPublicationsRow;
       };
       program_revisions: {
         Row: ProgramRevisionsRow;
@@ -1865,6 +1880,45 @@ export interface ProfilesRow {
   updated_at: string;
 }
 
+export interface ProgramApplicationAllocationsRow {
+  id: string;
+  organization_id: string;
+  program_id: string;
+  application_id: string;
+  delivery_area_id: string | null;
+  partner_assignment_id: string | null;
+  status: string;
+  notes: string | null;
+  idempotency_key: string;
+  request_hash: string;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProgramBeneficiaryFulfillmentsRow {
+  id: string;
+  organization_id: string;
+  program_id: string;
+  application_id: string;
+  case_id: string | null;
+  beneficiary_contact_id: string;
+  packing_id: string;
+  package_count: number;
+  partner_contact_id: string | null;
+  partner_pic_name: string | null;
+  partner_readiness_status: string;
+  status: string;
+  notes: string | null;
+  idempotency_key: string;
+  request_hash: string;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ProgramCategoriesRow {
   id: string;
   code: string;
@@ -1873,6 +1927,74 @@ export interface ProgramCategoriesRow {
   organization_id: string | null;
   status: string;
   created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProgramDeliveryAreasRow {
+  id: string;
+  organization_id: string;
+  program_id: string;
+  code: string;
+  name: string;
+  address_line: string | null;
+  village: string | null;
+  district: string | null;
+  city: string | null;
+  province: string | null;
+  postal_code: string | null;
+  quota_capacity: number;
+  status: string;
+  notes: string | null;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProgramPartnerAssignmentsRow {
+  id: string;
+  organization_id: string;
+  program_id: string;
+  delivery_area_id: string | null;
+  partner_contact_id: string;
+  assignment_role: string;
+  pic_name: string | null;
+  pic_phone: string | null;
+  readiness_status: string;
+  status: string;
+  notes: string | null;
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProgramPublicationsRow {
+  id: string;
+  organization_id: string;
+  program_id: string;
+  version_number: number;
+  public_slug: string;
+  public_title: string;
+  public_summary: string;
+  impact_headline: string | null;
+  report_title: string;
+  report_narrative: string;
+  report_period_start: string | null;
+  report_period_end: string | null;
+  reported_beneficiary_count: number;
+  reported_cash_amount: string | null;
+  reported_goods_value: string | null;
+  reported_logistics_amount: string | null;
+  status: string;
+  published_by: string | null;
+  published_at: string | null;
+  revoked_by: string | null;
+  revoked_at: string | null;
+  revocation_reason: string | null;
+  created_by: string;
+  updated_by: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -1917,6 +2039,10 @@ export interface ProgramsRow {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  support_modes: unknown;
+  cash_budget_amount: string;
+  goods_budget_amount: string;
+  logistics_budget_amount: string;
 }
 
 export interface PurchaseOrdersRow {

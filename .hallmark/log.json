@@ -1,5 +1,50 @@
 [
   {
+    "date": "2026-09-10",
+    "macrostructure": "Long Document",
+    "theme": "custom",
+    "theme_axes": "light / geometric-sans / chromatic-teal",
+    "vibe": "calm trust, public, readable",
+    "enrichment": "none",
+    "brief": "Menata halaman publik Program dengan ringkasan dukungan dan progres agregat"
+  },
+  {
+    "date": "2026-09-09",
+    "macrostructure": "Operational Ledger",
+    "theme": "custom",
+    "theme_axes": "light / geometric-sans / chromatic-teal",
+    "vibe": "calm trust, dense, operational",
+    "enrichment": "none",
+    "brief": "Mengubah detail Program menjadi halaman administrasi berbasis tabel"
+  },
+  {
+    "date": "2026-09-07",
+    "macrostructure": "Index-First",
+    "theme": "custom",
+    "theme_axes": "light / geometric-sans / chromatic-teal",
+    "vibe": "calm trust, terse, operational",
+    "enrichment": "none",
+    "brief": "Memadatkan detail Program agar navigasi dan tindakan operasional lebih jelas"
+  },
+  {
+    "date": "2026-09-07",
+    "macrostructure": "Operational Ledger",
+    "theme": "custom",
+    "theme_axes": "light / geometric-sans / chromatic-teal",
+    "vibe": "calm trust, dense, accountable",
+    "enrichment": "none",
+    "brief": "Menata tabel jejak calon penerima dan penyaluran untuk data operasional padat"
+  },
+  {
+    "date": "2026-09-07",
+    "macrostructure": "Narrative Workflow",
+    "theme": "custom",
+    "theme_axes": "light / geometric-sans / chromatic-teal",
+    "vibe": "calm trust, human, accountable",
+    "enrichment": "none",
+    "brief": "Relayout detail Program untuk operator dan administrator"
+  },
+  {
     "date": "2026-07-30",
     "macrostructure": "Workbench",
     "theme": "custom",

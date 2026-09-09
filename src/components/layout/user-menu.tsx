@@ -21,6 +21,7 @@ export function UserMenu() {
         <ChevronDown className="size-4" aria-hidden />
       </summary>
       <div className="user-menu__popover">
+        <Link to="/platform/organizations">Pusat organisasi</Link>
         <Link to="/account/password">Ubah kata sandi</Link>
         <button type="button" onClick={() => logout({})} disabled={isPending}>
           {isPending ? (

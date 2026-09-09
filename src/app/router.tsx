@@ -29,6 +29,7 @@ import {
   ContactDetailPage,
   ContactFormPage,
   ContactListPage,
+  PartnerApplicantListPage,
   DistributionCreatePage,
   DistributionDetailPage,
   DistributionListPage,
@@ -55,6 +56,7 @@ import {
   LogisticsShipmentCreatePage,
   LogisticsShipmentDetailPage,
   NotFoundPage,
+  OrganizationHubPage,
   ProcurementCreatePage,
   ProcurementDetailPage,
   ProcurementListPage,
@@ -62,6 +64,7 @@ import {
   ProgramEditPage,
   ProgramListPage,
   ProgramShowPage,
+  PublicProgramLandingPage,
   ReportsPage,
   TagListPage,
   UnauthorizedPage,
@@ -84,6 +87,7 @@ export function AppRouter() {
   return (
     <Suspense fallback={<AppBoot message="Memuat halamanâ€¦" />}>
       <Routes>
+        <Route path="/p/:slug" element={<PublicProgramLandingPage />} />
         <Route
           element={
             <Authenticated
@@ -99,6 +103,10 @@ export function AppRouter() {
             <Route
               path="/account/password"
               element={<UpdatePasswordPage mode="session" />}
+            />
+            <Route
+              path="/platform/organizations"
+              element={<OrganizationHubPage />}
             />
           </Route>
           <Route element={<OrganizationGuard />}>
@@ -246,6 +254,16 @@ export function AppRouter() {
                 element={<ProtectedRoute action="read" resource="crm_tags" />}
               >
                 <Route path="/crm/tags" element={<TagListPage />} />
+              </Route>
+              <Route
+                element={
+                  <ProtectedRoute action="read" resource="crm_contact_roles" />
+                }
+              >
+                <Route
+                  path="/crm/partners"
+                  element={<PartnerApplicantListPage />}
+                />
               </Route>
               <Route
                 element={<ProtectedRoute action="read" resource="programs" />}

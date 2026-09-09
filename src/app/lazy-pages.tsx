@@ -130,6 +130,11 @@ export const ContactListPage = lazy(() =>
     default: module.ContactListPage,
   })),
 );
+export const PartnerApplicantListPage = lazy(() =>
+  import("@/pages/crm/partner-applicant-list-page").then((module) => ({
+    default: module.PartnerApplicantListPage,
+  })),
+);
 export const InstitutionProfilePage = lazy(() =>
   import("@/pages/crm/institution-profile-page").then((module) => ({
     default: module.InstitutionProfilePage,
@@ -295,6 +300,11 @@ export const ProgramShowPage = lazy(() =>
     default: module.ProgramShowPage,
   })),
 );
+export const PublicProgramLandingPage = lazy(() =>
+  import("@/pages/public/program-public-landing-page").then((module) => ({
+    default: module.PublicProgramLandingPage,
+  })),
+);
 export const ReportsPage = lazy(() =>
   import("@/pages/reports/reports-page").then((module) => ({
     default: module.ReportsPage,
@@ -328,6 +338,11 @@ export const WaqfListPage = lazy(() =>
 export const FoundationResourcePage = lazy(() =>
   import("@/pages/workspace/foundation-resource-page").then((module) => ({
     default: module.FoundationResourcePage,
+  })),
+);
+export const OrganizationHubPage = lazy(() =>
+  import("@/pages/workspace/organization-hub-page").then((module) => ({
+    default: module.OrganizationHubPage,
   })),
 );
 export const WorkspacePage = lazy(() =>

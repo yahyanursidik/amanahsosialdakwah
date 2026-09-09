@@ -58,9 +58,11 @@ describe("design-system components", () => {
   it("menampilkan tabel resource padat ketika data tersedia", () => {
     render(
       <ResourceTable
+        ariaLabel="Daftar amanah"
         columns={columns}
         getRowId={(item) => item.id}
         items={[{ amount: 1250000, id: "row-a", name: "Amanah A" }]}
+        rowActions={() => <Button>Detail</Button>}
       />,
     );
 
@@ -70,6 +72,12 @@ describe("design-system components", () => {
     expect(screen.getByText("Amanah A")).toBeInTheDocument();
     expect(
       screen.getByText((text) => normalizeCurrency(text) === "Rp 1.250.000"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("region", { name: "Daftar amanah" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Aksi" }),
     ).toBeInTheDocument();
   });
 

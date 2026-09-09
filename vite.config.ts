@@ -30,7 +30,9 @@ function localApiPlugin(): Plugin {
             `http://${request.headers.host ?? "127.0.0.1"}`,
           );
           if (requestUrl.pathname.startsWith("/api/v1/")) {
-            const { app } = await import("./server/app");
+            // Use Vite's module runner so TypeScript and extensionless imports
+            // in the API work after Vite reloads its config.
+            const { app } = await server.ssrLoadModule("/server/app.ts");
             const headers = new Headers();
             for (const [name, value] of Object.entries(request.headers)) {
               if (Array.isArray(value)) {
@@ -61,7 +63,7 @@ function localApiPlugin(): Plugin {
               }),
             );
             response.statusCode = apiResponse.status;
-            apiResponse.headers.forEach((value, name) => {
+            apiResponse.headers.forEach((value: string, name: string) => {
               if (name !== "set-cookie") response.setHeader(name, value);
             });
             const cookies = apiResponse.headers.getSetCookie();

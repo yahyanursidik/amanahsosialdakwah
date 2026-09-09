@@ -10,6 +10,9 @@ type ResourceTableColumn<TItem> = {
 };
 
 type ResourceTableProps<TItem> = {
+  actionHeader?: string;
+  actionWidth?: string;
+  ariaLabel?: string;
   columns: ResourceTableColumn<TItem>[];
   empty?: React.ReactNode;
   getRowId: (item: TItem) => string;
@@ -19,6 +22,9 @@ type ResourceTableProps<TItem> = {
 };
 
 export function ResourceTable<TItem>({
+  actionHeader = "Aksi",
+  actionWidth,
+  ariaLabel,
   columns,
   empty = <EmptyState />,
   getRowId,
@@ -35,7 +41,12 @@ export function ResourceTable<TItem>({
   }
 
   return (
-    <div className="resource-table" role="region" tabIndex={0}>
+    <div
+      aria-label={ariaLabel}
+      className="resource-table"
+      role="region"
+      tabIndex={0}
+    >
       <table>
         <thead>
           <tr>
@@ -48,7 +59,14 @@ export function ResourceTable<TItem>({
                 {column.header}
               </th>
             ))}
-            {rowActions ? <th aria-label="Aksi" /> : null}
+            {rowActions ? (
+              <th
+                data-align="right"
+                style={actionWidth ? { width: actionWidth } : undefined}
+              >
+                {actionHeader}
+              </th>
+            ) : null}
           </tr>
         </thead>
         <tbody>
