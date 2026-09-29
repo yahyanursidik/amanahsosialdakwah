@@ -65,6 +65,20 @@ export function App() {
             meta: { label: "Aset Wakaf" },
           },
           {
+            name: "field_reports",
+            list: "/field/reports",
+            create: "/field/reports/new",
+            show: "/field/reports/:id",
+            meta: { label: "Laporan Lapangan" },
+          },
+          {
+            name: "field_tasks",
+            list: "/field/tasks",
+            create: "/field/tasks/new",
+            show: "/field/tasks/:id",
+            meta: { label: "Tugas Lapangan" },
+          },
+          {
             name: "beneficiaries",
             list: "/beneficiaries",
             create: "/beneficiaries/new",

@@ -39,6 +39,13 @@ import {
   EvidenceDetailPage,
   EvidenceListPage,
   EvidenceUploadPage,
+  FieldReportDetailPage,
+  FieldReportFormPage,
+  FieldTaskDetailPage,
+  FieldTaskFormPage,
+  FieldTaskListPage,
+  FieldReportListPage,
+  FieldWorkspacePage,
   ForgotPasswordPage,
   FoundationResourcePage,
   FundAllocationDetailPage,
@@ -125,6 +132,29 @@ export function AppRouter() {
             <Route element={<AppLayout />}>
               <Route index element={<WorkspacePage />} />
               <Route path="/guide" element={<ProcessGuidePage />} />
+              <Route
+                element={<ProtectedRoute action="read" resource="field_reports" />}
+              >
+                <Route path="/field" element={<FieldWorkspacePage />} />
+                <Route path="/field/reports" element={<FieldReportListPage />} />
+                <Route path="/field/reports/:id" element={<FieldReportDetailPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="submit" resource="field_reports" />}
+              >
+                <Route path="/field/reports/new" element={<FieldReportFormPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="read" resource="field_tasks" />}
+              >
+                <Route path="/field/tasks/:id" element={<FieldTaskDetailPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="manage" resource="field_tasks" />}
+              >
+                <Route path="/field/tasks" element={<FieldTaskListPage />} />
+                <Route path="/field/tasks/new" element={<FieldTaskFormPage />} />
+              </Route>
               <Route
                 element={
                   <ProtectedRoute action="read" resource="crm_beneficiary_profiles" />

@@ -5,6 +5,7 @@ import {
   HandHeart,
   HeartHandshake,
   Landmark,
+  Smartphone,
   Sprout,
   Truck,
   UserRound,
@@ -69,6 +70,24 @@ const journeys: Journey[] = [
       { description: "Unggah metadata dokumen legal, verifikasi oleh petugas lain, lalu registrasi aktif.", href: "/waqf", menu: "Detail aset → Dokumen legal", title: "Legalitas & registrasi" },
       { description: "Kelola nazhir, pemanfaatan, pendapatan hasil, dan distribusi manfaat.", href: "/waqf", menu: "Detail aset", title: "Kelola & salurkan manfaat" },
       { description: "Laporan wakif memuat setoran, status aset, dan manfaat yang telah tersalur.", href: "/reports/stakeholders?role=donor", menu: "Laporan → Pemangku kepentingan", title: "Laporkan ke wakif" },
+    ],
+  },
+  {
+    icon: Smartphone,
+    id: "field",
+    label: "Tim lapangan",
+    summary:
+      "Pengirim barang, penyalur bantuan, verifikator penerima, dan pelapor langsung dari lokasi — dirancang untuk HP dan tetap jalan tanpa sinyal.",
+    who: "Petugas lapangan, relawan, dan supervisor",
+    steps: [
+      { description: "Koordinator membuat to-do berceklis per penerima: salurkan dana, barang, atau keduanya sekaligus sesuai program; verifikasi; antar; atau pantau.", href: "/field/tasks/new", menu: "Lapangan → Kelola tugas", title: "Buat tugas berceklis" },
+      { description: "Tab To-do: buka tugas, telepon/WA/rute ke penerima, centang tiap langkah (tetap tersimpan tanpa sinyal), lalu Isi laporan & selesaikan.", href: "/field", menu: "Lapangan → Tugas lapangan → To-do", title: "Kerjakan ceklis" },
+      { description: "Koordinator juga dapat menugaskan distribusi (detail Distribusi → Tugaskan) dan pengiriman (detail Shipment → Petugas pengirim).", href: "/logistics", menu: "Penyaluran → Distribusi / Logistik", title: "Penugasan modul" },
+      { description: "Buka Tugas lapangan: tab Kirim untuk berangkat, update posisi GPS, serah terima, atau lapor kendala.", href: "/field", menu: "Lapangan → Tugas lapangan", title: "Pengirim" },
+      { description: "Tab Salurkan: mulai, catat penyaluran (nilai, hasil, GPS), konfirmasi penerima, dan catatan bukti.", href: "/field", menu: "Lapangan → Tugas lapangan", title: "Penyalur" },
+      { description: "Tab Verifikasi: kunjungi penerima, isi ceklis & hasil, ambil foto rumah dan lokasi GPS.", href: "/field", menu: "Lapangan → Tugas lapangan", title: "Verifikator" },
+      { description: "Buat laporan (penyaluran, pengiriman, pemantauan, situasi, insiden) dengan foto. Tanpa sinyal? Tersimpan di HP dan terkirim otomatis.", href: "/field/reports/new", menu: "Lapangan → Laporan lapangan", title: "Pelaporan langsung" },
+      { description: "Supervisor mereview laporan; laporan verifikasi yang disetujui otomatis memperbarui status kelayakan penerima.", href: "/field/reports?status=submitted", menu: "Lapangan → Laporan lapangan", title: "Review supervisor" },
     ],
   },
   {

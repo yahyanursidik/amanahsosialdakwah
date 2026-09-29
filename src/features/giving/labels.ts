@@ -371,3 +371,97 @@ export const distributionStatusLabels: LabelMap = {
   revision_required: "Perlu revisi",
   verified: "Terverifikasi",
 };
+
+export const fieldReportTypeLabels: LabelMap = {
+  delivery: "Pengiriman barang",
+  distribution: "Penyaluran bantuan",
+  incident: "Insiden / kendala",
+  monitoring: "Pemantauan penerima",
+  situation: "Situasi lapangan",
+  verification_visit: "Kunjungan verifikasi",
+};
+
+export const fieldReportTypeHints: LabelMap = {
+  delivery: "Laporan perjalanan/serah terima barang oleh pengirim.",
+  distribution: "Hasil penyaluran: jumlah penerima, paket, dan dana yang disalurkan.",
+  incident: "Kendala keamanan, kerusakan, penolakan, atau kejadian darurat.",
+  monitoring: "Pemantauan kondisi penerima setelah bantuan (tindak lanjut).",
+  situation: "Kondisi umum lokasi, misalnya bencana, cuaca, atau akses jalan.",
+  verification_visit: "Kunjungan rumah untuk memastikan kelayakan penerima.",
+};
+
+export const fieldReportStatusLabels: LabelMap = {
+  follow_up: "Perlu tindak lanjut",
+  rejected: "Ditolak",
+  reviewed: "Sudah direview",
+  submitted: "Menunggu review",
+};
+
+export const verificationResultLabels: LabelMap = {
+  eligible: "Layak dibantu",
+  moved: "Sudah pindah",
+  needs_review: "Perlu ditinjau ulang",
+  not_eligible: "Tidak layak",
+  not_found: "Tidak ditemukan",
+};
+
+export const verificationCheckLabels: LabelMap = {
+  address_matched: "Alamat sesuai data",
+  identity_matched: "Identitas (KTP/KK) sesuai",
+  income_confirmed: "Penghasilan terkonfirmasi",
+  living_condition_poor: "Kondisi tempat tinggal memprihatinkan",
+  neighbors_confirmed: "Dikonfirmasi tetangga / RT",
+};
+
+export const severityLabels: LabelMap = {
+  critical: "Kritis",
+  high: "Tinggi",
+  low: "Rendah",
+  medium: "Sedang",
+};
+
+export const shipmentStatusLabels: LabelMap = {
+  cancelled: "Dibatalkan",
+  delivered: "Terkirim",
+  dispatched: "Berangkat",
+  draft: "Siap berangkat",
+  in_transit: "Dalam perjalanan",
+  return_requested: "Retur diminta",
+  returned: "Kembali",
+  returning: "Dalam perjalanan kembali",
+};
+
+export const fieldTaskTypeLabels: LabelMap = {
+  distribution: "Salurkan bantuan",
+  verification: "Verifikasi penerima",
+  delivery: "Antar barang",
+  monitoring: "Pantau penerima",
+  other: "Tugas lainnya",
+};
+
+export const fieldTaskTypeHints: LabelMap = {
+  delivery: "Ambil barang di gudang lalu antar ke penerima atau mitra.",
+  distribution: "Serahkan dana, barang, atau keduanya langsung ke penerima.",
+  monitoring: "Kunjungi penerima setelah bantuan untuk melihat pemanfaatannya.",
+  other: "Tugas bebas dengan ceklis yang Anda tulis sendiri.",
+  verification: "Kunjungan rumah untuk memastikan kelayakan penerima.",
+};
+
+export const fieldTaskStatusLabels: LabelMap = {
+  cancelled: "Dibatalkan",
+  done: "Selesai",
+  in_progress: "Dikerjakan",
+  todo: "Belum mulai",
+};
+
+export const fieldTaskPriorityLabels: LabelMap = {
+  high: "Penting",
+  normal: "Biasa",
+  urgent: "Mendesak",
+};
+
+export const supportModeLabels: LabelMap = {
+  cash: "Dana",
+  in_kind: "Barang",
+  logistics: "Logistik",
+};

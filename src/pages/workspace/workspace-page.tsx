@@ -11,6 +11,7 @@ import {
   Layers3,
   PackageCheck,
   ShieldCheck,
+  Smartphone,
   Truck,
 } from "lucide-react";
 import { Link } from "react-router";
@@ -21,6 +22,14 @@ import { useOrganization } from "@/features/organizations/organization-context";
 import { WorkspaceReportSummary } from "@/features/reports/workspace-report-summary";
 
 const primaryActions = [
+  {
+    action: "read",
+    description: "Tugas kirim, salur, dan verifikasi hari ini; laporan dengan GPS & foto, bisa offline.",
+    icon: Smartphone,
+    label: "Buka tugas lapangan",
+    resource: "field_reports",
+    to: "/field",
+  },
   {
     action: "post",
     description: "Terima zakat, infaq, sedekah, atau donasi program dalam bentuk uang.",

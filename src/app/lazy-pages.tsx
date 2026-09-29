@@ -410,3 +410,38 @@ export const BeneficiaryListPage = lazy(() =>
     default: module.BeneficiaryListPage,
   })),
 );
+export const FieldReportDetailPage = lazy(() =>
+  import("@/pages/field/field-report-detail-page").then((module) => ({
+    default: module.FieldReportDetailPage,
+  })),
+);
+export const FieldReportFormPage = lazy(() =>
+  import("@/pages/field/field-report-form-page").then((module) => ({
+    default: module.FieldReportFormPage,
+  })),
+);
+export const FieldReportListPage = lazy(() =>
+  import("@/pages/field/field-report-list-page").then((module) => ({
+    default: module.FieldReportListPage,
+  })),
+);
+export const FieldTaskDetailPage = lazy(() =>
+  import("@/pages/field/field-task-detail-page").then((module) => ({
+    default: module.FieldTaskDetailPage,
+  })),
+);
+export const FieldTaskFormPage = lazy(() =>
+  import("@/pages/field/field-task-form-page").then((module) => ({
+    default: module.FieldTaskFormPage,
+  })),
+);
+export const FieldTaskListPage = lazy(() =>
+  import("@/pages/field/field-task-list-page").then((module) => ({
+    default: module.FieldTaskListPage,
+  })),
+);
+export const FieldWorkspacePage = lazy(() =>
+  import("@/pages/field/field-workspace-page").then((module) => ({
+    default: module.FieldWorkspacePage,
+  })),
+);

@@ -18,6 +18,7 @@ import {
   Landmark,
   LayoutDashboard,
   LayoutTemplate,
+  NotebookPen,
   Layers3,
   PackageCheck,
   PackageOpen,
@@ -25,6 +26,8 @@ import {
   Route,
   Sprout,
   ShieldAlert,
+  ListChecks,
+  Smartphone,
   Tags,
   Truck,
   UsersRound,
@@ -34,6 +37,33 @@ import {
 import { CanAccess } from "./can-access";
 
 const navigationGroups = [
+  {
+    items: [
+      {
+        action: "read",
+        icon: Smartphone,
+        label: "Tugas lapangan",
+        resource: "field_reports",
+        to: "/field",
+        end: true,
+      },
+      {
+        action: "read",
+        icon: NotebookPen,
+        label: "Laporan lapangan",
+        resource: "field_reports",
+        to: "/field/reports",
+      },
+      {
+        action: "manage",
+        icon: ListChecks,
+        label: "Kelola tugas",
+        resource: "field_tasks",
+        to: "/field/tasks",
+      },
+    ],
+    label: "Lapangan",
+  },
   {
     items: [
       {

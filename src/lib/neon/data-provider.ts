@@ -56,6 +56,7 @@ const restResourcePaths = new Map([
   ["complaints", "governance/complaints"],
   ["corrective_actions", "governance/corrective-actions"],
   ["evidence_files", "evidence/files"],
+  ["field_reports", "field/reports"],
   ["in_kind_donations", "in-kind-donations"],
   ["inventory_adjustments", "inventory/adjustments"],
   ["inventory_balances", "inventory/balances"],
@@ -134,8 +135,10 @@ function restListQuery(params: GetListParams): string {
       [
         "category",
         "giving_type",
+        "mine",
         "program_id",
         "proposal_type",
+        "report_type",
         "q",
         "source",
         "status",
