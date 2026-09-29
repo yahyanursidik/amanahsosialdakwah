@@ -1,5 +1,7 @@
 import { Pool } from "@neondatabase/serverless";
 
+import { sessionCookieCandidates } from "./session-cookies.mjs";
+
 let poolInstance = null;
 
 export function getDatabasePool() {
@@ -408,30 +410,31 @@ export async function readRawBody(
 }
 
 export async function requireSession(request) {
-  const sessionResponse = await fetch(`${getAuthBaseUrl()}/get-session`, {
-    method: "GET",
-    headers: {
-      cookie: request.headers.cookie ?? "",
-      accept: "application/json",
-    },
-  });
+  // Cookie sesi ganda (lama tanpa partisi + baru) dicoba satu per satu.
+  for (const cookie of sessionCookieCandidates(request.headers.cookie)) {
+    const sessionResponse = await fetch(`${getAuthBaseUrl()}/get-session`, {
+      method: "GET",
+      headers: {
+        cookie,
+        accept: "application/json",
+      },
+    });
 
-  if (!sessionResponse.ok) {
-    const error = new Error("Sesi tidak valid.");
-    error.statusCode = 401;
-    throw error;
+    if (!sessionResponse.ok) {
+      continue;
+    }
+
+    const session = await sessionResponse.json();
+    const user = session?.user ?? session?.data?.user;
+
+    if (user?.id && user?.email) {
+      return { session, user };
+    }
   }
 
-  const session = await sessionResponse.json();
-  const user = session?.user ?? session?.data?.user;
-
-  if (!user?.id || !user?.email) {
-    const error = new Error("Sesi tidak valid.");
-    error.statusCode = 401;
-    throw error;
-  }
-
-  return { session, user };
+  const error = new Error("Sesi tidak valid.");
+  error.statusCode = 401;
+  throw error;
 }
 
 export async function ensureProfileAndBootstrap(user) {
