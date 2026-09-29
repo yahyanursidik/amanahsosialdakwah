@@ -1,3 +1,5 @@
+import fs from "node:fs";
+
 const baseUrl = process.env.PRODUCTION_APP_URL;
 
 if (!baseUrl) {
@@ -33,6 +35,25 @@ if (readiness.data?.status !== "ready") {
   throw new Error("Readiness endpoint belum siap.");
 }
 
+// Deployment harus membaca database dengan migration terbaru repository;
+// branch lama yang tertinggal membuat menu/fitur baru tidak muncul.
+const latestMigration = fs
+  .readdirSync(new URL("../drizzle/", import.meta.url))
+  .filter((file) => /^\d{4}_.+\.sql$/.test(file))
+  .sort()
+  .at(-1);
+if (readiness.data.schemaVersion !== latestMigration) {
+  throw new Error(
+    `Database production tertinggal: schema ${readiness.data.schemaVersion ?? "tidak diketahui"} (branch ${readiness.data.databaseBranch ?? "?"}), repository ${latestMigration}. Periksa DATABASE_URL di Vercel atau jalankan migration.`,
+  );
+}
+const expectedBranch = process.env.PRODUCTION_DATABASE_BRANCH_ID;
+if (expectedBranch && readiness.data.databaseBranch !== expectedBranch) {
+  throw new Error(
+    `Deployment tersambung ke branch ${readiness.data.databaseBranch}, bukan ${expectedBranch}.`,
+  );
+}
+
 const loginResponse = await fetchChecked("/login");
 const loginHtml = await loginResponse.text();
 if (!loginHtml.includes('id="root"')) {
@@ -50,5 +71,5 @@ for (const header of [
 }
 
 console.log(
-  `Smoke production lulus: health ok, database ready (${readiness.data.databaseLatencyMs} ms), login shell dan header keamanan tersedia.`,
+  `Smoke production lulus: health ok, database ready (${readiness.data.databaseLatencyMs} ms, branch ${readiness.data.databaseBranch}, schema ${readiness.data.schemaVersion}), login shell dan header keamanan tersedia.`,
 );
