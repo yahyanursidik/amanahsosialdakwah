@@ -32,6 +32,11 @@ export type ApplicationScreening = {
 export type ApplicationRecord = BaseRecord & {
   applicant_contact_id: string;
   applicant_name: string | null;
+  beneficiary_count?: number;
+  requested_amount?: string | null;
+  submitter_type?: "individual" | "institution" | "partner_on_behalf";
+  submitting_partner_contact_id?: string | null;
+  submitting_partner_name?: string | null;
   channel: "field" | "online" | "partner" | "referral" | "walk_in";
   created_at: string;
   created_by: string | null;

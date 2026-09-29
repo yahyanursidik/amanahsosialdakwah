@@ -1,7 +1,11 @@
 import {
+  BookOpenCheck,
   ClipboardCheck,
   ClipboardList,
+  FileStack,
+  Gift,
   GitPullRequestArrow,
+  HandCoins,
   HeartHandshake,
   Landmark,
   Layers3,
@@ -18,6 +22,30 @@ import { WorkspaceReportSummary } from "@/features/reports/workspace-report-summ
 
 const primaryActions = [
   {
+    action: "post",
+    description: "Terima zakat, infaq, sedekah, atau donasi program dalam bentuk uang.",
+    icon: HandCoins,
+    label: "Terima donasi dana",
+    resource: "fund_receipts",
+    to: "/funds/new/receipt",
+  },
+  {
+    action: "receive",
+    description: "Catat barang dari donatur; stok gudang bertambah dan tanda terima siap cetak.",
+    icon: Gift,
+    label: "Terima donasi barang",
+    resource: "in_kind_donations",
+    to: "/in-kind-donations/new",
+  },
+  {
+    action: "manage",
+    description: "Usulan proyek wakaf, penawaran aset, atau permohonan manfaat wakaf.",
+    icon: FileStack,
+    label: "Catat pengajuan wakaf",
+    resource: "waqf_proposals",
+    to: "/waqf/proposals/new",
+  },
+  {
     action: "manage",
     description: "Susun tujuan, periode, dan penanggung jawab.",
     icon: Layers3,
@@ -27,7 +55,7 @@ const primaryActions = [
   },
   {
     action: "manage",
-    description: "Catat permohonan bantuan untuk ditinjau.",
+    description: "Pengajuan bantuan dari individu, lembaga, atau mitra atas nama penerima.",
     icon: ClipboardList,
     label: "Catat pengajuan",
     resource: "applications",
@@ -96,7 +124,11 @@ export function WorkspacePage() {
           </h1>
           <span>
             Pilih pekerjaan yang perlu ditindaklanjuti. Setiap menu dan aksi
-            mengikuti permission organisasi aktif.
+            mengikuti permission organisasi aktif.{" "}
+            <Link to="/guide">
+              <BookOpenCheck aria-hidden className="inline" size={14} /> Bingung
+              mulai dari mana? Buka panduan alur.
+            </Link>
           </span>
         </div>
         <div className="workspace-hero__trust">

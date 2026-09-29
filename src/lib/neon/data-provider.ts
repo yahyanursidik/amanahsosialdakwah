@@ -55,6 +55,7 @@ const restResourcePaths = new Map([
   ["complaints", "governance/complaints"],
   ["corrective_actions", "governance/corrective-actions"],
   ["evidence_files", "evidence/files"],
+  ["in_kind_donations", "in-kind-donations"],
   ["inventory_adjustments", "inventory/adjustments"],
   ["inventory_balances", "inventory/balances"],
   ["inventory_movements", "inventory/movements"],
@@ -73,6 +74,7 @@ const restResourcePaths = new Map([
   ["risk_flags", "governance/risks"],
   ["waqf_assets", "waqf/assets"],
   ["waqf_contacts", "waqf/contacts"],
+  ["waqf_proposals", "waqf/proposals"],
 ]);
 const restResources = new Set([
   "aid_package_packings",
@@ -128,7 +130,7 @@ function restListQuery(params: GetListParams): string {
   for (const filter of params.filters ?? []) {
     if (
       "field" in filter &&
-      ["q", "status"].includes(filter.field) &&
+      ["giving_type", "proposal_type", "q", "status"].includes(filter.field) &&
       filter.value !== undefined &&
       filter.value !== null &&
       filter.value !== ""

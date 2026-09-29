@@ -11,14 +11,48 @@ export const listQuerySchema = z.object({
   status: z.string().trim().max(32).optional(),
 });
 
-export const createApplicationSchema = z.object({
-  applicant_contact_id: z.string().uuid(),
-  channel: z.enum(["walk_in", "referral", "partner", "online", "field"]),
-  notes: z.string().trim().max(4000).optional(),
-  program_id: z.string().uuid(),
-  requested_support: z.string().trim().min(10).max(4000),
-  urgency: z.enum(["normal", "urgent", "emergency"]).default("normal"),
-});
+export const createApplicationSchema = z
+  .object({
+    applicant_contact_id: z.string().uuid(),
+    beneficiary_count: z.coerce.number().int().min(1).max(100000).default(1),
+    channel: z.enum(["walk_in", "referral", "partner", "online", "field"]),
+    notes: z.string().trim().max(4000).optional(),
+    program_id: z.string().uuid(),
+    requested_amount: z
+      .string()
+      .trim()
+      .regex(/^\d+(\.\d{1,2})?$/)
+      .optional()
+      .nullable(),
+    requested_support: z.string().trim().min(10).max(4000),
+    submitter_type: z
+      .enum(["individual", "institution", "partner_on_behalf"])
+      .default("individual"),
+    submitting_partner_contact_id: z.string().uuid().optional().nullable(),
+    urgency: z.enum(["normal", "urgent", "emergency"]).default("normal"),
+  })
+  .superRefine((value, context) => {
+    if (
+      value.submitter_type === "partner_on_behalf" &&
+      !value.submitting_partner_contact_id
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Pilih lembaga mitra yang mengajukan atas nama penerima.",
+        path: ["submitting_partner_contact_id"],
+      });
+    }
+    if (
+      value.submitter_type !== "partner_on_behalf" &&
+      value.submitting_partner_contact_id
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Lembaga mitra pengaju hanya untuk pengajuan melalui mitra.",
+        path: ["submitting_partner_contact_id"],
+      });
+    }
+  });
 
 export const submitApplicationSchema = z.object({
   note: z.string().trim().max(1000).optional(),

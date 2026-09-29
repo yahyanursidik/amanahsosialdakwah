@@ -9,6 +9,7 @@ import {
   or,
   type SQL,
 } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 
 import {
   aidApplications,
@@ -45,11 +46,17 @@ import { insertAuditEvent } from "./audit-service";
 import { requirePermission } from "./request-authorization";
 
 type ApplicationRow = typeof aidApplications.$inferSelect;
+
+const submittingPartners = alias(crmContacts, "submitting_partner");
 type CaseRow = typeof beneficiaryCases.$inferSelect;
 
 function applicationDto(
   row: ApplicationRow,
-  related?: { applicantName?: string | null; programName?: string | null },
+  related?: {
+    applicantName?: string | null;
+    partnerName?: string | null;
+    programName?: string | null;
+  },
 ) {
   return {
     id: row.id,
@@ -66,6 +73,11 @@ function applicationDto(
     submitted_at: row.submittedAt,
     screening_completed_at: row.screeningCompletedAt,
     notes: row.notes,
+    submitter_type: row.submitterType,
+    submitting_partner_contact_id: row.submittingPartnerContactId,
+    submitting_partner_name: related?.partnerName ?? null,
+    beneficiary_count: row.beneficiaryCount,
+    requested_amount: row.requestedAmount,
     created_by: row.createdBy,
     updated_by: row.updatedBy,
     created_at: row.createdAt,
@@ -227,6 +239,7 @@ export async function listApplications(
       .select({
         application: aidApplications,
         applicantName: crmContacts.displayName,
+        partnerName: submittingPartners.displayName,
         programName: programs.name,
       })
       .from(aidApplications)
@@ -242,6 +255,13 @@ export async function listApplications(
         and(
           eq(programs.id, aidApplications.programId),
           eq(programs.organizationId, aidApplications.organizationId),
+        ),
+      )
+      .leftJoin(
+        submittingPartners,
+        and(
+          eq(submittingPartners.id, aidApplications.submittingPartnerContactId),
+          eq(submittingPartners.organizationId, aidApplications.organizationId),
         ),
       )
       .where(where)
@@ -262,6 +282,7 @@ export async function listApplications(
       data: rows.map((row) =>
         applicationDto(row.application, {
           applicantName: row.applicantName,
+          partnerName: row.partnerName,
           programName: row.programName,
         }),
       ),
@@ -283,6 +304,7 @@ export async function getApplication(
       .select({
         application: aidApplications,
         applicantName: crmContacts.displayName,
+        partnerName: submittingPartners.displayName,
         programName: programs.name,
       })
       .from(aidApplications)
@@ -291,6 +313,13 @@ export async function getApplication(
         eq(crmContacts.id, aidApplications.applicantContactId),
       )
       .innerJoin(programs, eq(programs.id, aidApplications.programId))
+      .leftJoin(
+        submittingPartners,
+        and(
+          eq(submittingPartners.id, aidApplications.submittingPartnerContactId),
+          eq(submittingPartners.organizationId, aidApplications.organizationId),
+        ),
+      )
       .where(
         and(
           eq(aidApplications.id, applicationId),
@@ -395,7 +424,7 @@ export async function createApplication(
     }
 
     const [applicant] = await database
-      .select({ id: crmContacts.id })
+      .select({ contactType: crmContacts.contactType, id: crmContacts.id })
       .from(crmContacts)
       .innerJoin(
         crmContactRoles,
@@ -426,10 +455,60 @@ export async function createApplication(
       );
     }
 
+    if (
+      input.submitter_type === "institution" &&
+      applicant.contactType !== "institution"
+    ) {
+      throw new DomainError(
+        "VALIDATION_ERROR",
+        "Pengaju lembaga harus berupa kontak bertipe lembaga.",
+        400,
+      );
+    }
+
+    if (input.submitting_partner_contact_id) {
+      const [partner] = await database
+        .select({ id: crmContacts.id })
+        .from(crmContacts)
+        .innerJoin(
+          crmContactRoles,
+          and(
+            eq(crmContactRoles.contactId, crmContacts.id),
+            eq(crmContactRoles.organizationId, context.organizationId),
+            or(
+              eq(crmContactRoles.roleType, "distribution_partner"),
+              eq(crmContactRoles.roleType, "applicant"),
+            ),
+            eq(crmContactRoles.status, "active"),
+          ),
+        )
+        .where(
+          and(
+            eq(crmContacts.id, input.submitting_partner_contact_id),
+            eq(crmContacts.organizationId, context.organizationId),
+            eq(crmContacts.status, "active"),
+            eq(crmContacts.contactType, "institution"),
+          ),
+        )
+        .limit(1);
+
+      if (!partner) {
+        throw new DomainError(
+          "VALIDATION_ERROR",
+          "Lembaga mitra pengaju harus kontak lembaga aktif dengan peran Mitra Penyalur atau Pengaju.",
+          400,
+        );
+      }
+    }
+
     const [created] = await database
       .insert(aidApplications)
       .values({
         applicantContactId: input.applicant_contact_id,
+        beneficiaryCount: input.beneficiary_count,
+        requestedAmount: input.requested_amount ?? null,
+        submitterType: input.submitter_type,
+        submittingPartnerContactId: input.submitting_partner_contact_id ?? null,
         channel: input.channel,
         createdBy: context.profileId,
         notes: input.notes ?? null,

@@ -7,7 +7,7 @@ import {
 } from "@refinedev/core";
 import { ArrowLeft, CheckCircle2, Save, Sprout } from "lucide-react";
 import { useState } from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 
 import { CanAccess } from "@/components/access-control/can-access";
 import {
@@ -23,10 +23,22 @@ import {
 } from "@/components/design-system";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import {
+  labelOf,
+  paymentMethodLabels,
+  waqfAssetTypeLabels,
+  waqfContributionFormLabels,
+  waqfDurationLabels,
+  waqfLegalStatusLabels,
+  waqfOperationalStatusLabels,
+  waqfPurposeLabels,
+  waqfSchemeLabels,
+} from "@/features/giving/labels";
 import type {
   WaqfAsset,
   WaqfBenefitDistribution,
   WaqfContactOption,
+  WaqfContribution,
   WaqfIncomeRecord,
   WaqfLegalDocument,
   WaqfMaintenanceRecord,
@@ -79,6 +91,19 @@ export function WaqfDetailPage() {
     issuer: "",
   });
   const [verifyNotes, setVerifyNotes] = useState("");
+  const [reverseReason, setReverseReason] = useState("");
+  const [contribution, setContribution] = useState({
+    amount: "",
+    certificate_number: "",
+    contribution_form: "cash",
+    notes: "",
+    on_behalf_of: "",
+    payment_method: "bank_transfer",
+    pledge_confirmed: false,
+    received_at: nowLocal(),
+    wakif_contact_id: "",
+    wakif_name: "",
+  });
   const [nazhir, setNazhir] = useState({
     assignment_scope: "",
     contact_id: "",
@@ -133,7 +158,7 @@ export function WaqfDetailPage() {
         method: "post",
         values,
         ...(idempotent
-          ? { headers: { "Idempotency-Key": crypto.randomUUID() } }
+          ? { config: { headers: { "Idempotency-Key": crypto.randomUUID() } } }
           : {}),
       },
       { onSuccess: () => query.query.refetch() },
@@ -161,6 +186,67 @@ export function WaqfDetailPage() {
   }
 
   const record = query.result;
+  const contributionColumns: ResourceTableColumn<WaqfContribution>[] = [
+    {
+      key: "wakif",
+      header: "Wakif",
+      render: (item) => (
+        <div className="crm-contact-cell">
+          <strong>
+            {item.wakif_contact_id ? (
+              <Link to={`/reports/stakeholders/${item.wakif_contact_id}`}>
+                {item.wakif_name}
+              </Link>
+            ) : (
+              item.wakif_name
+            )}
+          </strong>
+          <small>
+            {item.reference_number}
+            {item.on_behalf_of ? ` · atas nama ${item.on_behalf_of}` : ""}
+          </small>
+        </div>
+      ),
+    },
+    {
+      key: "form",
+      header: "Bentuk",
+      render: (item) => (
+        <div className="crm-contact-cell">
+          <strong>
+            {labelOf(waqfContributionFormLabels, item.contribution_form)}
+          </strong>
+          <small>{labelOf(paymentMethodLabels, item.payment_method)}</small>
+        </div>
+      ),
+    },
+    {
+      key: "amount",
+      header: "Nilai",
+      align: "right",
+      render: (item) => (
+        <MoneyDisplay amount={item.amount} currency={item.currency} />
+      ),
+    },
+    {
+      key: "date",
+      header: "Diterima",
+      render: (item) => new Date(item.received_at).toLocaleDateString("id-ID"),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (item) => (
+        <StatusBadge tone={tone(item.status)}>
+          {item.status === "received"
+            ? item.pledge_confirmed
+              ? "Diterima · ikrar"
+              : "Diterima"
+            : "Dibatalkan"}
+        </StatusBadge>
+      ),
+    },
+  ];
   const documentColumns: ResourceTableColumn<WaqfLegalDocument>[] = [
     {
       key: "document",
@@ -305,10 +391,10 @@ export function WaqfDetailPage() {
         meta={
           <div className="flex flex-wrap gap-2">
             <StatusBadge tone={tone(record.operational_status)}>
-              {record.operational_status.replaceAll("_", " ")}
+              {labelOf(waqfOperationalStatusLabels, record.operational_status)}
             </StatusBadge>
             <StatusBadge tone={tone(record.legal_status)}>
-              {record.legal_status.replaceAll("_", " ")}
+              {labelOf(waqfLegalStatusLabels, record.legal_status)}
             </StatusBadge>
           </div>
         }
@@ -330,8 +416,70 @@ export function WaqfDetailPage() {
       <DetailSection
         title="Konteks aset"
         items={[
-          { label: "Jenis", value: record.asset_type.replaceAll("_", " ") },
-          { label: "Wakif", value: record.donor_name ?? "Belum dicatat" },
+          {
+            label: "Jenis harta benda",
+            value: labelOf(waqfAssetTypeLabels, record.asset_type),
+          },
+          {
+            label: "Skema",
+            value: labelOf(waqfSchemeLabels, record.collection_scheme),
+          },
+          {
+            label: "Peruntukan hukum",
+            value: labelOf(waqfPurposeLabels, record.waqf_purpose),
+          },
+          {
+            label: "Jangka waktu",
+            value: `${labelOf(waqfDurationLabels, record.waqf_duration)}${
+              record.duration_end_date
+                ? ` · berakhir ${record.duration_end_date}`
+                : ""
+            }`,
+          },
+          { label: "Peruntukan", value: record.designation ?? "-" },
+          { label: "Tanggal ikrar", value: record.pledge_date ?? "-" },
+          {
+            label: "Wakif utama",
+            value: record.donor_contact_id ? (
+              <Link to={`/reports/stakeholders/${record.donor_contact_id}`}>
+                {record.donor_name}
+              </Link>
+            ) : (
+              "Wakif kolektif / belum dicatat"
+            ),
+          },
+          {
+            label: "Setoran wakif terkumpul",
+            value: (
+              <span>
+                <MoneyDisplay
+                  amount={record.total_contributions ?? "0"}
+                  currency={record.currency}
+                />
+                {record.fundraising_target ? (
+                  <>
+                    {" "}
+                    dari target{" "}
+                    <MoneyDisplay
+                      amount={record.fundraising_target}
+                      currency={record.currency}
+                    />{" "}
+                    (
+                    {Math.min(
+                      100,
+                      Math.round(
+                        (Number(record.total_contributions ?? 0) /
+                          Number(record.fundraising_target)) *
+                          100,
+                      ),
+                    )}
+                    %)
+                  </>
+                ) : null}{" "}
+                · {record.wakif_count ?? 0} wakif
+              </span>
+            ),
+          },
           {
             label: "Nilai perolehan",
             value: record.acquisition_value ? (
@@ -373,6 +521,206 @@ export function WaqfDetailPage() {
             </div>
           </div>
         </CanAccess>
+      ) : null}
+
+      <div className="section-heading">
+        <div>
+          <h2>Setoran wakif</h2>
+          <p>
+            {record.collection_scheme === "cash_waqf"
+              ? "Wakaf uang: pokok setoran dijaga dan diinvestasikan; yang disalurkan hanya hasilnya (catat di Pendapatan & Manfaat)."
+              : record.collection_scheme === "cash_for_asset"
+                ? "Wakaf melalui uang: setoran dihimpun untuk membangun/membeli aset hingga target tercapai."
+                : "Catat setiap wakif yang ikut mewakafkan, termasuk atas nama keluarga yang telah wafat."}
+          </p>
+        </div>
+      </div>
+      <ResourceTable
+        columns={contributionColumns}
+        items={record.contributions ?? []}
+        getRowId={(item) => item.id}
+        empty={
+          <EmptyState
+            title="Belum ada setoran wakif"
+            description="Setoran tercatat akan muncul di laporan wakif dan laporan umum."
+          />
+        }
+        rowActions={(item) =>
+          item.status === "received" ? (
+            <CanAccess action="reverse" resource="waqf_contributions">
+              <div className="flex items-center gap-2">
+                <input
+                  aria-label="Alasan pembatalan"
+                  className="max-w-52"
+                  placeholder="Alasan pembatalan"
+                  value={reverseReason}
+                  onChange={(event) => setReverseReason(event.target.value)}
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={reverseReason.trim().length < 10}
+                  onClick={() =>
+                    run(`/api/v1/waqf/contributions/${item.id}/reverse`, {
+                      reason: reverseReason,
+                    })
+                  }
+                >
+                  Batalkan
+                </Button>
+              </div>
+            </CanAccess>
+          ) : null
+        }
+      />
+      {record.operational_status !== "retired" &&
+      (record.operational_status !== "draft" ||
+        record.collection_scheme === "cash_for_asset") ? (
+        <CanAccess action="record" resource="waqf_contributions">
+          <QuickForm
+            title="Catat setoran wakif"
+            actionLabel="Simpan setoran"
+            onSubmit={() =>
+              run(
+                `/api/v1/waqf/assets/${id}/contributions`,
+                {
+                  amount: contribution.amount,
+                  certificate_number:
+                    contribution.certificate_number || undefined,
+                  contribution_form: contribution.contribution_form,
+                  notes: contribution.notes || undefined,
+                  on_behalf_of: contribution.on_behalf_of || undefined,
+                  payment_method:
+                    contribution.contribution_form === "cash"
+                      ? contribution.payment_method
+                      : "in_kind",
+                  pledge_confirmed: contribution.pledge_confirmed,
+                  received_at: new Date(contribution.received_at).toISOString(),
+                  wakif_contact_id: contribution.wakif_contact_id || null,
+                  wakif_name: contribution.wakif_name || undefined,
+                },
+                true,
+              )
+            }
+          >
+            <ContactSelect
+              contacts={contacts.result?.data ?? []}
+              label="Wakif terdaftar"
+              value={contribution.wakif_contact_id}
+              onChange={(value) =>
+                setContribution((current) => ({
+                  ...current,
+                  wakif_contact_id: value,
+                }))
+              }
+            />
+            <TextInput
+              label="Nama wakif (bila belum terdaftar)"
+              value={contribution.wakif_name}
+              onChange={(value) =>
+                setContribution((current) => ({ ...current, wakif_name: value }))
+              }
+            />
+            <TextInput
+              label="Atas nama (opsional, mis. alm. orang tua)"
+              value={contribution.on_behalf_of}
+              onChange={(value) =>
+                setContribution((current) => ({
+                  ...current,
+                  on_behalf_of: value,
+                }))
+              }
+            />
+            <Select
+              label="Bentuk setoran"
+              value={contribution.contribution_form}
+              onChange={(value) =>
+                setContribution((current) => ({
+                  ...current,
+                  contribution_form: value,
+                }))
+              }
+              options={Object.entries(waqfContributionFormLabels)}
+            />
+            {contribution.contribution_form === "cash" ? (
+              <Select
+                label="Metode pembayaran"
+                value={contribution.payment_method}
+                onChange={(value) =>
+                  setContribution((current) => ({
+                    ...current,
+                    payment_method: value,
+                  }))
+                }
+                options={Object.entries(paymentMethodLabels).filter(
+                  ([value]) => value !== "in_kind",
+                )}
+              />
+            ) : null}
+            <TextInput
+              label={
+                contribution.contribution_form === "cash"
+                  ? "Nominal (Rp)"
+                  : "Nilai taksiran (Rp)"
+              }
+              value={contribution.amount}
+              onChange={(value) =>
+                setContribution((current) => ({ ...current, amount: value }))
+              }
+            />
+            <DateTimeInput
+              label="Diterima pada"
+              value={contribution.received_at}
+              onChange={(value) =>
+                setContribution((current) => ({
+                  ...current,
+                  received_at: value,
+                }))
+              }
+            />
+            <TextInput
+              label="No. AIW / Sertifikat Wakaf Uang (bila ada)"
+              value={contribution.certificate_number}
+              onChange={(value) =>
+                setContribution((current) => ({
+                  ...current,
+                  certificate_number: value,
+                }))
+              }
+            />
+            <div className="auth-field">
+              <Label>
+                <input
+                  checked={contribution.pledge_confirmed}
+                  className="mr-2"
+                  type="checkbox"
+                  onChange={(event) =>
+                    setContribution((current) => ({
+                      ...current,
+                      pledge_confirmed: event.target.checked,
+                    }))
+                  }
+                />
+                Ikrar wakaf sudah diucapkan/ditandatangani
+              </Label>
+            </div>
+          </QuickForm>
+        </CanAccess>
+      ) : null}
+
+      {(record.proposals ?? []).length > 0 ? (
+        <DetailSection title="Pengajuan terkait">
+          <ul className="space-y-1 text-sm">
+            {(record.proposals ?? []).map((proposal) => (
+              <li key={proposal.id}>
+                <Link to={`/waqf/proposals/${proposal.id}`}>
+                  {proposal.reference_number} — {proposal.title}
+                </Link>{" "}
+                · {proposal.proposer_name}
+              </li>
+            ))}
+          </ul>
+        </DetailSection>
       ) : null}
 
       <div className="section-heading">

@@ -4,33 +4,49 @@ import { Hono } from "hono";
 import { DomainError } from "../domain/errors";
 import {
   assignWaqfNazhir,
+  cancelWaqfProposal,
+  convertWaqfProposal,
   createWaqfAsset,
   createWaqfLegalDocument,
+  createWaqfProposal,
+  decideWaqfProposal,
   distributeWaqfBenefit,
   getWaqfAsset,
+  getWaqfProposal,
   listWaqfAssets,
   listWaqfContacts,
+  listWaqfProposals,
+  recordWaqfContribution,
   recordWaqfIncome,
   recordWaqfMaintenance,
   recordWaqfUtilization,
   recordWaqfValuation,
   registerWaqfAsset,
+  reverseWaqfContribution,
+  startWaqfProposalReview,
+  submitWaqfProposal,
   verifyWaqfLegalDocument,
 } from "../services/waqf-service";
 import type { AppEnv } from "../types";
 import {
   assignWaqfNazhirSchema,
+  convertWaqfProposalSchema,
   createWaqfAssetSchema,
   createWaqfLegalDocumentSchema,
+  createWaqfProposalSchema,
   distributeWaqfBenefitSchema,
+  recordWaqfContributionSchema,
   recordWaqfIncomeSchema,
   recordWaqfMaintenanceSchema,
   recordWaqfUtilizationSchema,
   recordWaqfValuationSchema,
+  reverseWaqfContributionSchema,
   verifyWaqfLegalDocumentSchema,
   waqfIdempotencyKeySchema,
   waqfIdParamsSchema,
   waqfListQuerySchema,
+  waqfProposalDecisionSchema,
+  waqfProposalListQuerySchema,
 } from "./waqf-schemas";
 
 function invalid(result: { success: boolean }): void {
@@ -304,6 +320,147 @@ waqfRoute.post(
         requestContext.requestId,
       ),
       201,
+    );
+  },
+);
+
+waqfRoute.post(
+  "/assets/:id/contributions",
+  zValidator("param", waqfIdParamsSchema, invalid),
+  zValidator("json", recordWaqfContributionSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(
+        await recordWaqfContribution(
+          requestContext,
+          context.req.valid("param").id,
+          context.req.valid("json"),
+          idempotencyKey(context),
+        ),
+        requestContext.requestId,
+      ),
+      201,
+    );
+  },
+);
+
+waqfRoute.post(
+  "/contributions/:id/reverse",
+  zValidator("param", waqfIdParamsSchema, invalid),
+  zValidator("json", reverseWaqfContributionSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(
+        await reverseWaqfContribution(
+          requestContext,
+          context.req.valid("param").id,
+          context.req.valid("json"),
+        ),
+        requestContext.requestId,
+      ),
+    );
+  },
+);
+
+waqfRoute.get(
+  "/proposals",
+  zValidator("query", waqfProposalListQuerySchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      listEnvelope(
+        await listWaqfProposals(requestContext, context.req.valid("query")),
+        requestContext.requestId,
+      ),
+    );
+  },
+);
+
+waqfRoute.post(
+  "/proposals",
+  zValidator("json", createWaqfProposalSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(
+        await createWaqfProposal(requestContext, context.req.valid("json")),
+        requestContext.requestId,
+      ),
+      201,
+    );
+  },
+);
+
+waqfRoute.get(
+  "/proposals/:id",
+  zValidator("param", waqfIdParamsSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(
+        await getWaqfProposal(requestContext, context.req.valid("param").id),
+        requestContext.requestId,
+      ),
+    );
+  },
+);
+
+for (const [path, command] of [
+  ["submit", submitWaqfProposal],
+  ["cancel", cancelWaqfProposal],
+  ["start-review", startWaqfProposalReview],
+] as const) {
+  waqfRoute.post(
+    `/proposals/:id/${path}`,
+    zValidator("param", waqfIdParamsSchema, invalid),
+    async (context) => {
+      const requestContext = context.get("requestContext");
+      return context.json(
+        one(
+          await command(requestContext, context.req.valid("param").id),
+          requestContext.requestId,
+        ),
+      );
+    },
+  );
+}
+
+waqfRoute.post(
+  "/proposals/:id/decision",
+  zValidator("param", waqfIdParamsSchema, invalid),
+  zValidator("json", waqfProposalDecisionSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(
+        await decideWaqfProposal(
+          requestContext,
+          context.req.valid("param").id,
+          context.req.valid("json"),
+        ),
+        requestContext.requestId,
+      ),
+    );
+  },
+);
+
+waqfRoute.post(
+  "/proposals/:id/convert",
+  zValidator("param", waqfIdParamsSchema, invalid),
+  zValidator("json", convertWaqfProposalSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(
+        await convertWaqfProposal(
+          requestContext,
+          context.req.valid("param").id,
+          context.req.valid("json"),
+        ),
+        requestContext.requestId,
+      ),
     );
   },
 );

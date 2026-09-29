@@ -1506,3 +1506,149 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+@layer components {
+  /* Pilihan berbentuk kartu: dipakai untuk skema wakaf, jenis pengajuan, tipe pengaju. */
+  .choice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: var(--space-sm);
+  }
+
+  .choice-card {
+    position: relative;
+    display: grid;
+    gap: var(--space-2xs);
+    padding: var(--space-md);
+    border: var(--rule-thin) solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-paper);
+    cursor: pointer;
+    transition: border-color 150ms ease-out, background-color 150ms ease-out;
+  }
+
+  .choice-card:hover {
+    border-color: var(--color-accent);
+  }
+
+  .choice-card[data-selected="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-paper-2);
+    box-shadow: inset 0 0 0 1px var(--color-accent);
+  }
+
+  .choice-card input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .choice-card:has(input:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .choice-card small {
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+    line-height: 1.45;
+  }
+
+  /* Langkah alur horizontal ringkas. */
+  .process-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: var(--space-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .process-steps li {
+    display: grid;
+    gap: var(--space-2xs);
+    padding: var(--space-md);
+    border: var(--rule-thin) solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-paper-2);
+  }
+
+  .process-steps span {
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+  }
+
+  /* Panduan alur: langkah bernomor dengan tautan menu. */
+  .guide-steps {
+    display: grid;
+    gap: var(--space-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .guide-steps li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-md);
+    padding: var(--space-md);
+    border: var(--rule-thin) solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-paper);
+  }
+
+  .guide-steps__number {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: var(--color-paper);
+    font-family: var(--font-mono);
+    font-weight: 700;
+  }
+
+  .guide-steps p {
+    margin: var(--space-2xs) 0;
+    font-size: var(--text-sm);
+  }
+
+  .guide-steps a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    color: var(--color-accent);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-decoration: none;
+  }
+}
+
+/* Tanda terima & laporan pemangku kepentingan dapat dicetak/disimpan PDF. */
+@media print {
+  .app-layout__sidebar,
+  .app-layout__header,
+  .app-layout__scrim,
+  .print-hidden,
+  footer {
+    display: none !important;
+  }
+
+  .app-layout,
+  .app-layout__main,
+  .app-layout__content {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-document a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .print-document .resource-table {
+    overflow: visible !important;
+  }
+}

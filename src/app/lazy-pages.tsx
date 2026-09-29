@@ -350,3 +350,48 @@ export const WorkspacePage = lazy(() =>
     default: module.WorkspacePage,
   })),
 );
+export const InKindDonationCreatePage = lazy(() =>
+  import("@/pages/in-kind-donations/in-kind-donation-create-page").then(
+    (module) => ({ default: module.InKindDonationCreatePage }),
+  ),
+);
+export const InKindDonationDetailPage = lazy(() =>
+  import("@/pages/in-kind-donations/in-kind-donation-detail-page").then(
+    (module) => ({ default: module.InKindDonationDetailPage }),
+  ),
+);
+export const InKindDonationListPage = lazy(() =>
+  import("@/pages/in-kind-donations/in-kind-donation-list-page").then(
+    (module) => ({ default: module.InKindDonationListPage }),
+  ),
+);
+export const ProcessGuidePage = lazy(() =>
+  import("@/pages/guide/process-guide-page").then((module) => ({
+    default: module.ProcessGuidePage,
+  })),
+);
+export const StakeholderReportPage = lazy(() =>
+  import("@/pages/reports/stakeholder-report-page").then((module) => ({
+    default: module.StakeholderReportPage,
+  })),
+);
+export const StakeholderStatementPage = lazy(() =>
+  import("@/pages/reports/stakeholder-statement-page").then((module) => ({
+    default: module.StakeholderStatementPage,
+  })),
+);
+export const WaqfProposalCreatePage = lazy(() =>
+  import("@/pages/waqf/waqf-proposal-create-page").then((module) => ({
+    default: module.WaqfProposalCreatePage,
+  })),
+);
+export const WaqfProposalDetailPage = lazy(() =>
+  import("@/pages/waqf/waqf-proposal-detail-page").then((module) => ({
+    default: module.WaqfProposalDetailPage,
+  })),
+);
+export const WaqfProposalListPage = lazy(() =>
+  import("@/pages/waqf/waqf-proposal-list-page").then((module) => ({
+    default: module.WaqfProposalListPage,
+  })),
+);

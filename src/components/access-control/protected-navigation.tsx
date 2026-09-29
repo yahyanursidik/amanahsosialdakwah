@@ -1,11 +1,15 @@
 import { NavLink } from "react-router";
 import {
+  BookOpenCheck,
   Building2,
   ChartNoAxesCombined,
   ClipboardCheck,
   ClipboardList,
   FolderHeart,
   FileCheck2,
+  FileStack,
+  FileText,
+  Gift,
   GitPullRequestArrow,
   HandCoins,
   HeartHandshake,
@@ -17,6 +21,7 @@ import {
   PackageCheck,
   PackageOpen,
   PackageSearch,
+  Route,
   Sprout,
   ShieldAlert,
   Tags,
@@ -32,18 +37,37 @@ const navigationGroups = [
     items: [
       {
         action: "read",
-        icon: ChartNoAxesCombined,
-        label: "Laporan & dashboard",
-        resource: "reports",
-        to: "/reports",
+        icon: Landmark,
+        label: "Dana amanah",
+        resource: "fund_ledger",
+        to: "/funds",
       },
       {
         action: "read",
-        icon: ShieldAlert,
-        label: "Audit & risiko",
-        resource: "risk_flags",
-        to: "/governance",
+        icon: Gift,
+        label: "Donasi barang",
+        resource: "in_kind_donations",
+        to: "/in-kind-donations",
       },
+      {
+        action: "read",
+        icon: Sprout,
+        label: "Wakaf & setoran wakif",
+        resource: "waqf",
+        to: "/waqf",
+      },
+      {
+        action: "read",
+        icon: HandCoins,
+        label: "Kafalah",
+        resource: "kafalah",
+        to: "/kafalah",
+      },
+    ],
+    label: "Penghimpunan",
+  },
+  {
+    items: [
       {
         action: "read",
         icon: Layers3,
@@ -54,14 +78,21 @@ const navigationGroups = [
       {
         action: "read",
         icon: ClipboardList,
-        label: "Pengajuan",
+        label: "Pengajuan bantuan",
         resource: "applications",
         to: "/applications",
       },
       {
         action: "read",
+        icon: FileStack,
+        label: "Pengajuan program wakaf",
+        resource: "waqf",
+        to: "/waqf/proposals",
+      },
+      {
+        action: "read",
         icon: FolderHeart,
-        label: "Kasus",
+        label: "Kasus penerima",
         resource: "cases",
         to: "/cases",
       },
@@ -79,45 +110,17 @@ const navigationGroups = [
         resource: "approval_requests",
         to: "/approval-requests",
       },
-      {
-        action: "read",
-        icon: HandCoins,
-        label: "Kafalah",
-        resource: "kafalah",
-        to: "/kafalah",
-      },
-      {
-        action: "read",
-        icon: Sprout,
-        label: "Wakaf",
-        resource: "waqf",
-        to: "/waqf",
-      },
     ],
-    label: "Program & layanan",
+    label: "Program & pengajuan",
   },
   {
     items: [
       {
         action: "read",
-        icon: Landmark,
-        label: "Dana amanah",
-        resource: "fund_ledger",
-        to: "/funds",
-      },
-      {
-        action: "read",
-        icon: PackageCheck,
-        label: "Pengadaan",
-        resource: "procurement_requests",
-        to: "/procurement",
-      },
-      {
-        action: "read",
-        icon: PackageSearch,
-        label: "Inventory",
-        resource: "inventory_balances",
-        to: "/inventory",
+        icon: Truck,
+        label: "Distribusi",
+        resource: "distributions",
+        to: "/distributions",
       },
       {
         action: "read",
@@ -128,17 +131,24 @@ const navigationGroups = [
       },
       {
         action: "read",
-        icon: Truck,
+        icon: Route,
         label: "Logistik",
         resource: "logistics_shipments",
         to: "/logistics",
       },
       {
         action: "read",
-        icon: Truck,
-        label: "Distribusi",
-        resource: "distributions",
-        to: "/distributions",
+        icon: PackageSearch,
+        label: "Inventory & gudang",
+        resource: "inventory_balances",
+        to: "/inventory",
+      },
+      {
+        action: "read",
+        icon: PackageCheck,
+        label: "Pengadaan",
+        resource: "procurement_requests",
+        to: "/procurement",
       },
       {
         action: "read",
@@ -148,7 +158,7 @@ const navigationGroups = [
         to: "/evidence",
       },
     ],
-    label: "Operasional",
+    label: "Penyaluran",
   },
   {
     items: [
@@ -175,6 +185,33 @@ const navigationGroups = [
       },
     ],
     label: "Relasi",
+  },
+  {
+    items: [
+      {
+        action: "read",
+        end: true,
+        icon: ChartNoAxesCombined,
+        label: "Laporan & dashboard",
+        resource: "reports",
+        to: "/reports",
+      },
+      {
+        action: "read",
+        icon: FileText,
+        label: "Donatur, mitra & pengaju",
+        resource: "stakeholder_reports",
+        to: "/reports/stakeholders",
+      },
+      {
+        action: "read",
+        icon: ShieldAlert,
+        label: "Audit & risiko",
+        resource: "risk_flags",
+        to: "/governance",
+      },
+    ],
+    label: "Laporan",
   },
   {
     items: [
@@ -225,6 +262,10 @@ export function ProtectedNavigation() {
         <LayoutDashboard aria-hidden="true" size={18} />
         <span>Ringkasan</span>
       </NavLink>
+      <NavLink className="protected-navigation__home" to="/guide">
+        <BookOpenCheck aria-hidden="true" size={18} />
+        <span>Panduan alur</span>
+      </NavLink>
 
       {navigationGroups.map((group) => (
         <section className="protected-navigation__group" key={group.label}>
@@ -245,7 +286,7 @@ export function ProtectedNavigation() {
                   }
                   resource={item.resource}
                 >
-                  <NavLink to={item.to}>
+                  <NavLink end={"end" in item} to={item.to}>
                     <Icon aria-hidden="true" size={18} />
                     <span>{item.label}</span>
                   </NavLink>
