@@ -465,3 +465,117 @@ export const supportModeLabels: LabelMap = {
   in_kind: "Barang",
   logistics: "Logistik",
 };
+
+export const donorSegmentLabels: LabelMap = {
+  regular: "Donatur reguler",
+  major: "Donatur utama",
+  corporate: "Korporat / CSR",
+  community: "Komunitas / majelis",
+  prospect: "Calon donatur",
+};
+
+export const donorEngagementLabels: LabelMap = {
+  active: "Aktif",
+  cooling: "Perlu disapa",
+  lapsed: "Tidak aktif",
+  never: "Belum memberi",
+};
+
+export const donorEngagementHints: LabelMap = {
+  active: "Memberi dalam 90 hari terakhir",
+  cooling: "Terakhir memberi 3–12 bulan lalu",
+  lapsed: "Lebih dari setahun tidak memberi",
+  never: "Terdaftar, belum ada pemberian",
+};
+
+export const donorGivingKindLabels: LabelMap = {
+  cash: "Donasi dana",
+  in_kind: "Donasi barang",
+  waqf: "Wakaf",
+  kafalah: "Kafalah",
+};
+
+export const donorInterestLabels: LabelMap = {
+  zakat: "Zakat",
+  infaq: "Infaq",
+  sedekah: "Sedekah",
+  wakaf: "Wakaf",
+  kafalah: "Kafalah / orang tua asuh",
+  in_kind: "Donasi barang",
+  emergency: "Tanggap darurat",
+  education: "Pendidikan",
+  health: "Kesehatan",
+  dakwah: "Dakwah",
+};
+
+export const donorChannelLabels: LabelMap = {
+  whatsapp: "WhatsApp",
+  phone: "Telepon",
+  email: "Email",
+  letter: "Surat",
+  none: "Tidak ingin dihubungi",
+};
+
+export const donorSourceLabels: LabelMap = {
+  referral: "Rekomendasi",
+  event: "Acara / kajian",
+  social_media: "Media sosial",
+  website: "Website",
+  walk_in: "Datang langsung",
+  partner: "Mitra",
+  campaign: "Kampanye",
+  other: "Lainnya",
+};
+
+export const recurringFrequencyLabels: LabelMap = {
+  none: "Tidak rutin",
+  monthly: "Bulanan",
+  quarterly: "Tiap 3 bulan",
+  yearly: "Tahunan",
+};
+
+export const receiptPreferenceLabels: LabelMap = {
+  whatsapp: "Kirim via WhatsApp",
+  email: "Kirim via email",
+  print: "Cetak",
+  none: "Tidak perlu",
+};
+
+export const reportPreferenceLabels: LabelMap = {
+  per_gift: "Setiap pemberian",
+  monthly: "Bulanan",
+  quarterly: "Tiap 3 bulan",
+  yearly: "Tahunan",
+  none: "Tidak perlu",
+};
+
+export const interactionTypeLabels: LabelMap = {
+  whatsapp: "WhatsApp",
+  call: "Telepon",
+  visit: "Kunjungan",
+  meeting: "Pertemuan",
+  email: "Email",
+  note: "Catatan internal",
+};
+
+export const interactionDirectionLabels: LabelMap = {
+  outbound: "Kita menghubungi",
+  inbound: "Donatur menghubungi",
+  internal: "Internal",
+};
+
+export const checklistKindLabels: LabelMap = {
+  check: "Langkah biasa",
+  handover_cash: "Serah terima dana",
+  handover_goods: "Serah terima barang",
+  confirmation: "Tanda terima",
+  photo: "Foto",
+  gps: "Lokasi GPS",
+  report: "Kirim laporan",
+};
+
+export const checklistAppliesLabels: LabelMap = {
+  always: "Selalu",
+  cash: "Hanya bila ada dana",
+  in_kind: "Hanya bila ada barang",
+};

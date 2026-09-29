@@ -72,6 +72,19 @@ export function App() {
             meta: { label: "Laporan Lapangan" },
           },
           {
+            name: "donors",
+            list: "/donors",
+            create: "/donors/new",
+            edit: "/donors/:id/edit",
+            show: "/donors/:id",
+            meta: { label: "Donatur & Wakif" },
+          },
+          {
+            name: "field_settings",
+            list: "/field/settings",
+            meta: { label: "Pengaturan Lapangan" },
+          },
+          {
             name: "field_tasks",
             list: "/field/tasks",
             create: "/field/tasks/new",

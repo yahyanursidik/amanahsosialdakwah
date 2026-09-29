@@ -5,7 +5,7 @@ import type { PoolClient } from "@neondatabase/serverless";
 import { withTenantTransaction } from "../db/client";
 import { DomainError } from "../domain/errors";
 import {
-  buildChecklist,
+  expandTemplate,
   canCompleteTask,
   type FieldTaskType,
 } from "../domain/field-task-rules";
@@ -15,6 +15,7 @@ import type {
 } from "../routes/field-schemas";
 import type { RequestContext } from "../types";
 import { insertAuditEvent } from "./audit-service";
+import { loadFieldSettings, resolveTemplate } from "./field-settings-service";
 import { requirePermission } from "./request-authorization";
 
 type Row = Record<string, unknown> & { id: string };
@@ -297,13 +298,11 @@ export async function createFieldTasks(
     const targets: Array<(Row & { address: string | null; display_name: string }) | null> =
       beneficiaries.length > 0 ? beneficiaries : [null];
 
-    const checklist = buildChecklist({
-      cashAmount: input.cash_amount ?? null,
-      customItems: input.custom_items,
-      goodsPackageCount: input.goods_package_count ?? null,
-      goodsSummary: input.goods_summary ?? null,
-      supportModes,
+    const settings = await loadFieldSettings(client, context.organizationId);
+    const template = await resolveTemplate(client, context.organizationId, {
+      programId: input.program_id ?? null,
       taskType: input.task_type,
+      templateId: input.template_id ?? null,
     });
 
     const ids: string[] = [];
@@ -315,8 +314,8 @@ export async function createFieldTasks(
              priority, due_date, program_id, beneficiary_contact_id,
              distribution_plan_id, shipment_id, case_id, support_modes,
              cash_amount, goods_package_count, goods_summary, location_text,
-             assigned_profile_id, created_by, updated_by
-           ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$19)
+             assigned_profile_id, template_id, created_by, updated_by
+           ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$20)
            returning id`,
           [
             context.organizationId,
@@ -343,15 +342,26 @@ export async function createFieldTasks(
               : null,
             target?.address || null,
             input.assigned_profile_id,
+            template.templateId,
             context.profileId,
           ],
         )
       ).rows[0]!;
+      const checklist = expandTemplate(template.items, {
+        beneficiaryName: target?.display_name ?? null,
+        cashAmount: input.cash_amount ?? null,
+        customItems: input.custom_items,
+        goodsPackageCount: input.goods_package_count ?? null,
+        goodsSummary: input.goods_summary ?? null,
+        requireReport: settings.require_report_to_complete,
+        supportModes,
+        taskType: input.task_type,
+      });
       for (const [index, item] of checklist.entries()) {
         await client.query(
-          `insert into public.field_task_items (organization_id, task_id, sequence_number, item_kind, label, is_required)
-           values ($1,$2,$3,$4,$5,$6)`,
-          [context.organizationId, task.id, index + 1, item.item_kind, item.label, item.is_required],
+          `insert into public.field_task_items (organization_id, task_id, sequence_number, item_kind, label, hint, is_required)
+           values ($1,$2,$3,$4,$5,$6,$7)`,
+          [context.organizationId, task.id, index + 1, item.item_kind, item.label, item.hint ?? null, item.is_required],
         );
       }
       ids.push(task.id);
@@ -359,7 +369,13 @@ export async function createFieldTasks(
 
     await insertAuditEvent(database, context, {
       action: "field_task.created",
-      after: { assignee: input.assigned_profile_id, ids, supportModes, taskType: input.task_type },
+      after: {
+        assignee: input.assigned_profile_id,
+        ids,
+        supportModes,
+        taskType: input.task_type,
+        template: template.templateName,
+      },
       entityId: ids[0]!,
       entityType: "field_task",
     });
@@ -377,6 +393,22 @@ export async function updateFieldTaskItem(
   return withTenantTransaction(context, async (_database, client) => {
     const task = await loadTask(client, context, taskId, true);
     assertCanWork(task, context);
+    if (!input.is_done && !context.permissions.has("field_tasks.manage")) {
+      const settings = await loadFieldSettings(client, context.organizationId);
+      const current = (
+        await client.query<{ is_done: boolean }>(
+          `select is_done from public.field_task_items where id = $1 and task_id = $2 and organization_id = $3`,
+          [itemId, taskId, context.organizationId],
+        )
+      ).rows[0];
+      if (current?.is_done && !settings.officer_can_uncheck) {
+        throw new DomainError(
+          "FORBIDDEN",
+          "Centang yang sudah dibuat hanya dapat dibatalkan koordinator (aturan organisasi).",
+          403,
+        );
+      }
+    }
     const updated = await client.query<Row>(
       `update public.field_task_items
        set is_done = $1,

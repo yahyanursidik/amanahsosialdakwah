@@ -110,6 +110,7 @@ function ChecklistRow({
           {item.label}
           {item.is_required ? null : <em> (opsional)</em>}
         </span>
+        {item.hint && !item.is_done ? <small className="task-item__hint">{item.hint}</small> : null}
         {item.is_done && (item.done_by_name || item.done_at) ? (
           <small>
             ✓ {item.done_by_name ?? "Anda"}

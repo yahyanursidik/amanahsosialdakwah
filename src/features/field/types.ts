@@ -135,6 +135,7 @@ export type FieldTask = {
 export type FieldTaskItem = {
   done_at: string | null;
   done_by_name: string | null;
+  hint: string | null;
   id: string;
   is_done: boolean;
   is_required: boolean;

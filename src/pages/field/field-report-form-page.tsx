@@ -1,4 +1,5 @@
 import { useList } from "@refinedev/core";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Camera, MapPin, Save, Trash2 } from "lucide-react";
 import { useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
@@ -15,6 +16,7 @@ import {
   type CompressedPhoto,
   type GpsReading,
 } from "@/features/field/device";
+import { handoverReportIssues, type FieldSettings } from "@/features/field/checklist-rules";
 import { submitFieldReport } from "@/features/field/outbox";
 import {
   fieldReportTypeHints,
@@ -26,6 +28,7 @@ import {
 } from "@/features/giving/labels";
 import { useOrganization } from "@/features/organizations/organization-context";
 import type { BeneficiaryListItem } from "@/features/beneficiaries/types";
+import { apiFetch } from "@/lib/neon/http";
 
 const nowLocal = () => {
   const date = new Date();
@@ -69,6 +72,21 @@ export function FieldReportFormPage() {
   const [error, setError] = useState("");
   const set = (patch: Partial<typeof form>) => setForm((value) => ({ ...value, ...patch }));
 
+  const settings = useQuery({
+    enabled: Boolean(organizationId) && navigator.onLine,
+    queryFn: () => apiFetch<{ data: FieldSettings }>("/api/v1/field/settings"),
+    queryKey: ["field", "settings", organizationId],
+    staleTime: 5 * 60_000,
+  });
+  const rules = settings.data?.data;
+  const isHandover = ["distribution", "delivery"].includes(type);
+  const handoverRules = rules && isHandover
+    ? [
+        rules.handover_min_photos > 0 ? `minimal ${rules.handover_min_photos} foto` : null,
+        rules.require_gps_for_handover ? "lokasi GPS" : null,
+      ].filter(Boolean)
+    : [];
+
   const needsBeneficiary = ["verification_visit", "monitoring", "distribution"].includes(type);
   const beneficiaries = useList<BeneficiaryListItem>({
     resource: "beneficiaries",
@@ -105,6 +123,13 @@ export function FieldReportFormPage() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (rules) {
+      const issues = handoverReportIssues(rules, { hasGps: Boolean(gps), photoCount: photos.length, reportType: type });
+      if (issues.length > 0) {
+        setError(issues.join(" "));
+        return;
+      }
+    }
     setSubmitting(true);
     setError("");
     const payload = {
@@ -275,7 +300,14 @@ export function FieldReportFormPage() {
           </FormSection>
         ) : null}
 
-        <FormSection title="Lokasi & foto" description="Foto dikompres otomatis (maks. 4). GPS membantu supervisor memastikan kunjungan.">
+        <FormSection
+          title="Lokasi & foto"
+          description={
+            handoverRules.length > 0
+              ? `Wajib untuk serah terima: ${handoverRules.join(" dan ")}. Foto dikompres otomatis (maks. 4).`
+              : "Foto dikompres otomatis (maks. 4). GPS membantu supervisor memastikan kunjungan."
+          }
+        >
           <div className="form-grid">
             <div className="auth-field">
               <Label>GPS</Label>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Label } from "@/components/ui/label";
 import type { BeneficiaryListItem } from "@/features/beneficiaries/types";
+import type { FieldSettings } from "@/features/field/checklist-rules";
 import { formatRupiah, omitKey } from "@/features/field/task-format";
 import type { FieldTaskType } from "@/features/field/types";
 import {
@@ -23,55 +24,30 @@ import { useOrganization } from "@/features/organizations/organization-context";
 import type { ProgramsDocument } from "@/generated/neon/models";
 import { apiFetch } from "@/lib/neon/http";
 
+import type { FieldTemplateSummary } from "./field-settings-page";
 import type { FieldMember } from "./field-task-list-page";
 
 type Mode = "cash" | "in_kind";
 
-/** Pratinjau ringkas ceklis yang akan dibuat server (lihat field-task-rules). */
-function previewSteps(input: {
-  cashAmount: string;
-  customItems: string[];
-  goodsPackageCount: string;
-  goodsSummary: string;
-  modes: Mode[];
-  taskType: FieldTaskType;
-}) {
-  const steps: string[] = [];
-  switch (input.taskType) {
-    case "distribution":
-      steps.push("Cek identitas penerima");
-      if (input.modes.includes("cash")) {
-        steps.push(`Serahkan dana ${input.cashAmount ? formatRupiah(input.cashAmount) : ""}`.trim());
-      }
-      if (input.modes.includes("in_kind")) {
-        steps.push(
-          `Serahkan ${input.goodsPackageCount ? `${input.goodsPackageCount} paket` : "barang"}${input.goodsSummary ? ` (${input.goodsSummary})` : ""}`,
-        );
-      }
-      steps.push("Tanda terima", "Foto serah terima", "GPS (opsional)");
-      break;
-    case "verification":
-      steps.push("Temui penerima", "Cocokkan KTP/KK", "Periksa kondisi rumah", "Konfirmasi RT (opsional)", "Foto rumah", "GPS (opsional)");
-      break;
-    case "delivery":
-      steps.push("Ambil & cocokkan barang di gudang", "Catat berangkat", "Serahkan barang", "Tanda terima", "Foto serah terima");
-      break;
-    case "monitoring":
-      steps.push("Kunjungi penerima", "Tanyakan pemanfaatan", "Catat kondisi", "Foto (opsional)");
-      break;
-    case "other":
-      break;
-  }
-  steps.push(...input.customItems.map((item) => item.trim()).filter((item) => item.length >= 3));
-  steps.push("Kirim laporan lapangan");
-  return steps;
-}
+type PreviewResponse = {
+  items: Array<{ hint: string | null; is_required: boolean; item_kind: string; label: string }>;
+  source: "builtin" | "organization";
+  template_id: string | null;
+  template_name: string;
+};
+
+const localDate = (offsetDays: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() + offsetDays);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
+};
 
 export function FieldTaskFormPage() {
   const navigate = useNavigate();
   const { activeOrganization } = useOrganization();
   const organizationId = activeOrganization?.organization.$id ?? "";
-  const [taskType, setTaskType] = useState<FieldTaskType>("distribution");
+  const [taskType, setTaskTypeState] = useState<FieldTaskType>("distribution");
+  const [templateId, setTemplateId] = useState("");
   const [programId, setProgramId] = useState("");
   const [modes, setModes] = useState<Mode[]>(["in_kind"]);
   const [cashAmount, setCashAmount] = useState("");
@@ -81,7 +57,7 @@ export function FieldTaskFormPage() {
   const [onlyProgram, setOnlyProgram] = useState(true);
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [assignee, setAssignee] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  const [dueDateInput, setDueDate] = useState<string | null>(null);
   const [priority, setPriority] = useState("normal");
   const [title, setTitle] = useState("");
   const [instructions, setInstructions] = useState("");
@@ -127,9 +103,52 @@ export function FieldTaskFormPage() {
   const toggleMode = (mode: Mode) =>
     setModes((current) => (current.includes(mode) ? current.filter((item) => item !== mode) : [...current, mode]));
 
+  const setTaskType = (value: FieldTaskType) => {
+    setTaskTypeState(value);
+    setTemplateId("");
+  };
+
+  const settings = useQuery({
+    enabled: Boolean(organizationId),
+    queryFn: () => apiFetch<{ data: FieldSettings }>("/api/v1/field/settings"),
+    queryKey: ["field", "settings", organizationId],
+  });
+  const defaultDueDays = settings.data?.data.default_due_days ?? 0;
+  // Tenggat mengikuti aturan organisasi sampai koordinator mengubahnya.
+  const dueDate = dueDateInput ?? (defaultDueDays > 0 ? localDate(defaultDueDays) : "");
+
+  const templates = useQuery({
+    enabled: Boolean(organizationId),
+    queryFn: () => apiFetch<{ data: FieldTemplateSummary[] }>(`/api/v1/field/templates?task_type=${taskType}`),
+    queryKey: ["field", "templates", organizationId, taskType],
+  });
+  const templateOptions = (templates.data?.data ?? []).filter(
+    (template) => template.status === "active" && (!template.program_id || template.program_id === programId),
+  );
+
   const selectedIds = Object.keys(selected);
   const isDistribution = taskType === "distribution";
-  const steps = previewSteps({ cashAmount, customItems, goodsPackageCount, goodsSummary, modes: isDistribution ? modes : [], taskType });
+  const previewInput = {
+    cash_amount: isDistribution && modes.includes("cash") && /^d+$/.test(cashAmount) ? cashAmount : null,
+    custom_items: customItems.filter((item) => item.trim().length >= 3),
+    goods_package_count: isDistribution && modes.includes("in_kind") && Number(goodsPackageCount) > 0 ? Number(goodsPackageCount) : null,
+    goods_summary: goodsSummary || undefined,
+    program_id: programId || null,
+    support_modes: isDistribution ? modes : [],
+    task_type: taskType,
+    template_id: templateId || null,
+  };
+  const preview = useQuery({
+    enabled: Boolean(organizationId),
+    placeholderData: (previous) => previous,
+    queryFn: () =>
+      apiFetch<{ data: PreviewResponse }>("/api/v1/field/tasks/preview", {
+        body: JSON.stringify(previewInput),
+        method: "POST",
+      }),
+    queryKey: ["field", "task-preview", organizationId, previewInput],
+  });
+  const previewData = preview.data?.data;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -155,6 +174,7 @@ export function FieldTaskFormPage() {
           program_id: programId || null,
           support_modes: isDistribution ? modes : [],
           task_type: taskType,
+          template_id: templateId || null,
           title: title || undefined,
         }),
         method: "POST",
@@ -362,12 +382,37 @@ export function FieldTaskFormPage() {
           </div>
         </FormSection>
 
-        <FormSection title="5. Ceklis" description="Langkah standar dibuat otomatis. Tambahkan langkah khusus bila perlu.">
+        <FormSection
+          title="5. Ceklis"
+          description="Langkah diambil dari template ceklis (atur di Lapangan → Pengaturan lapangan). Tambahkan langkah khusus bila perlu."
+        >
+          <div className="form-grid">
+            <div className="auth-field auth-field--wide">
+              <Label htmlFor="template">Template ceklis</Label>
+              <select id="template" value={templateId} onChange={(event) => setTemplateId(event.target.value)}>
+                <option value="">Otomatis{previewData && !templateId ? ` — ${previewData.template_name}` : ""}</option>
+                {templateOptions.map((template) => (
+                  <option key={template.id} value={template.id}>
+                    {template.name}
+                    {template.program_name ? ` (khusus ${template.program_name})` : ""}
+                    {template.is_default ? " · bawaan" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           <ol className="task-preview">
-            {steps.map((step, index) => (
-              <li key={`${step}-${index}`}>{step}</li>
+            {(previewData?.items ?? []).map((item, index) => (
+              <li key={`${item.label}-${index}`}>
+                {item.label}
+                {item.is_required ? null : <em> (opsional)</em>}
+                {item.hint ? <small> — {item.hint}</small> : null}
+              </li>
             ))}
           </ol>
+          {selectedIds.length > 1 ? (
+            <small className="task-count">Kode {"{penerima}"} diisi nama masing-masing penerima.</small>
+          ) : null}
           <div className="task-custom-items">
             {customItems.map((item, index) => (
               <div key={index}>

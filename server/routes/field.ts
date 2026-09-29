@@ -12,6 +12,17 @@ import {
   reviewFieldReport,
 } from "../services/field-service";
 import {
+  archiveFieldTemplate,
+  builtInTemplate,
+  createFieldTemplate,
+  getFieldSettings,
+  getFieldTemplate,
+  listFieldTemplates,
+  previewChecklist,
+  updateFieldSettings,
+  updateFieldTemplate,
+} from "../services/field-settings-service";
+import {
   cancelFieldTask,
   completeFieldTask,
   createFieldTasks,
@@ -23,13 +34,18 @@ import type { AppEnv } from "../types";
 import {
   assignShipmentSchema,
   cancelFieldTaskSchema,
+  checklistPreviewSchema,
   completeFieldTaskSchema,
   createFieldReportSchema,
   createFieldTasksSchema,
   fieldIdParamsSchema,
   fieldReportListQuerySchema,
+  fieldSettingsSchema,
   fieldTaskItemParamsSchema,
   fieldTaskListQuerySchema,
+  fieldTaskTypeParamsSchema,
+  fieldTemplateListQuerySchema,
+  fieldTemplateSchema,
   reviewFieldReportSchema,
   updateFieldTaskItemSchema,
 } from "./field-schemas";
@@ -256,6 +272,107 @@ fieldRoute.post(
         ),
         requestContext.requestId,
       ),
+    );
+  },
+);
+
+fieldRoute.get("/settings", async (context) => {
+  const requestContext = context.get("requestContext");
+  return context.json(one(await getFieldSettings(requestContext), requestContext.requestId));
+});
+
+fieldRoute.put(
+  "/settings",
+  zValidator("json", fieldSettingsSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(await updateFieldSettings(requestContext, context.req.valid("json")), requestContext.requestId),
+    );
+  },
+);
+
+fieldRoute.get(
+  "/templates",
+  zValidator("query", fieldTemplateListQuerySchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(
+        await listFieldTemplates(requestContext, context.req.valid("query").task_type),
+        requestContext.requestId,
+      ),
+    );
+  },
+);
+
+fieldRoute.get(
+  "/templates/builtin/:taskType",
+  zValidator("param", fieldTaskTypeParamsSchema, invalid),
+  (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(builtInTemplate(context.req.valid("param").taskType), requestContext.requestId),
+    );
+  },
+);
+
+fieldRoute.get(
+  "/templates/:id",
+  zValidator("param", fieldIdParamsSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(await getFieldTemplate(requestContext, context.req.valid("param").id), requestContext.requestId),
+    );
+  },
+);
+
+fieldRoute.post(
+  "/templates",
+  zValidator("json", fieldTemplateSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(await createFieldTemplate(requestContext, context.req.valid("json")), requestContext.requestId),
+      201,
+    );
+  },
+);
+
+fieldRoute.put(
+  "/templates/:id",
+  zValidator("param", fieldIdParamsSchema, invalid),
+  zValidator("json", fieldTemplateSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(
+        await updateFieldTemplate(requestContext, context.req.valid("param").id, context.req.valid("json")),
+        requestContext.requestId,
+      ),
+    );
+  },
+);
+
+fieldRoute.post(
+  "/templates/:id/archive",
+  zValidator("param", fieldIdParamsSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(await archiveFieldTemplate(requestContext, context.req.valid("param").id), requestContext.requestId),
+    );
+  },
+);
+
+fieldRoute.post(
+  "/tasks/preview",
+  zValidator("json", checklistPreviewSchema, invalid),
+  async (context) => {
+    const requestContext = context.get("requestContext");
+    return context.json(
+      one(await previewChecklist(requestContext, context.req.valid("json")), requestContext.requestId),
     );
   },
 );

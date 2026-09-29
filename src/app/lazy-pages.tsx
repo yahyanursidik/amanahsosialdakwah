@@ -425,6 +425,31 @@ export const FieldReportListPage = lazy(() =>
     default: module.FieldReportListPage,
   })),
 );
+export const DonorDetailPage = lazy(() =>
+  import("@/pages/donors/donor-detail-page").then((module) => ({
+    default: module.DonorDetailPage,
+  })),
+);
+export const DonorFormPage = lazy(() =>
+  import("@/pages/donors/donor-form-page").then((module) => ({
+    default: module.DonorFormPage,
+  })),
+);
+export const DonorListPage = lazy(() =>
+  import("@/pages/donors/donor-list-page").then((module) => ({
+    default: module.DonorListPage,
+  })),
+);
+export const FieldSettingsPage = lazy(() =>
+  import("@/pages/field/field-settings-page").then((module) => ({
+    default: module.FieldSettingsPage,
+  })),
+);
+export const FieldTemplateFormPage = lazy(() =>
+  import("@/pages/field/field-template-form-page").then((module) => ({
+    default: module.FieldTemplateFormPage,
+  })),
+);
 export const FieldTaskDetailPage = lazy(() =>
   import("@/pages/field/field-task-detail-page").then((module) => ({
     default: module.FieldTaskDetailPage,

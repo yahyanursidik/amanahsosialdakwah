@@ -187,6 +187,7 @@ export const createFieldTasksSchema = z
     shipment_id: optionalUuid,
     support_modes: z.array(z.enum(["cash", "in_kind"])).max(2).default([]),
     task_type: z.enum(["distribution", "verification", "delivery", "monitoring", "other"]),
+    template_id: optionalUuid,
     title: optionalText(200),
   })
   .superRefine((value, context) => {
@@ -247,3 +248,57 @@ export const fieldTaskItemParamsSchema = z.object({
 
 export type FieldTaskListQuery = z.infer<typeof fieldTaskListQuerySchema>;
 export type CreateFieldTasksInput = z.infer<typeof createFieldTasksSchema>;
+
+const taskTypeSchema = z.enum(["distribution", "verification", "delivery", "monitoring", "other"]);
+
+export const fieldSettingsSchema = z.object({
+  default_due_days: z.number().int().min(0).max(60),
+  handover_min_photos: z.number().int().min(0).max(4),
+  officer_can_uncheck: z.boolean(),
+  require_gps_for_handover: z.boolean(),
+  require_report_to_complete: z.boolean(),
+  verification_updates_profile: z.boolean(),
+});
+
+export const fieldTemplateItemSchema = z.object({
+  applies_to: z.enum(["always", "cash", "in_kind"]).default("always"),
+  hint: optionalText(300),
+  is_required: z.boolean().default(true),
+  item_kind: z.enum(["check", "handover_cash", "handover_goods", "confirmation", "photo", "gps", "report"]),
+  label: z.string().trim().min(3, "Setiap langkah minimal 3 karakter.").max(200),
+});
+
+export const fieldTemplateSchema = z.object({
+  description: optionalText(500),
+  is_default: z.boolean().default(false),
+  items: z.array(fieldTemplateItemSchema).min(1, "Template minimal berisi satu langkah.").max(30),
+  name: z.string().trim().min(3).max(120),
+  program_id: optionalUuid,
+  task_type: taskTypeSchema,
+});
+
+export const fieldTemplateListQuerySchema = z.object({
+  task_type: taskTypeSchema.optional(),
+});
+
+export const fieldTaskTypeParamsSchema = z.object({ taskType: taskTypeSchema });
+
+export const checklistPreviewSchema = z.object({
+  cash_amount: z
+    .string()
+    .trim()
+    .regex(/^\d+(\.\d{1,2})?$/)
+    .optional()
+    .nullable(),
+  custom_items: z.array(z.string().trim().max(200)).max(15).default([]),
+  goods_package_count: z.number().int().min(1).max(10000).optional().nullable(),
+  goods_summary: optionalText(300),
+  program_id: optionalUuid,
+  support_modes: z.array(z.enum(["cash", "in_kind"])).max(2).default([]),
+  task_type: taskTypeSchema,
+  template_id: optionalUuid,
+});
+
+export type FieldSettingsInput = z.infer<typeof fieldSettingsSchema>;
+export type FieldTemplateInput = z.infer<typeof fieldTemplateSchema>;
+export type ChecklistPreviewInput = z.infer<typeof checklistPreviewSchema>;

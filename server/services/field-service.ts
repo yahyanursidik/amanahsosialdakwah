@@ -11,6 +11,8 @@ import type {
 } from "../routes/field-schemas";
 import type { RequestContext } from "../types";
 import { insertAuditEvent } from "./audit-service";
+import { handoverReportIssues } from "../domain/field-task-rules";
+import { loadFieldSettings } from "./field-settings-service";
 import { applyReportToTask, listMyOpenTasks } from "./field-task-service";
 import { requirePermission } from "./request-authorization";
 
@@ -332,6 +334,24 @@ export async function createFieldReport(
   }));
 
   return withTenantTransaction(context, async (database, client) => {
+    const settings = await loadFieldSettings(client, context.organizationId);
+    const issues = handoverReportIssues(settings, {
+      hasGps: input.latitude != null && input.longitude != null,
+      photoCount: photos.length,
+      reportType: input.report_type,
+    });
+    if (issues.length > 0) {
+      // Kiriman ulang dari antrean offline untuk laporan yang sudah diterima
+      // tetap dianggap berhasil walau aturan berubah sesudahnya.
+      const existing = await client.query(
+        `select 1 from public.field_reports
+         where organization_id = $1 and created_by = $2 and client_reference = $3`,
+        [context.organizationId, context.profileId, input.client_reference],
+      );
+      if (!existing.rows[0]) {
+        throw new DomainError("VALIDATION_ERROR", issues.join(" "), 400);
+      }
+    }
     let inserted: Row | undefined;
     try {
       inserted = (
@@ -483,7 +503,8 @@ export async function reviewFieldReport(
       input.decision === "reviewed" &&
       report.report_type === "verification_visit" &&
       report.beneficiary_contact_id &&
-      context.permissions.has("crm_beneficiary_profiles.manage")
+      context.permissions.has("crm_beneficiary_profiles.manage") &&
+      (await loadFieldSettings(client, context.organizationId)).verification_updates_profile
     ) {
       assessmentUpdated =
         verificationToAssessment[String(report.verification_result)] ?? null;

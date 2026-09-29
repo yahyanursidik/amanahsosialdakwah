@@ -12,6 +12,7 @@ import {
   Gift,
   GitPullRequestArrow,
   HandCoins,
+  SlidersHorizontal,
   HandHeart,
   HeartHandshake,
   KeyRound,
@@ -61,11 +62,25 @@ const navigationGroups = [
         resource: "field_tasks",
         to: "/field/tasks",
       },
+      {
+        action: "manage",
+        icon: SlidersHorizontal,
+        label: "Pengaturan lapangan",
+        resource: "field_settings",
+        to: "/field/settings",
+      },
     ],
     label: "Lapangan",
   },
   {
     items: [
+      {
+        action: "read",
+        icon: HandHeart,
+        label: "Donatur & wakif",
+        resource: "donors",
+        to: "/donors",
+      },
       {
         action: "read",
         icon: Landmark,

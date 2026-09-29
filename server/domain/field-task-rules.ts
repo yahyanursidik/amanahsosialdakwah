@@ -14,86 +14,139 @@ export type ChecklistItemKind =
   | "photo"
   | "report";
 
+export type ChecklistAppliesTo = "always" | "cash" | "in_kind";
+
 export type ChecklistItem = {
+  hint?: string | null;
   is_required: boolean;
   item_kind: ChecklistItemKind;
   label: string;
 };
 
-const formatRupiah = (amount: string | number) =>
+/** Butir template ceklis yang diatur admin (atau bawaan sistem). */
+export type TemplateItem = ChecklistItem & { applies_to: ChecklistAppliesTo };
+
+export const formatRupiah = (amount: string | number) =>
   `Rp${Number(amount).toLocaleString("id-ID", { maximumFractionDigits: 0 })}`;
 
+const step = (
+  label: string,
+  kind: ChecklistItemKind = "check",
+  required = true,
+  appliesTo: ChecklistAppliesTo = "always",
+  hint: string | null = null,
+): TemplateItem => ({ applies_to: appliesTo, hint, is_required: required, item_kind: kind, label });
+
 /**
- * Ceklis standar per jenis tugas. Tugas penyaluran menyesuaikan bentuk
- * dukungan: dana, barang, atau keduanya dalam satu kunjungan.
+ * Template bawaan per jenis tugas; dipakai bila admin belum membuat template
+ * sendiri, dan menjadi titik awal saat admin membuat template baru.
+ * Placeholder: {nominal}, {paket}, {barang}, {penerima}.
  */
-export function buildChecklist(input: {
+export function defaultTemplateItems(taskType: FieldTaskType): TemplateItem[] {
+  switch (taskType) {
+    case "distribution":
+      return [
+        step("Pastikan identitas penerima sesuai (KTP/KK)"),
+        step("Serahkan dana {nominal} dan hitung bersama penerima", "handover_cash", true, "cash"),
+        step("Serahkan {paket} ({barang}) dan cek kelengkapannya", "handover_goods", true, "in_kind"),
+        step("Minta konfirmasi / tanda terima dari penerima", "confirmation"),
+        step("Ambil foto serah terima", "photo"),
+        step("Ambil lokasi GPS", "gps", false),
+      ];
+    case "verification":
+      return [
+        step("Temui penerima atau anggota keluarga"),
+        step("Cocokkan identitas dengan KTP/KK"),
+        step("Periksa kondisi tempat tinggal dan tanggungan"),
+        step("Konfirmasi ke tetangga atau ketua RT", "check", false),
+        step("Ambil foto kondisi rumah", "photo"),
+        step("Ambil lokasi GPS", "gps", false),
+      ];
+    case "delivery":
+      return [
+        step("Ambil barang di gudang dan cocokkan jumlahnya"),
+        step("Catat berangkat di aplikasi"),
+        step("Serahkan ke penerima atau mitra tujuan", "handover_goods"),
+        step("Minta nama dan tanda terima penerima", "confirmation"),
+        step("Ambil foto serah terima", "photo"),
+      ];
+    case "monitoring":
+      return [
+        step("Kunjungi penerima"),
+        step("Tanyakan pemanfaatan bantuan"),
+        step("Catat kondisi terkini dan kebutuhan lanjutan"),
+        step("Ambil foto kondisi", "photo", false),
+      ];
+    case "other":
+      return [];
+  }
+}
+
+export type ChecklistContext = {
+  beneficiaryName?: string | null;
   cashAmount?: string | null;
   customItems?: string[];
   goodsPackageCount?: number | null;
   goodsSummary?: string | null;
+  /** Tambahkan butir "Kirim laporan lapangan" (aturan organisasi). */
+  requireReport?: boolean;
   supportModes: Array<"cash" | "in_kind">;
   taskType: FieldTaskType;
-}): ChecklistItem[] {
-  const item = (
-    label: string,
-    kind: ChecklistItemKind = "check",
-    required = true,
-  ): ChecklistItem => ({ is_required: required, item_kind: kind, label });
-  const items: ChecklistItem[] = [];
+};
 
-  switch (input.taskType) {
-    case "distribution": {
-      items.push(item("Pastikan identitas penerima sesuai (KTP/KK)"));
-      if (input.supportModes.includes("cash")) {
-        items.push(
-          item(
-            `Serahkan dana ${input.cashAmount ? formatRupiah(input.cashAmount) : ""} dan hitung bersama penerima`.replace("  ", " "),
-            "handover_cash",
-          ),
-        );
-      }
-      if (input.supportModes.includes("in_kind")) {
-        const packages = input.goodsPackageCount ? `${input.goodsPackageCount} paket` : "barang";
-        const summary = input.goodsSummary ? ` (${input.goodsSummary})` : "";
-        items.push(item(`Serahkan ${packages}${summary} dan cek kelengkapannya`, "handover_goods"));
-      }
-      items.push(item("Minta konfirmasi / tanda terima dari penerima", "confirmation"));
-      items.push(item("Ambil foto serah terima", "photo"));
-      items.push(item("Ambil lokasi GPS", "gps", false));
-      break;
-    }
-    case "verification":
-      items.push(item("Temui penerima atau anggota keluarga"));
-      items.push(item("Cocokkan identitas dengan KTP/KK"));
-      items.push(item("Periksa kondisi tempat tinggal dan tanggungan"));
-      items.push(item("Konfirmasi ke tetangga atau ketua RT", "check", false));
-      items.push(item("Ambil foto kondisi rumah", "photo"));
-      items.push(item("Ambil lokasi GPS", "gps", false));
-      break;
-    case "delivery":
-      items.push(item("Ambil barang di gudang dan cocokkan jumlahnya"));
-      items.push(item("Catat berangkat di aplikasi"));
-      items.push(item("Serahkan ke penerima atau mitra tujuan", "handover_goods"));
-      items.push(item("Minta nama dan tanda terima penerima", "confirmation"));
-      items.push(item("Ambil foto serah terima", "photo"));
-      break;
-    case "monitoring":
-      items.push(item("Kunjungi penerima"));
-      items.push(item("Tanyakan pemanfaatan bantuan"));
-      items.push(item("Catat kondisi terkini dan kebutuhan lanjutan"));
-      items.push(item("Ambil foto kondisi", "photo", false));
-      break;
-    case "other":
-      break;
+function fillPlaceholders(label: string, context: ChecklistContext) {
+  const values: Record<string, string> = {
+    barang: context.goodsSummary?.trim() ?? "",
+    nominal: context.cashAmount ? formatRupiah(context.cashAmount) : "",
+    paket: context.goodsPackageCount ? `${context.goodsPackageCount} paket` : "barang",
+    penerima: context.beneficiaryName?.trim() || "penerima",
+  };
+  return label
+    .replace(/\{(nominal|paket|barang|penerima)\}/g, (_, key: string) => values[key] ?? "")
+    .replace(/\s*\(\s*\)/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/**
+ * Menyusun ceklis tugas dari template: butir khusus dana/barang hanya muncul
+ * bila tugas memang menyalurkan bentuk tersebut, placeholder diisi, butir
+ * tambahan dari koordinator disisipkan, lalu "Kirim laporan" di akhir.
+ */
+export function expandTemplate(
+  items: TemplateItem[],
+  context: ChecklistContext,
+): ChecklistItem[] {
+  const goodsInvolved =
+    context.supportModes.includes("in_kind") || context.taskType === "delivery";
+  const result: ChecklistItem[] = [];
+  for (const item of items) {
+    if (item.applies_to === "cash" && !context.supportModes.includes("cash")) continue;
+    if (item.applies_to === "in_kind" && !goodsInvolved) continue;
+    const label = fillPlaceholders(item.label, context);
+    if (label.length < 3) continue;
+    result.push({
+      hint: item.hint?.trim() ? fillPlaceholders(item.hint, context) : null,
+      is_required: item.is_required,
+      item_kind: item.item_kind,
+      label,
+    });
   }
-
-  for (const label of input.customItems ?? []) {
+  for (const label of context.customItems ?? []) {
     const trimmed = label.trim();
-    if (trimmed.length >= 3) items.push(item(trimmed));
+    if (trimmed.length >= 3) {
+      result.push({ hint: null, is_required: true, item_kind: "check", label: trimmed });
+    }
   }
-  items.push(item("Kirim laporan lapangan", "report"));
-  return items;
+  if ((context.requireReport ?? true) && !result.some((item) => item.item_kind === "report")) {
+    result.push({ hint: null, is_required: true, item_kind: "report", label: "Kirim laporan lapangan" });
+  }
+  return result;
+}
+
+/** Ceklis dari template bawaan (tanpa template organisasi). */
+export function buildChecklist(context: ChecklistContext): ChecklistItem[] {
+  return expandTemplate(defaultTemplateItems(context.taskType), context);
 }
 
 export type TaskProgress = {
@@ -143,4 +196,39 @@ export function fieldTaskReportType(taskType: FieldTaskType) {
       verification: "verification_visit",
     } as const
   )[taskType];
+}
+
+/** Aturan kerja lapangan organisasi (nilai bawaan bila belum diatur). */
+export type FieldSettings = {
+  default_due_days: number;
+  handover_min_photos: number;
+  officer_can_uncheck: boolean;
+  require_gps_for_handover: boolean;
+  require_report_to_complete: boolean;
+  verification_updates_profile: boolean;
+};
+
+export const defaultFieldSettings: FieldSettings = {
+  default_due_days: 3,
+  handover_min_photos: 0,
+  officer_can_uncheck: true,
+  require_gps_for_handover: false,
+  require_report_to_complete: true,
+  verification_updates_profile: true,
+};
+
+/** Validasi laporan serah terima (penyaluran/pengiriman) terhadap aturan. */
+export function handoverReportIssues(
+  settings: Pick<FieldSettings, "handover_min_photos" | "require_gps_for_handover">,
+  report: { hasGps: boolean; photoCount: number; reportType: string },
+) {
+  if (!["distribution", "delivery"].includes(report.reportType)) return [];
+  const issues: string[] = [];
+  if (report.photoCount < settings.handover_min_photos) {
+    issues.push(`Laporan serah terima wajib melampirkan minimal ${settings.handover_min_photos} foto.`);
+  }
+  if (settings.require_gps_for_handover && !report.hasGps) {
+    issues.push("Laporan serah terima wajib menyertakan lokasi GPS.");
+  }
+  return issues;
 }

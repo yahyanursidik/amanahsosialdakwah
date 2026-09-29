@@ -40,7 +40,12 @@ import {
   EvidenceListPage,
   EvidenceUploadPage,
   FieldReportDetailPage,
+  DonorDetailPage,
+  DonorFormPage,
+  DonorListPage,
   FieldReportFormPage,
+  FieldSettingsPage,
+  FieldTemplateFormPage,
   FieldTaskDetailPage,
   FieldTaskFormPage,
   FieldTaskListPage,
@@ -154,6 +159,25 @@ export function AppRouter() {
               >
                 <Route path="/field/tasks" element={<FieldTaskListPage />} />
                 <Route path="/field/tasks/new" element={<FieldTaskFormPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="manage" resource="field_settings" />}
+              >
+                <Route path="/field/settings" element={<FieldSettingsPage />} />
+                <Route path="/field/settings/templates/new" element={<FieldTemplateFormPage />} />
+                <Route path="/field/settings/templates/:id" element={<FieldTemplateFormPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="read" resource="donors" />}
+              >
+                <Route path="/donors" element={<DonorListPage />} />
+                <Route path="/donors/:id" element={<DonorDetailPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="manage" resource="donors" />}
+              >
+                <Route path="/donors/new" element={<DonorFormPage />} />
+                <Route path="/donors/:id/edit" element={<DonorFormPage />} />
               </Route>
               <Route
                 element={
