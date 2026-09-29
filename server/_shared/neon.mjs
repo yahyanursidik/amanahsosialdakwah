@@ -145,6 +145,8 @@ export const tableSchemas = Object.freeze({
     "allocated_amount",
     "disbursed_amount",
     "fund_type",
+    "fund_types",
+    "target_beneficiary_types",
     "status",
     "starts_at",
     "ends_at",

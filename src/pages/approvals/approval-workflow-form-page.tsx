@@ -112,13 +112,13 @@ export function ApprovalWorkflowFormPage() {
   return (
     <section className="workspace-page">
       <PageHeader
-        eyebrow="Approval Engine"
+        eyebrow="Approval"
         title={
           versionMode
             ? `Versi Baru · ${workflow?.name ?? "Workflow"}`
             : "Buat Workflow Approval"
         }
-        description="Setiap langkah menentukan permission, bukan nama role. Versi published tidak dapat diedit."
+        description="Setiap langkah menentukan hak akses penyetuju. Versi yang sudah diterbitkan tidak dapat diubah; buat versi baru bila perlu."
         actions={
           <Button
             variant="outline"

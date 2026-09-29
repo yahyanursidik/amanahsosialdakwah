@@ -28,6 +28,7 @@ import {
 } from "@/components/design-system";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { ShipmentFieldAssignment } from "@/features/field/shipment-assignment";
 import type {
   LogisticsIncident,
   LogisticsShipment,
@@ -121,7 +122,7 @@ export function LogisticsShipmentDetailPage() {
   if (query.query.isError || !query.result)
     return (
       <section className="workspace-page">
-        <PageHeader eyebrow="Logistik" title="Detail Shipment" />
+        <PageHeader eyebrow="Logistik" title="Detail pengiriman" />
         <ErrorState
           title="Shipment tidak ditemukan"
           description="Data tidak tersedia atau berada pada organisasi lain."
@@ -253,6 +254,12 @@ export function LogisticsShipmentDetailPage() {
           ) : null}
         </div>
       </DetailSection>
+      <ShipmentFieldAssignment
+        assignedProfileId={record.assigned_profile_id}
+        shipmentId={record.id}
+        status={record.status}
+        onAssigned={() => void query.query.refetch()}
+      />
       {record.status === "draft" ? (
         <CanAccess action="dispatch" resource="logistics_shipments">
           <section className="form-section">

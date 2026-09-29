@@ -173,7 +173,7 @@ export function PartnerApplicantListPage() {
     return (
       <section className="workspace-page">
         <PageHeader
-          eyebrow="CRM"
+          eyebrow="Relasi"
           title="Mitra penyaluran & pengaju"
           description="Kelola pihak lembaga, komunitas, atau individu tanpa menduplikasi contact master."
         />
@@ -195,7 +195,7 @@ export function PartnerApplicantListPage() {
       aria-labelledby="partner-applicant-list-title"
     >
       <PageHeader
-        eyebrow="CRM · PARTNERSHIP"
+        eyebrow="Relasi · kemitraan"
         title="Mitra penyaluran & pengaju"
         description="Satu contact master dapat berperan sebagai mitra penyaluran, pengaju bantuan, atau keduanya."
         actions={

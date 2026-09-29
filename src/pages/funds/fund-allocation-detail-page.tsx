@@ -73,7 +73,7 @@ export function FundAllocationDetailPage() {
           <>
             <Button variant="outline" onClick={() => navigate("/funds")}><ArrowLeft aria-hidden="true" size={16} /> Dana</Button>
             {allocation.status === "draft" && !allocation.approval_request_id ? (
-              <ProtectedActionButton action="create" resource="approval_requests" onClick={() => navigate(`/approval-requests/new?subject_type=fund_allocation&subject_id=${allocation.id}`)}>
+              <ProtectedActionButton action="submit" resource="approval_requests" onClick={() => navigate(`/approval-requests/new?subject_type=fund_allocation&subject_id=${allocation.id}`)}>
                 <GitPullRequestArrow aria-hidden="true" size={16} /> Ajukan Approval
               </ProtectedActionButton>
             ) : null}

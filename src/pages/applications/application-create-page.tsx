@@ -195,7 +195,7 @@ export function ApplicationCreatePage() {
                 ) : (
                   <span className="auth-field__message">
                     Lembaga harus berperan Mitra penyalur atau Pengaju di
-                    Contact master.
+                    Semua kontak.
                   </span>
                 )}
               </div>
@@ -228,7 +228,7 @@ export function ApplicationCreatePage() {
                 </span>
               ) : (
                 <span className="auth-field__message">
-                  Belum ada di daftar? Tambahkan di Contact master dengan peran
+                  Belum ada di daftar? Tambahkan di Semua kontak dengan peran
                   Pengaju atau Penerima manfaat.
                 </span>
               )}

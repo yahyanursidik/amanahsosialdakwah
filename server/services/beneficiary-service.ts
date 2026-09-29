@@ -20,7 +20,7 @@ const missing = (message: string): never => {
   throw new DomainError("NOT_FOUND", message, 404);
 };
 
-function normalizeText(value: string | null | undefined) {
+export function normalizeText(value: string | null | undefined) {
   return (value ?? "")
     .trim()
     .toLowerCase()
@@ -29,7 +29,7 @@ function normalizeText(value: string | null | undefined) {
     .replace(/\s+/g, " ");
 }
 
-function normalizePhone(value: string | null | undefined) {
+export function normalizePhone(value: string | null | undefined) {
   const digits = (value ?? "").replace(/\D/g, "");
   return digits.startsWith("62") ? `0${digits.slice(2)}` : digits;
 }

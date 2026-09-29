@@ -1,6 +1,6 @@
 import { Authenticated } from "@refinedev/core";
 import { Suspense } from "react";
-import { Navigate, Outlet, Route, Routes } from "react-router";
+import { Navigate, Outlet, Route, Routes, useLocation, useParams } from "react-router";
 
 import {
   AidPackageListPage,
@@ -26,7 +26,6 @@ import {
   BeneficiaryDetailPage,
   BeneficiaryFormPage,
   BeneficiaryListPage,
-  BeneficiaryProfilePage,
   CaseDetailPage,
   CaseListPage,
   ContactDetailPage,
@@ -39,8 +38,19 @@ import {
   EvidenceDetailPage,
   EvidenceListPage,
   EvidenceUploadPage,
+  FieldReportDetailPage,
+  DonorDetailPage,
+  DonorFormPage,
+  DonorListPage,
+  FieldReportFormPage,
+  FieldSettingsPage,
+  FieldTemplateFormPage,
+  FieldTaskDetailPage,
+  FieldTaskFormPage,
+  FieldTaskListPage,
+  FieldReportListPage,
+  FieldWorkspacePage,
   ForgotPasswordPage,
-  FoundationResourcePage,
   FundAllocationDetailPage,
   FundCreatePage,
   FundsDashboardPage,
@@ -68,6 +78,12 @@ import {
   ProcurementListPage,
   ProgramCreatePage,
   ProgramEditPage,
+  MembersPage,
+  OrganizationSettingsPage,
+  HomeLandingPage,
+  ProgramCategoryPage,
+  PublicHomePage,
+  RolesPage,
   ProgramListPage,
   ProcessGuidePage,
   ProgramShowPage,
@@ -87,6 +103,12 @@ import {
   WorkspacePage,
 } from "@/app/lazy-pages";
 import { ProtectedRoute } from "@/components/access-control/protected-route";
+
+/** Profil penerima lama di Relasi kini menyatu dengan registri Penerima manfaat. */
+function LegacyBeneficiaryRedirect() {
+  const { id } = useParams();
+  return <Navigate replace to={`/beneficiaries/${id ?? ""}`} />;
+}
 import { AppBoot } from "@/components/layout/app-boot";
 import { AppLayout } from "@/components/layout/app-layout";
 import { OrganizationGuard } from "@/features/organizations/organization-guard";
@@ -95,16 +117,26 @@ function AuthenticationCheck() {
   return <AppBoot message="Memeriksa sesi…" />;
 }
 
+/**
+ * Pengunjung yang belum masuk melihat beranda publik di "/", sedangkan
+ * halaman terlindungi lainnya tetap diarahkan ke halaman masuk.
+ */
+function UnauthenticatedFallback() {
+  const { pathname } = useLocation();
+  return pathname === "/" ? <HomeLandingPage /> : <Navigate replace to="/login" />;
+}
+
 export function AppRouter() {
   return (
     <Suspense fallback={<AppBoot message="Memuat halaman…" />}>
       <Routes>
         <Route path="/p/:slug" element={<PublicProgramLandingPage />} />
+        <Route path="/beranda" element={<PublicHomePage />} />
         <Route
           element={
             <Authenticated
               key="protected-routes"
-              redirectOnFail="/login"
+              fallback={<UnauthenticatedFallback />}
               loading={<AuthenticationCheck />}
             >
               <Outlet />
@@ -125,6 +157,48 @@ export function AppRouter() {
             <Route element={<AppLayout />}>
               <Route index element={<WorkspacePage />} />
               <Route path="/guide" element={<ProcessGuidePage />} />
+              <Route
+                element={<ProtectedRoute action="read" resource="field_reports" />}
+              >
+                <Route path="/field" element={<FieldWorkspacePage />} />
+                <Route path="/field/reports" element={<FieldReportListPage />} />
+                <Route path="/field/reports/:id" element={<FieldReportDetailPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="submit" resource="field_reports" />}
+              >
+                <Route path="/field/reports/new" element={<FieldReportFormPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="read" resource="field_tasks" />}
+              >
+                <Route path="/field/tasks/:id" element={<FieldTaskDetailPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="manage" resource="field_tasks" />}
+              >
+                <Route path="/field/tasks" element={<FieldTaskListPage />} />
+                <Route path="/field/tasks/new" element={<FieldTaskFormPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="manage" resource="field_settings" />}
+              >
+                <Route path="/field/settings" element={<FieldSettingsPage />} />
+                <Route path="/field/settings/templates/new" element={<FieldTemplateFormPage />} />
+                <Route path="/field/settings/templates/:id" element={<FieldTemplateFormPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="read" resource="donors" />}
+              >
+                <Route path="/donors" element={<DonorListPage />} />
+                <Route path="/donors/:id" element={<DonorDetailPage />} />
+              </Route>
+              <Route
+                element={<ProtectedRoute action="manage" resource="donors" />}
+              >
+                <Route path="/donors/new" element={<DonorFormPage />} />
+                <Route path="/donors/:id/edit" element={<DonorFormPage />} />
+              </Route>
               <Route
                 element={
                   <ProtectedRoute action="read" resource="crm_beneficiary_profiles" />
@@ -255,12 +329,7 @@ export function AppRouter() {
               >
                 <Route
                   path="/organizations"
-                  element={
-                    <FoundationResourcePage
-                      resource="organizations"
-                      title="Organisasi"
-                    />
-                  }
+                  element={<OrganizationSettingsPage />}
                 />
               </Route>
               <Route
@@ -270,12 +339,7 @@ export function AppRouter() {
               >
                 <Route
                   path="/memberships"
-                  element={
-                    <FoundationResourcePage
-                      resource="memberships"
-                      title="Membership"
-                    />
-                  }
+                  element={<MembersPage />}
                 />
               </Route>
               <Route
@@ -283,9 +347,7 @@ export function AppRouter() {
               >
                 <Route
                   path="/roles"
-                  element={
-                    <FoundationResourcePage resource="roles" title="Role" />
-                  }
+                  element={<RolesPage />}
                 />
               </Route>
               <Route
@@ -314,7 +376,7 @@ export function AppRouter() {
               >
                 <Route
                   path="/crm/contacts/:id/beneficiary"
-                  element={<BeneficiaryProfilePage />}
+                  element={<LegacyBeneficiaryRedirect />}
                 />
               </Route>
               <Route
@@ -349,6 +411,7 @@ export function AppRouter() {
                 element={<ProtectedRoute action="read" resource="programs" />}
               >
                 <Route path="/programs" element={<ProgramListPage />} />
+                <Route path="/programs/categories" element={<ProgramCategoryPage />} />
                 <Route path="/programs/new" element={<ProgramCreatePage />} />
                 <Route
                   path="/programs/:id/edit"
@@ -492,7 +555,7 @@ export function AppRouter() {
               <Route
                 element={
                   <ProtectedRoute
-                    action="create"
+                    action="submit"
                     resource="approval_requests"
                   />
                 }

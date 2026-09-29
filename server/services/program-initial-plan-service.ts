@@ -1,6 +1,9 @@
 import { withTenantTransaction } from "../db/client";
 import { DomainError } from "../domain/errors";
-import type { CreateInitialProgramPlanInput } from "../routes/program-initial-plan-schemas";
+import {
+  withPrimaryFirst,
+  type CreateInitialProgramPlanInput,
+} from "../routes/program-initial-plan-schemas";
 import type { RequestContext } from "../types";
 import { insertAuditEvent } from "./audit-service";
 import { getIndonesiaRegencyLocations } from "./indonesia-region-reference-service";
@@ -404,9 +407,10 @@ export async function createInitialProgramPlan(
            target_beneficiary_type, target_beneficiary_count, budget_amount,
            support_modes, cash_budget_amount, goods_budget_amount,
            logistics_budget_amount, allocated_amount, disbursed_amount,
-           fund_type, status, starts_at, ends_at, created_by
+           fund_type, status, starts_at, ends_at, created_by,
+           fund_types, target_beneficiary_types
          ) values (
-           $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,0,0,$14,'draft',$15,$16,$17
+           $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,0,0,$14,'draft',$15,$16,$17,$18,$19
          ) returning *`,
         [
           context.organizationId,
@@ -426,6 +430,8 @@ export async function createInitialProgramPlan(
           input.starts_at ?? null,
           input.ends_at ?? null,
           context.profileId,
+          withPrimaryFirst(input.fund_type, input.fund_types),
+          withPrimaryFirst(input.target_beneficiary_type, input.target_beneficiary_types),
         ],
       );
       const program = programResult.rows[0];

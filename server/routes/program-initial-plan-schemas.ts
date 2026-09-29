@@ -61,6 +61,32 @@ export const initialProgramGoodsPlanItemSchema = z.object({
   unit_value: z.coerce.number().min(0).max(999_999_999_999_999),
 });
 
+const fundTypeValues = [
+  "zakat",
+  "infaq",
+  "sedekah",
+  "waqf",
+  "humanitarian",
+  "education",
+  "health",
+  "general",
+] as const;
+
+const targetTypeValues = [
+  "individual",
+  "family",
+  "institution",
+  "community",
+  "disaster_area",
+  "mosque",
+  "school",
+] as const;
+
+/** Klasifikasi utama selalu berada di urutan pertama daftar, tanpa duplikat. */
+export function withPrimaryFirst<T extends string>(primary: T, list: readonly T[]): T[] {
+  return [primary, ...list.filter((value) => value !== primary)];
+}
+
 export const createInitialProgramPlanSchema = z
   .object({
     cash_budget_amount: z.coerce.number().min(0).max(999_999_999_999_999),
@@ -77,16 +103,8 @@ export const createInitialProgramPlanSchema = z
       .default([]),
     description: optionalText(10_000),
     ends_at: optionalDate,
-    fund_type: z.enum([
-      "zakat",
-      "infaq",
-      "sedekah",
-      "waqf",
-      "humanitarian",
-      "education",
-      "health",
-      "general",
-    ]),
+    fund_type: z.enum(fundTypeValues),
+    fund_types: z.array(z.enum(fundTypeValues)).max(8).default([]),
     goods_budget_amount: z.coerce.number().min(0).max(999_999_999_999_999),
     goods_plan_items: z
       .array(initialProgramGoodsPlanItemSchema)
@@ -105,15 +123,8 @@ export const createInitialProgramPlanSchema = z
       .min(1)
       .max(3),
     target_beneficiary_count: z.coerce.number().int().min(0).max(10_000_000),
-    target_beneficiary_type: z.enum([
-      "individual",
-      "family",
-      "institution",
-      "community",
-      "disaster_area",
-      "mosque",
-      "school",
-    ]),
+    target_beneficiary_type: z.enum(targetTypeValues),
+    target_beneficiary_types: z.array(z.enum(targetTypeValues)).max(7).default([]),
   })
   .superRefine((value, context) => {
     const supportModes = new Set(value.support_modes);

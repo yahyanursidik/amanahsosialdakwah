@@ -224,7 +224,7 @@ function DisbursementForm({ allocations }: { allocations: Option[] }) {
     mutation.mutate({ ...values, disbursed_at: toIso(values.disbursed_at) });
   return (
     <form className="crm-form" onSubmit={form.handleSubmit(submit)}>
-      <FormSection title="Penyaluran dari alokasi approved" footer={<SubmitButton isPending={mutation.isPending} />}>
+      <FormSection title="Penyaluran dari alokasi yang disetujui" footer={<SubmitButton isPending={mutation.isPending} />}>
         <div className="form-grid">
           <SelectField id="allocation_id" label="Alokasi" options={allocations} register={form.register("allocation_id")} errors={form.formState.errors} />
           <TextField id="amount" label="Nominal" register={form.register("amount")} errors={form.formState.errors} />

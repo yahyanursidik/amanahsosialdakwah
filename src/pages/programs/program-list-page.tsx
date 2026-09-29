@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useList, useNavigation, type CrudFilters } from "@refinedev/core";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useSearchParams } from "react-router";
 import { Edit, Eye, Grid2X2, List, Plus, Settings2, ShieldAlert } from "lucide-react";
 
 import { ProtectedActionButton } from "@/components/access-control/protected-action-button";
@@ -22,8 +24,11 @@ import {
 import {
   programSupportModeLabels,
   resolveProgramSupportModes,
+  programFundTypesText,
 } from "@/features/programs/schemas";
 import type { ProgramsDocument } from "@/generated/neon/models";
+import type { ProgramCategoryOption } from "@/features/programs/components/program-classification-fields";
+import { apiFetch } from "@/lib/neon/http";
 
 function supportModeSummary(program: ProgramsDocument): string {
   return resolveProgramSupportModes(program.support_modes)
@@ -37,6 +42,8 @@ export function ProgramListPage() {
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchParams] = useSearchParams();
+  const [categoryFilter, setCategoryFilter] = useState(() => searchParams.get("category") ?? "");
   const [viewMode, setViewMode] = useState<"cards" | "table">("table");
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -54,6 +61,17 @@ export function ProgramListPage() {
   if (statusFilter !== "all") {
     filters.push({ field: "status", operator: "eq", value: statusFilter });
   }
+  if (categoryFilter) {
+    filters.push({ field: "category_id", operator: "eq", value: categoryFilter });
+  }
+
+  const categories = useQuery({
+    enabled: Boolean(activeOrgId),
+    queryFn: () => apiFetch<{ data: ProgramCategoryOption[] }>("/api/v1/program-categories"),
+    queryKey: ["program-categories", activeOrgId],
+  });
+  const categoryName = (id: string | null | undefined) =>
+    categories.data?.data.find((category) => category.id === id)?.name;
 
   const { query, result } = useList<ProgramsDocument>({
     resource: "programs",
@@ -112,7 +130,9 @@ export function ProgramListPage() {
           <span className="bg-muted rounded-sm px-2 py-0.5 text-xs font-medium">
             {supportModeSummary(item)}
           </span>
-          <p className="text-muted-foreground text-xs capitalize">{item.fund_type}</p>
+          <p className="text-muted-foreground text-xs">
+            {[categoryName(item.category_id), programFundTypesText(item)].filter(Boolean).join(" · ")}
+          </p>
         </div>
       ),
     },
@@ -275,6 +295,25 @@ export function ProgramListPage() {
             <option value="completed">Selesai</option>
             <option value="archived">Diarsipkan</option>
           </select>
+          <select
+            value={categoryFilter}
+            onChange={(e) => {
+              setCategoryFilter(e.target.value);
+              setPage(1);
+            }}
+            className="border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-xs shadow-2xs focus-visible:ring-1 focus-visible:outline-hidden"
+            aria-label="Filter berdasarkan kategori"
+          >
+            <option value="">Semua kategori</option>
+            {(categories.data?.data ?? []).map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          <Link className="text-primary text-xs font-semibold" to="/programs/categories">
+            Kelola kategori
+          </Link>
         </div>
       </FilterBar>
 

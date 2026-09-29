@@ -236,7 +236,7 @@ export function KafalahContractDetailPage() {
       <DetailSection
         title="Konteks kontrak"
         items={[
-          { label: "Matching", value: record.match_reference },
+          { label: "Pencocokan", value: record.match_reference },
           {
             label: "Nilai matching",
             value: <MoneyDisplay amount={record.matched_amount} />,

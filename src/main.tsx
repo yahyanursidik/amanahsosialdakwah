@@ -5,6 +5,7 @@ import "@/styles/globals.css";
 import "@/styles/brand-refresh.css";
 import "@/styles/program-detail.css";
 import "@/styles/public-program.css";
+import "@/styles/landing.css";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

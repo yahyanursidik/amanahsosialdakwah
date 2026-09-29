@@ -1,6 +1,6 @@
 import { useNavigation } from "@refinedev/core";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, FileText, Pencil, Printer } from "lucide-react";
+import { ArrowLeft, FileText, ListChecks, Pencil, Printer } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link, useParams } from "react-router";
 
@@ -171,6 +171,14 @@ export function BeneficiaryDetailPage() {
               <Button variant="outline" onClick={() => edit("beneficiaries", id)}>
                 <Pencil aria-hidden size={16} /> Ubah profil
               </Button>
+            </CanAccess>
+            <CanAccess action="manage" resource="field_tasks">
+              <Link
+                className={buttonVariants({ variant: "outline" })}
+                to={`/field/tasks/new?beneficiary=${id}&name=${encodeURIComponent(contact.display_name)}`}
+              >
+                <ListChecks aria-hidden size={16} /> Tugas lapangan
+              </Link>
             </CanAccess>
             <CanAccess action="read" resource="stakeholder_reports">
               <Link className={buttonVariants({ variant: "outline" })} to={`/reports/stakeholders/${id}`}>

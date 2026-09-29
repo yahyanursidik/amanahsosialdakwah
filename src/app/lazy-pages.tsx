@@ -110,11 +110,6 @@ export const CaseListPage = lazy(() =>
     default: module.CaseListPage,
   })),
 );
-export const BeneficiaryProfilePage = lazy(() =>
-  import("@/pages/crm/beneficiary-profile-page").then((module) => ({
-    default: module.BeneficiaryProfilePage,
-  })),
-);
 export const ContactDetailPage = lazy(() =>
   import("@/pages/crm/contact-detail-page").then((module) => ({
     default: module.ContactDetailPage,
@@ -290,6 +285,21 @@ export const ProgramEditPage = lazy(() =>
     default: module.ProgramEditPage,
   })),
 );
+export const HomeLandingPage = lazy(() =>
+  import("@/pages/public/home-landing-page").then((module) => ({
+    default: module.HomeLandingPage,
+  })),
+);
+export const PublicHomePage = lazy(() =>
+  import("@/pages/public/home-landing-page").then((module) => ({
+    default: module.PublicHomePage,
+  })),
+);
+export const ProgramCategoryPage = lazy(() =>
+  import("@/pages/programs/program-category-page").then((module) => ({
+    default: module.ProgramCategoryPage,
+  })),
+);
 export const ProgramListPage = lazy(() =>
   import("@/pages/programs/program-list-page").then((module) => ({
     default: module.ProgramListPage,
@@ -335,9 +345,19 @@ export const WaqfListPage = lazy(() =>
     default: module.WaqfListPage,
   })),
 );
-export const FoundationResourcePage = lazy(() =>
-  import("@/pages/workspace/foundation-resource-page").then((module) => ({
-    default: module.FoundationResourcePage,
+export const OrganizationSettingsPage = lazy(() =>
+  import("@/pages/admin/organization-settings-page").then((module) => ({
+    default: module.OrganizationSettingsPage,
+  })),
+);
+export const MembersPage = lazy(() =>
+  import("@/pages/admin/members-page").then((module) => ({
+    default: module.MembersPage,
+  })),
+);
+export const RolesPage = lazy(() =>
+  import("@/pages/admin/roles-page").then((module) => ({
+    default: module.RolesPage,
   })),
 );
 export const OrganizationHubPage = lazy(() =>
@@ -408,5 +428,65 @@ export const BeneficiaryFormPage = lazy(() =>
 export const BeneficiaryListPage = lazy(() =>
   import("@/pages/beneficiaries/beneficiary-list-page").then((module) => ({
     default: module.BeneficiaryListPage,
+  })),
+);
+export const FieldReportDetailPage = lazy(() =>
+  import("@/pages/field/field-report-detail-page").then((module) => ({
+    default: module.FieldReportDetailPage,
+  })),
+);
+export const FieldReportFormPage = lazy(() =>
+  import("@/pages/field/field-report-form-page").then((module) => ({
+    default: module.FieldReportFormPage,
+  })),
+);
+export const FieldReportListPage = lazy(() =>
+  import("@/pages/field/field-report-list-page").then((module) => ({
+    default: module.FieldReportListPage,
+  })),
+);
+export const DonorDetailPage = lazy(() =>
+  import("@/pages/donors/donor-detail-page").then((module) => ({
+    default: module.DonorDetailPage,
+  })),
+);
+export const DonorFormPage = lazy(() =>
+  import("@/pages/donors/donor-form-page").then((module) => ({
+    default: module.DonorFormPage,
+  })),
+);
+export const DonorListPage = lazy(() =>
+  import("@/pages/donors/donor-list-page").then((module) => ({
+    default: module.DonorListPage,
+  })),
+);
+export const FieldSettingsPage = lazy(() =>
+  import("@/pages/field/field-settings-page").then((module) => ({
+    default: module.FieldSettingsPage,
+  })),
+);
+export const FieldTemplateFormPage = lazy(() =>
+  import("@/pages/field/field-template-form-page").then((module) => ({
+    default: module.FieldTemplateFormPage,
+  })),
+);
+export const FieldTaskDetailPage = lazy(() =>
+  import("@/pages/field/field-task-detail-page").then((module) => ({
+    default: module.FieldTaskDetailPage,
+  })),
+);
+export const FieldTaskFormPage = lazy(() =>
+  import("@/pages/field/field-task-form-page").then((module) => ({
+    default: module.FieldTaskFormPage,
+  })),
+);
+export const FieldTaskListPage = lazy(() =>
+  import("@/pages/field/field-task-list-page").then((module) => ({
+    default: module.FieldTaskListPage,
+  })),
+);
+export const FieldWorkspacePage = lazy(() =>
+  import("@/pages/field/field-workspace-page").then((module) => ({
+    default: module.FieldWorkspacePage,
   })),
 );

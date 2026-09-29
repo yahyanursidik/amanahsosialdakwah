@@ -207,7 +207,13 @@ export function resolveSnapshotPermission(
     };
   }
 
-  if (context.permissionKeys.includes(permissionKey)) {
+  // Permission spesifik (mis. evidence_files.delete) berlaku langsung;
+  // alias (delete → manage) tetap dipakai untuk resource tanpa aksi khusus.
+  const exactKey = resource ? `${resource}.${action}` : null;
+  if (
+    context.permissionKeys.includes(permissionKey) ||
+    (exactKey && context.permissionKeys.includes(exactKey))
+  ) {
     return { can: true };
   }
 
@@ -309,7 +315,10 @@ export async function resolvePermission(
     permissions.map((permission) => permission.key),
   );
 
-  if (grantedPermissionKeys.has(requiredPermissionKey)) {
+  if (
+    grantedPermissionKeys.has(requiredPermissionKey) ||
+    grantedPermissionKeys.has(`${check.resource}.${check.action}`)
+  ) {
     return { can: true };
   }
 

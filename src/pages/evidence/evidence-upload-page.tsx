@@ -79,9 +79,9 @@ export function EvidenceUploadPage() {
   return (
     <section className="workspace-page">
       <PageHeader
-        eyebrow="Evidence Service"
-        title="Upload Bukti"
-        description="Browser hanya menerima signed URL berumur pendek; credential storage tetap server-side."
+        eyebrow="Bukti & dokumen"
+        title="Unggah bukti"
+        description="Berkas diunggah langsung ke penyimpanan aman melalui tautan sementara."
         actions={
           <Button variant="outline" onClick={() => list("evidence_files")}>
             <ArrowLeft aria-hidden size={16} />
@@ -90,7 +90,7 @@ export function EvidenceUploadPage() {
         }
       />
       {error ? (
-        <ErrorState title="Upload bukti gagal" description={error} />
+        <ErrorState title="Unggah bukti gagal" description={error} />
       ) : null}
       <form onSubmit={submit}>
         <FormSection title="Klasifikasi dan tujuan">

@@ -1,6 +1,6 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useList, useNavigation } from "@refinedev/core";
+import { useNavigation } from "@refinedev/core";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Save } from "lucide-react";
 import { useState } from "react";
@@ -21,17 +21,15 @@ import {
   type ProgramGoodsPlanDraft,
   type ProgramGoodsPlanProduct,
 } from "@/features/programs/components/program-goods-plan-fields";
+import { ProgramClassificationFields } from "@/features/programs/components/program-classification-fields";
 import {
-  fundTypes,
   programFormSchema,
   programSupportModeLabels,
   programSupportModes,
   sumProgramSupportBudget,
-  targetBeneficiaryTypes,
   type ProgramFormValues,
 } from "@/features/programs/schemas";
 import { apiFetch } from "@/lib/neon/http";
-import type { ProgramCategoriesDocument } from "@/generated/neon/models";
 
 type Envelope<T> = { data: T; meta: { requestId: string } };
 
@@ -56,11 +54,6 @@ export function ProgramCreatePage() {
   );
   const [planningError, setPlanningError] = useState<string | null>(null);
 
-  const { result: categoryResult, query: categoryQuery } =
-    useList<ProgramCategoriesDocument>({
-      resource: "program_categories",
-    });
-  const categories = categoryResult?.data ?? [];
   const planningOptions = useQuery({
     enabled: Boolean(activeOrgId),
     queryKey: ["program-planning-options", activeOrgId],
@@ -92,6 +85,7 @@ export function ProgramCreatePage() {
       name: "",
       category_id: "",
       target_beneficiary_type: "individual",
+      target_beneficiary_types: ["individual"],
       target_beneficiary_count: 0,
       budget_amount: 0,
       support_modes: ["cash"],
@@ -99,6 +93,7 @@ export function ProgramCreatePage() {
       goods_budget_amount: 0,
       logistics_budget_amount: 0,
       fund_type: "general",
+      fund_types: ["general"],
       description: "",
       objective: "",
       starts_at: "",
@@ -184,7 +179,9 @@ export function ProgramCreatePage() {
     }
 
     setPlanningError(null);
-    const { budget_amount: _budgetAmount, ...programValues } = values;
+    // Total anggaran dihitung server dari rencana dana, barang, dan logistik.
+    const programValues: Partial<ProgramFormValues> = { ...values };
+    delete programValues.budget_amount;
     const payload = {
       ...programValues,
       cash_budget_amount: Number(values.cash_budget_amount),
@@ -252,43 +249,6 @@ export function ProgramCreatePage() {
             )}
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="category_id" className="required">
-              Kategori Program
-            </Label>
-            <select
-              id="category_id"
-              {...register("category_id")}
-              className="border-input bg-background focus-visible:ring-ring h-9 w-full rounded-md border px-3 text-sm shadow-2xs focus-visible:ring-1 focus-visible:outline-hidden"
-              disabled={categoryQuery.isLoading}
-            >
-              <option value="">-- Pilih Kategori --</option>
-              {categories.map((cat) => (
-                <option key={cat.$id} value={cat.$id}>
-                  {cat.name} ({cat.code})
-                </option>
-              ))}
-              {categories.length === 0 && (
-                <>
-                  <option value="cat-pangan">Bantuan Pangan & Sembako</option>
-                  <option value="cat-kesehatan">Kesehatan & Medis</option>
-                  <option value="cat-pendidikan">Pendidikan & Beasiswa</option>
-                  <option value="cat-dakwah">
-                    Sarana & Operasional Dakwah
-                  </option>
-                  <option value="cat-bencana">
-                    Tanggap Bencana & Kemanusiaan
-                  </option>
-                  <option value="cat-wakaf">Wakaf Produktif & Sarana</option>
-                </>
-              )}
-            </select>
-            {errors.category_id && (
-              <p className="text-destructive text-xs">
-                {errors.category_id.message}
-              </p>
-            )}
-          </div>
         </div>
 
         <div className="space-y-1">
@@ -338,51 +298,25 @@ export function ProgramCreatePage() {
           ) : null}
         </fieldset>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="space-y-1">
-            <Label htmlFor="fund_type" className="required">
-              Klasifikasi Amanah
-            </Label>
-            <select
-              id="fund_type"
-              {...register("fund_type")}
-              className="border-input bg-background focus-visible:ring-ring h-9 w-full rounded-md border px-3 text-sm shadow-2xs focus-visible:ring-1 focus-visible:outline-hidden"
-            >
-              {fundTypes.map((ft) => (
-                <option key={ft} value={ft} className="capitalize">
-                  {ft}
-                </option>
-              ))}
-            </select>
-            {errors.fund_type && (
-              <p className="text-destructive text-xs">
-                {errors.fund_type.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="target_beneficiary_type" className="required">
-              Tipe Penerima
-            </Label>
-            <select
-              id="target_beneficiary_type"
-              {...register("target_beneficiary_type")}
-              className="border-input bg-background focus-visible:ring-ring h-9 w-full rounded-md border px-3 text-sm shadow-2xs focus-visible:ring-1 focus-visible:outline-hidden"
-            >
-              {targetBeneficiaryTypes.map((tbt) => (
-                <option key={tbt} value={tbt} className="capitalize">
-                  {tbt}
-                </option>
-              ))}
-            </select>
-            {errors.target_beneficiary_type && (
-              <p className="text-destructive text-xs">
-                {errors.target_beneficiary_type.message}
-              </p>
-            )}
-          </div>
-        </div>
+        <ProgramClassificationFields
+          errors={{
+            category_id: errors.category_id?.message,
+            fund_types: errors.fund_types?.message,
+            target_beneficiary_types: errors.target_beneficiary_types?.message,
+          }}
+          value={{
+            category_id: watch("category_id") ?? "",
+            fund_type: watch("fund_type") ?? "general",
+            fund_types: watch("fund_types") ?? [],
+            target_beneficiary_type: watch("target_beneficiary_type") ?? "individual",
+            target_beneficiary_types: watch("target_beneficiary_types") ?? [],
+          }}
+          onChange={(patch) => {
+            for (const [key, next] of Object.entries(patch)) {
+              setValue(key as keyof typeof patch, next as never, { shouldDirty: true, shouldValidate: true });
+            }
+          }}
+        />
 
         <input
           type="hidden"
@@ -440,6 +374,7 @@ export function ProgramCreatePage() {
           <ProgramGoodsPlanFields
             items={goodsPlanItems}
             loading={planningOptions.isLoading}
+            onProductCreated={() => void planningOptions.refetch()}
             onChange={(items) => {
               setGoodsPlanItems(items);
               const total = items.reduce(

@@ -1,8 +1,11 @@
-import { PackagePlus, Trash2 } from "lucide-react";
+import { PackagePlus, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 
+import { CanAccess } from "@/components/access-control/can-access";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { apiFetch } from "@/lib/neon/http";
 
 export type ProgramGoodsPlanProduct = {
   base_unit: string;
@@ -20,14 +23,112 @@ export type ProgramGoodsPlanDraft = {
   unitValue: string;
 };
 
-export function createProgramGoodsPlanDraft(): ProgramGoodsPlanDraft {
+function createProgramGoodsPlanDraft(productId = "", unitValue = "0"): ProgramGoodsPlanDraft {
   return {
     clientId: crypto.randomUUID(),
     notes: "",
-    productId: "",
+    productId,
     quantity: "1",
-    unitValue: "0",
+    unitValue,
   };
+}
+
+const commonUnits = ["paket", "pcs", "kg", "liter", "botol", "dus", "karung", "set", "eksemplar", "lembar"];
+
+/** SKU otomatis dari nama produk agar admin tidak perlu memikirkan kode. */
+function skuFromName(name: string) {
+  const base = name
+    .normalize("NFKD")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "-")
+    .slice(0, 40);
+  return `${base || "PRODUK"}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+}
+
+function NewProductForm({
+  onCancel,
+  onCreated,
+}: {
+  onCancel: () => void;
+  onCreated: (product: ProgramGoodsPlanProduct, unitValue: string) => void;
+}) {
+  const [form, setForm] = useState({ category: "", name: "", unit: "paket", unitValue: "" });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const save = async () => {
+    if (form.name.trim().length < 3) {
+      setError("Nama produk minimal 3 karakter.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const response = await apiFetch<{ data: ProgramGoodsPlanProduct & { category: string | null } }>(
+        "/api/v1/inventory/products",
+        {
+          body: JSON.stringify({
+            base_unit: form.unit.trim() || "pcs",
+            category: form.category.trim() || undefined,
+            name: form.name.trim(),
+            sku: skuFromName(form.name),
+          }),
+          method: "POST",
+        },
+      );
+      onCreated(
+        { ...response.data, category_name: response.data.category ?? form.category },
+        form.unitValue || "0",
+      );
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Produk belum tersimpan.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="border-primary/40 bg-background space-y-3 rounded-md border p-3">
+      <p className="text-sm font-semibold">Produk baru</p>
+      <div className="grid gap-3 sm:grid-cols-4">
+        <div className="space-y-1 sm:col-span-2">
+          <Label htmlFor="new-product-name">Nama produk *</Label>
+          <Input id="new-product-name" placeholder="Mis. Beras premium 5 kg" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="new-product-unit">Satuan</Label>
+          <Input id="new-product-unit" list="program-product-units" value={form.unit} onChange={(event) => setForm({ ...form, unit: event.target.value })} />
+          <datalist id="program-product-units">
+            {commonUnits.map((unit) => (
+              <option key={unit} value={unit} />
+            ))}
+          </datalist>
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="new-product-value">Nilai / unit (Rp)</Label>
+          <Input id="new-product-value" min="0" type="number" value={form.unitValue} onChange={(event) => setForm({ ...form, unitValue: event.target.value })} />
+        </div>
+        <div className="space-y-1 sm:col-span-2">
+          <Label htmlFor="new-product-category">Kelompok barang (opsional)</Label>
+          <Input id="new-product-category" placeholder="Mis. pangan, sandang, pendidikan" value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} />
+        </div>
+      </div>
+      {error ? <p className="text-destructive text-xs">{error}</p> : null}
+      <p className="text-muted-foreground text-xs">
+        Produk tersimpan ke master Inventory (kode SKU dibuat otomatis) dan langsung masuk ke rencana barang.
+      </p>
+      <div className="flex gap-2">
+        <Button disabled={saving} size="sm" type="button" onClick={() => void save()}>
+          {saving ? "Menyimpan…" : "Simpan & tambahkan"}
+        </Button>
+        <Button size="sm" type="button" variant="ghost" onClick={onCancel}>
+          Batal
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 function money(value: number) {
@@ -38,6 +139,8 @@ type ProgramGoodsPlanFieldsProps = {
   items: ProgramGoodsPlanDraft[];
   loading: boolean;
   onChange: (items: ProgramGoodsPlanDraft[]) => void;
+  /** Dipanggil setelah produk baru dibuat agar daftar produk dimuat ulang. */
+  onProductCreated?: () => void;
   products: ProgramGoodsPlanProduct[];
 };
 
@@ -45,8 +148,15 @@ export function ProgramGoodsPlanFields({
   items,
   loading,
   onChange,
+  onProductCreated,
   products,
 }: ProgramGoodsPlanFieldsProps) {
+  const [creating, setCreating] = useState(false);
+  const [extraProducts, setExtraProducts] = useState<ProgramGoodsPlanProduct[]>([]);
+  const allProducts = [
+    ...products,
+    ...extraProducts.filter((extra) => !products.some((product) => product.id === extra.id)),
+  ];
   const update = (
     clientId: string,
     field: keyof Omit<ProgramGoodsPlanDraft, "clientId">,
@@ -74,25 +184,44 @@ export function ProgramGoodsPlanFields({
             pengadaan, gudang, dan distribusi tanpa membuat barang ganda.
           </p>
         </div>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={() => onChange([...items, createProgramGoodsPlanDraft()])}
-        >
-          <PackagePlus className="mr-1 size-4" />
-          Tambah barang
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => onChange([...items, createProgramGoodsPlanDraft()])}
+          >
+            <PackagePlus className="mr-1 size-4" />
+            Tambah barang
+          </Button>
+          <CanAccess action="manage" resource="inventory_products">
+            <Button type="button" size="sm" variant="ghost" onClick={() => setCreating(true)}>
+              <Plus className="mr-1 size-4" />
+              Produk baru
+            </Button>
+          </CanAccess>
+        </div>
       </div>
+
+      {creating ? (
+        <NewProductForm
+          onCancel={() => setCreating(false)}
+          onCreated={(product, unitValue) => {
+            setExtraProducts((current) => [...current, product]);
+            onChange([...items, createProgramGoodsPlanDraft(product.id, unitValue)]);
+            setCreating(false);
+            onProductCreated?.();
+          }}
+        />
+      ) : null}
 
       {loading ? (
         <p className="text-muted-foreground text-sm">Memuat master produk…</p>
       ) : null}
-      {!loading && products.length === 0 ? (
+      {!loading && allProducts.length === 0 && !creating ? (
         <div className="border-border text-muted-foreground rounded-md border border-dashed p-3 text-sm">
-          Belum ada produk aktif. Tambahkan produk dan kategorinya terlebih
-          dahulu pada menu{" "}
-          <strong>Inventory & Gudang → Produk Inventory</strong>.
+          Belum ada produk. Klik <strong>Produk baru</strong> untuk menambahkan
+          barang langsung dari sini.
         </div>
       ) : null}
 
@@ -112,7 +241,7 @@ export function ProgramGoodsPlanFields({
             </thead>
             <tbody>
               {items.map((item) => {
-                const product = products.find(
+                const product = allProducts.find(
                   (candidate) => candidate.id === item.productId,
                 );
                 const lineTotal =
@@ -135,7 +264,7 @@ export function ProgramGoodsPlanFields({
                         className="border-input bg-background h-9 w-full rounded-md border px-2 text-sm"
                       >
                         <option value="">-- Pilih produk aktif --</option>
-                        {products.map((candidate) => (
+                        {allProducts.map((candidate) => (
                           <option key={candidate.id} value={candidate.id}>
                             {candidate.name} · {candidate.sku} ·{" "}
                             {candidate.category_name}

@@ -269,7 +269,7 @@ export function ContactFormPage() {
   return (
     <section className="workspace-page" aria-labelledby="contact-form-title">
       <PageHeader
-        eyebrow="CRM"
+        eyebrow="Relasi"
         title={isEdit ? "Edit contact master" : "Tambah contact master"}
         description="Satu orang atau institusi dibuat sebagai satu contact master. Peran dapat lebih dari satu."
         actions={

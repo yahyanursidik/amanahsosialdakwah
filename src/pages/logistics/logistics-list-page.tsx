@@ -128,7 +128,7 @@ export function LogisticsListPage() {
     <section className="workspace-page" aria-labelledby="logistics-title">
       <PageHeader
         eyebrow="Operasional / Logistics"
-        title="Logistik & Shipment"
+        title="Logistik & pengiriman"
         description="Kendalikan keberangkatan, tracking, penerimaan, return, dan insiden tanpa menghapus jejak perjalanan."
         actions={
           <>

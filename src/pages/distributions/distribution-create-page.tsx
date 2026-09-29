@@ -91,7 +91,7 @@ export function DistributionCreatePage() {
       <form className="crm-form" onSubmit={handleSubmit(submit)}>
         <FormSection
           title="Sumber dan Penerima"
-          description="Server memastikan pencairan posted, alokasi approved, program sesuai, serta kasus dan kontak masih aktif."
+          description="Sistem memastikan dana sudah dicairkan, alokasi sudah disetujui, program sesuai, serta kasus dan kontak masih aktif."
           footer={
             <>
               <Button

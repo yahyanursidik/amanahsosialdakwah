@@ -76,7 +76,7 @@ export function WaqfProposalCreatePage() {
       <PageHeader
         eyebrow="Wakaf · Pengajuan"
         title="Pengajuan program wakaf baru"
-        description="Catat usulan dari individu atau lembaga. Pengaju harus terdaftar di Contact master (tipe orang atau lembaga)."
+        description="Catat usulan dari individu atau lembaga. Pengaju harus terdaftar di Semua kontak (tipe orang atau lembaga)."
         actions={
           <Button variant="outline" onClick={() => list("waqf_proposals")}>
             <ArrowLeft aria-hidden size={16} /> Daftar
@@ -138,7 +138,7 @@ export function WaqfProposalCreatePage() {
               <span className="auth-field__message">
                 {proposer
                   ? `Tercatat sebagai pengaju ${proposer.contact_type === "institution" ? "lembaga" : "individu"}.`
-                  : "Belum ada? Tambahkan lebih dulu di Contact master."}
+                  : "Belum ada? Tambahkan lebih dulu di Semua kontak."}
               </span>
             </div>
           </div>

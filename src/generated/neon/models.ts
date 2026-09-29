@@ -116,6 +116,8 @@ export interface ProgramsDocument extends NeonDocument {
   allocated_amount: number;
   disbursed_amount: number;
   fund_type: "zakat" | "infaq" | "sedekah" | "waqf" | "humanitarian" | "education" | "health" | "general";
+  fund_types?: Array<"zakat" | "infaq" | "sedekah" | "waqf" | "humanitarian" | "education" | "health" | "general">;
+  target_beneficiary_types?: Array<"individual" | "family" | "institution" | "community" | "disaster_area" | "mosque" | "school">;
   status: "draft" | "active" | "paused" | "completed" | "archived";
   starts_at?: string;
   ends_at?: string;

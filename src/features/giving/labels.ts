@@ -371,3 +371,211 @@ export const distributionStatusLabels: LabelMap = {
   revision_required: "Perlu revisi",
   verified: "Terverifikasi",
 };
+
+export const fieldReportTypeLabels: LabelMap = {
+  delivery: "Pengiriman barang",
+  distribution: "Penyaluran bantuan",
+  incident: "Insiden / kendala",
+  monitoring: "Pemantauan penerima",
+  situation: "Situasi lapangan",
+  verification_visit: "Kunjungan verifikasi",
+};
+
+export const fieldReportTypeHints: LabelMap = {
+  delivery: "Laporan perjalanan/serah terima barang oleh pengirim.",
+  distribution: "Hasil penyaluran: jumlah penerima, paket, dan dana yang disalurkan.",
+  incident: "Kendala keamanan, kerusakan, penolakan, atau kejadian darurat.",
+  monitoring: "Pemantauan kondisi penerima setelah bantuan (tindak lanjut).",
+  situation: "Kondisi umum lokasi, misalnya bencana, cuaca, atau akses jalan.",
+  verification_visit: "Kunjungan rumah untuk memastikan kelayakan penerima.",
+};
+
+export const fieldReportStatusLabels: LabelMap = {
+  follow_up: "Perlu tindak lanjut",
+  rejected: "Ditolak",
+  reviewed: "Sudah direview",
+  submitted: "Menunggu review",
+};
+
+export const verificationResultLabels: LabelMap = {
+  eligible: "Layak dibantu",
+  moved: "Sudah pindah",
+  needs_review: "Perlu ditinjau ulang",
+  not_eligible: "Tidak layak",
+  not_found: "Tidak ditemukan",
+};
+
+export const verificationCheckLabels: LabelMap = {
+  address_matched: "Alamat sesuai data",
+  identity_matched: "Identitas (KTP/KK) sesuai",
+  income_confirmed: "Penghasilan terkonfirmasi",
+  living_condition_poor: "Kondisi tempat tinggal memprihatinkan",
+  neighbors_confirmed: "Dikonfirmasi tetangga / RT",
+};
+
+export const severityLabels: LabelMap = {
+  critical: "Kritis",
+  high: "Tinggi",
+  low: "Rendah",
+  medium: "Sedang",
+};
+
+export const shipmentStatusLabels: LabelMap = {
+  cancelled: "Dibatalkan",
+  delivered: "Terkirim",
+  dispatched: "Berangkat",
+  draft: "Siap berangkat",
+  in_transit: "Dalam perjalanan",
+  return_requested: "Retur diminta",
+  returned: "Kembali",
+  returning: "Dalam perjalanan kembali",
+};
+
+export const fieldTaskTypeLabels: LabelMap = {
+  distribution: "Salurkan bantuan",
+  verification: "Verifikasi penerima",
+  delivery: "Antar barang",
+  monitoring: "Pantau penerima",
+  other: "Tugas lainnya",
+};
+
+export const fieldTaskTypeHints: LabelMap = {
+  delivery: "Ambil barang di gudang lalu antar ke penerima atau mitra.",
+  distribution: "Serahkan dana, barang, atau keduanya langsung ke penerima.",
+  monitoring: "Kunjungi penerima setelah bantuan untuk melihat pemanfaatannya.",
+  other: "Tugas bebas dengan ceklis yang Anda tulis sendiri.",
+  verification: "Kunjungan rumah untuk memastikan kelayakan penerima.",
+};
+
+export const fieldTaskStatusLabels: LabelMap = {
+  cancelled: "Dibatalkan",
+  done: "Selesai",
+  in_progress: "Dikerjakan",
+  todo: "Belum mulai",
+};
+
+export const fieldTaskPriorityLabels: LabelMap = {
+  high: "Penting",
+  normal: "Biasa",
+  urgent: "Mendesak",
+};
+
+export const supportModeLabels: LabelMap = {
+  cash: "Dana",
+  in_kind: "Barang",
+  logistics: "Logistik",
+};
+
+export const donorSegmentLabels: LabelMap = {
+  regular: "Donatur reguler",
+  major: "Donatur utama",
+  corporate: "Korporat / CSR",
+  community: "Komunitas / majelis",
+  prospect: "Calon donatur",
+};
+
+export const donorEngagementLabels: LabelMap = {
+  active: "Aktif",
+  cooling: "Perlu disapa",
+  lapsed: "Tidak aktif",
+  never: "Belum memberi",
+};
+
+export const donorEngagementHints: LabelMap = {
+  active: "Memberi dalam 90 hari terakhir",
+  cooling: "Terakhir memberi 3–12 bulan lalu",
+  lapsed: "Lebih dari setahun tidak memberi",
+  never: "Terdaftar, belum ada pemberian",
+};
+
+export const donorGivingKindLabels: LabelMap = {
+  cash: "Donasi dana",
+  in_kind: "Donasi barang",
+  waqf: "Wakaf",
+  kafalah: "Kafalah",
+};
+
+export const donorInterestLabels: LabelMap = {
+  zakat: "Zakat",
+  infaq: "Infaq",
+  sedekah: "Sedekah",
+  wakaf: "Wakaf",
+  kafalah: "Kafalah / orang tua asuh",
+  in_kind: "Donasi barang",
+  emergency: "Tanggap darurat",
+  education: "Pendidikan",
+  health: "Kesehatan",
+  dakwah: "Dakwah",
+};
+
+export const donorChannelLabels: LabelMap = {
+  whatsapp: "WhatsApp",
+  phone: "Telepon",
+  email: "Email",
+  letter: "Surat",
+  none: "Tidak ingin dihubungi",
+};
+
+export const donorSourceLabels: LabelMap = {
+  referral: "Rekomendasi",
+  event: "Acara / kajian",
+  social_media: "Media sosial",
+  website: "Website",
+  walk_in: "Datang langsung",
+  partner: "Mitra",
+  campaign: "Kampanye",
+  other: "Lainnya",
+};
+
+export const recurringFrequencyLabels: LabelMap = {
+  none: "Tidak rutin",
+  monthly: "Bulanan",
+  quarterly: "Tiap 3 bulan",
+  yearly: "Tahunan",
+};
+
+export const receiptPreferenceLabels: LabelMap = {
+  whatsapp: "Kirim via WhatsApp",
+  email: "Kirim via email",
+  print: "Cetak",
+  none: "Tidak perlu",
+};
+
+export const reportPreferenceLabels: LabelMap = {
+  per_gift: "Setiap pemberian",
+  monthly: "Bulanan",
+  quarterly: "Tiap 3 bulan",
+  yearly: "Tahunan",
+  none: "Tidak perlu",
+};
+
+export const interactionTypeLabels: LabelMap = {
+  whatsapp: "WhatsApp",
+  call: "Telepon",
+  visit: "Kunjungan",
+  meeting: "Pertemuan",
+  email: "Email",
+  note: "Catatan internal",
+};
+
+export const interactionDirectionLabels: LabelMap = {
+  outbound: "Kita menghubungi",
+  inbound: "Donatur menghubungi",
+  internal: "Internal",
+};
+
+export const checklistKindLabels: LabelMap = {
+  check: "Langkah biasa",
+  handover_cash: "Serah terima dana",
+  handover_goods: "Serah terima barang",
+  confirmation: "Tanda terima",
+  photo: "Foto",
+  gps: "Lokasi GPS",
+  report: "Kirim laporan",
+};
+
+export const checklistAppliesLabels: LabelMap = {
+  always: "Selalu",
+  cash: "Hanya bila ada dana",
+  in_kind: "Hanya bila ada barang",
+};

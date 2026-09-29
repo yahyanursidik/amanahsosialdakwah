@@ -66,7 +66,7 @@ export function LogisticsShipmentCreatePage() {
   if (!couriers.query.isLoading && (couriers.result?.data.length ?? 0) === 0)
     return (
       <section className="workspace-page">
-        <PageHeader eyebrow="Logistik" title="Shipment Baru" />
+        <PageHeader eyebrow="Logistik" title="Pengiriman baru" />
         <EmptyState
           title="Kurir aktif belum tersedia"
           description="Tambahkan master kurir terlebih dahulu."
@@ -82,8 +82,8 @@ export function LogisticsShipmentCreatePage() {
     <section className="workspace-page">
       <PageHeader
         eyebrow="Logistik"
-        title="Shipment Baru"
-        description="Shipment hanya dapat dibuat dari paket yang sudah dipacking."
+        title="Pengiriman baru"
+        description="Pengiriman hanya dapat dibuat dari paket yang sudah dikemas."
         actions={
           <Button variant="outline" onClick={() => list("logistics_shipments")}>
             <ArrowLeft aria-hidden size={16} />

@@ -24,6 +24,7 @@ import {
   resolveProgramSupportModes,
 } from "@/features/programs/schemas";
 import { apiFetch } from "@/lib/neon/http";
+import { percentageOf } from "@/features/programs/percentage";
 
 type PublicProgramLanding = {
   budget_amount: string;
@@ -85,11 +86,6 @@ function periodLabel(data: PublicProgramLanding) {
   return `${start ?? "Awal pelaksanaan"} – ${end ?? "berjalan"}`;
 }
 
-export function percentageOf(value: number, total: number) {
-  if (!Number.isFinite(value) || !Number.isFinite(total) || total <= 0)
-    return 0;
-  return Math.max(0, Math.min(100, Math.round((value / total) * 100)));
-}
 
 function supportBudgetFor(data: PublicProgramLanding, mode: SupportMode) {
   if (mode === "cash") return data.cash_budget_amount;

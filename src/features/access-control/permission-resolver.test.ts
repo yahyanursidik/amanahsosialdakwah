@@ -8,7 +8,7 @@ import type {
   RoleDocument,
   RolePermissionDocument,
 } from "./permission-resolver";
-import { resolvePermission } from "./permission-resolver";
+import { resolvePermission, resolveSnapshotPermission } from "./permission-resolver";
 
 function documentBase(collectionId: string, id: string) {
   return {
@@ -156,5 +156,23 @@ describe("resolvePermission", () => {
     });
 
     expect(result.can).toBe(true);
+  });
+});
+
+describe("resolveSnapshotPermission", () => {
+  const snapshot = (permissionKeys: string[]) => ({
+    membershipId: "membership-1",
+    organizationId: "org-1",
+    permissionKeys,
+    userId: "user-1",
+  });
+
+  it("menerima permission spesifik walau alias-nya tidak ada", () => {
+    expect(resolveSnapshotPermission(snapshot(["evidence_files.delete"]), "evidence_files", "delete")?.can).toBe(true);
+    expect(resolveSnapshotPermission(snapshot(["approval_requests.submit"]), "approval_requests", "create")?.can).toBe(false);
+  });
+
+  it("tetap memakai alias untuk resource tanpa aksi khusus", () => {
+    expect(resolveSnapshotPermission(snapshot(["memberships.manage"]), "memberships", "delete")?.can).toBe(true);
   });
 });

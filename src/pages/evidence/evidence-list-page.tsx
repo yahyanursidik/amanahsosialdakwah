@@ -84,7 +84,7 @@ export function EvidenceListPage() {
   if (query.query.isError)
     return (
       <section className="workspace-page">
-        <PageHeader eyebrow="Evidence" title="Bukti & Dokumen" />
+        <PageHeader eyebrow="Bukti & dokumen" title="Bukti & Dokumen" />
         <ErrorState
           title="Bukti tidak dapat dimuat"
           description="Periksa organisasi aktif dan permission evidence."
@@ -95,9 +95,9 @@ export function EvidenceListPage() {
   return (
     <section className="workspace-page">
       <PageHeader
-        eyebrow="Evidence Service"
+        eyebrow="Bukti & dokumen"
         title="Bukti & Dokumen"
-        description="File privat, berversi, terklasifikasi, dan setiap aksesnya diaudit."
+        description="Berkas bukti bersifat privat, memiliki riwayat versi dan klasifikasi, dan setiap aksesnya tercatat."
         actions={
           <ProtectedActionButton
             action="upload"

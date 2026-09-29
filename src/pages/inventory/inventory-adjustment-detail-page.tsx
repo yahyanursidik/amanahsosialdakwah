@@ -51,7 +51,7 @@ export function InventoryAdjustmentDetailPage() {
   if (query.query.isError || !query.result) {
     return (
       <section className="workspace-page">
-        <PageHeader title="Detail Adjustment" eyebrow="Inventory" />
+        <PageHeader title="Detail penyesuaian stok" eyebrow="Inventory" />
         <ErrorState
           title="Adjustment tidak ditemukan"
           description="Data tidak tersedia atau berada di organisasi lain."

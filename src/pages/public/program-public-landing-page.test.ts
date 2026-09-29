@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { percentageOf } from "./program-public-landing-page";
+import { percentageOf } from "@/features/programs/percentage";
 
 describe("public program landing progress", () => {
   it("menghitung progres agregat tanpa melewati batas 0–100%", () => {

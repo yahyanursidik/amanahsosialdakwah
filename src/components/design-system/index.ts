@@ -13,5 +13,5 @@ export { MoneyDisplay } from "./money-display";
 export { OrganizationSwitcher } from "@/features/organizations/organization-switcher";
 export { PageHeader } from "./page-header";
 export { QuantityDisplay } from "./quantity-display";
-export { ResourceTable, type ResourceTableColumn } from "./resource-table";
+export { ResourceTable, TablePagination, type ResourceTableColumn } from "./resource-table";
 export { StatusBadge } from "./status-badge";

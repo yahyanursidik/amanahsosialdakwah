@@ -77,7 +77,7 @@ export function AssessmentTemplateListPage() {
   if (query.isError) {
     return (
       <section className="workspace-page">
-        <PageHeader title="Template Asesmen" eyebrow="Assessment Engine" />
+        <PageHeader title="Template Asesmen" eyebrow="Asesmen" />
         <ErrorState
           title="Template tidak dapat dimuat"
           description="Periksa organisasi aktif dan permission Anda."
@@ -90,9 +90,9 @@ export function AssessmentTemplateListPage() {
   return (
     <section className="workspace-page" aria-labelledby="template-list-title">
       <PageHeader
-        eyebrow="Assessment Engine"
+        eyebrow="Asesmen"
         title="Template Asesmen"
-        description="Susun instrumen berversi. Versi published menjadi acuan immutable bagi asesmen kasus."
+        description="Susun instrumen asesmen. Versi yang diterbitkan menjadi acuan tetap untuk asesmen kasus."
         actions={
           <>
             <Button

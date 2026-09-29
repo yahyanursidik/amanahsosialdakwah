@@ -28,6 +28,7 @@ export default async function handler(request, response) {
     const organizationId =
       body.organizationId ?? request.headers["x-active-organization"];
     const resource = body.resource;
+    const exactAction = body.action;
     const action = actionAliases[body.action] ?? body.action;
 
     if (!organizationId || !resource || !action) {
@@ -43,9 +44,10 @@ export default async function handler(request, response) {
       profile.id,
       organizationId,
       async (client) => {
+        // Permission spesifik (mis. evidence_files.delete) juga diterima.
         const result = await client.query(
-          "select private.has_permission($1::uuid, $2::text) as can",
-          [organizationId, permissionKey],
+          "select private.has_permission($1::uuid, $2::text) or private.has_permission($1::uuid, $3::text) as can",
+          [organizationId, permissionKey, `${resource}.${exactAction}`],
         );
 
         return result.rows[0]?.can === true;

@@ -209,7 +209,7 @@ export function FundsDashboardPage() {
 
       <DetailSection
         title="Alokasi"
-        description="Draft harus melalui Approval Engine sebelum saldo berpindah ke allocated."
+        description="Draft alokasi harus disetujui melalui approval sebelum saldo berpindah menjadi teralokasi."
         actions={
           <ProtectedActionButton action="manage" resource="fund_allocations" variant="outline" onClick={() => navigate("/funds/new/allocation")}>
             <Plus aria-hidden="true" size={16} /> Buat Draft
@@ -237,7 +237,7 @@ export function FundsDashboardPage() {
 
       <DetailSection
         title="Penyaluran Dana"
-        description="Hanya dapat dibukukan terhadap alokasi approved."
+        description="Hanya dapat dibukukan terhadap alokasi yang sudah disetujui."
         actions={
           <ProtectedActionButton action="post" resource="fund_disbursements" variant="outline" onClick={() => navigate("/funds/new/disbursement")}>
             <Plus aria-hidden="true" size={16} /> Bukukan

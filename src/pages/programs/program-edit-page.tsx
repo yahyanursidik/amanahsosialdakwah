@@ -17,14 +17,14 @@ import {
   canPerformControlledEdit,
   buildControlledEditDiff,
 } from "@/features/programs/program-service";
+import { ProgramClassificationFields } from "@/features/programs/components/program-classification-fields";
 import {
-  fundTypes,
   programFormSchema,
   programSupportModeLabels,
   programSupportModes,
+  resolveProgramList,
   resolveProgramSupportModes,
   sumProgramSupportBudget,
-  targetBeneficiaryTypes,
   type ControlledEditFormValues,
   type ProgramFormValues,
 } from "@/features/programs/schemas";
@@ -73,6 +73,10 @@ export function ProgramEditPage() {
         description: program.description ?? "",
         objective: program.objective ?? "",
         target_beneficiary_type: program.target_beneficiary_type,
+        target_beneficiary_types: resolveProgramList(
+          program.target_beneficiary_types,
+          program.target_beneficiary_type,
+        ),
         target_beneficiary_count: program.target_beneficiary_count ?? 0,
         budget_amount: program.budget_amount,
         support_modes: resolveProgramSupportModes(program.support_modes),
@@ -80,6 +84,7 @@ export function ProgramEditPage() {
         goods_budget_amount: program.goods_budget_amount ?? 0,
         logistics_budget_amount: program.logistics_budget_amount ?? 0,
         fund_type: program.fund_type,
+        fund_types: resolveProgramList(program.fund_types, program.fund_type),
         starts_at: program.starts_at ? program.starts_at.slice(0, 10) : "",
         ends_at: program.ends_at ? program.ends_at.slice(0, 10) : "",
         owner_id: program.owner_id ?? "",
@@ -324,41 +329,25 @@ export function ProgramEditPage() {
             {errors.support_modes ? <p className="text-destructive text-xs">{errors.support_modes.message}</p> : null}
           </fieldset>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="space-y-1">
-              <Label htmlFor="fund_type" className="required">
-                Klasifikasi Amanah
-              </Label>
-              <select
-                id="fund_type"
-                {...register("fund_type")}
-                className="border-input bg-background focus-visible:ring-ring h-9 w-full rounded-md border px-3 text-sm shadow-2xs focus-visible:ring-1 focus-visible:outline-hidden"
-              >
-                {fundTypes.map((ft) => (
-                  <option key={ft} value={ft} className="capitalize">
-                    {ft}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="target_beneficiary_type" className="required">
-                Tipe Penerima
-              </Label>
-              <select
-                id="target_beneficiary_type"
-                {...register("target_beneficiary_type")}
-                className="border-input bg-background focus-visible:ring-ring h-9 w-full rounded-md border px-3 text-sm shadow-2xs focus-visible:ring-1 focus-visible:outline-hidden"
-              >
-                {targetBeneficiaryTypes.map((tbt) => (
-                  <option key={tbt} value={tbt} className="capitalize">
-                    {tbt}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          <ProgramClassificationFields
+            errors={{
+              category_id: errors.category_id?.message,
+              fund_types: errors.fund_types?.message,
+              target_beneficiary_types: errors.target_beneficiary_types?.message,
+            }}
+            value={{
+              category_id: watch("category_id") ?? "",
+              fund_type: watch("fund_type") ?? "general",
+              fund_types: watch("fund_types") ?? [],
+              target_beneficiary_type: watch("target_beneficiary_type") ?? "individual",
+              target_beneficiary_types: watch("target_beneficiary_types") ?? [],
+            }}
+            onChange={(patch) => {
+              for (const [key, next] of Object.entries(patch)) {
+                setValue(key as keyof typeof patch, next as never, { shouldDirty: true, shouldValidate: true });
+              }
+            }}
+          />
 
           <input type="hidden" {...register("budget_amount", { valueAsNumber: true })} />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

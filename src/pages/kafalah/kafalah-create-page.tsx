@@ -36,7 +36,7 @@ export function KafalahCreatePage({ kind }: { kind: Kind }) {
     match: "kafalah_matches",
     need: "kafalah_needs",
   } as const;
-  const labels = { contract: "Kontrak", match: "Matching", need: "Kebutuhan" };
+  const labels = { contract: "Kontrak", match: "Pencocokan kafil", need: "Kebutuhan" };
   const beneficiaries = useList<KafalahContactOption>({
     resource: "kafalah_beneficiaries",
     pagination: { currentPage: 1, pageSize: 100, mode: "server" },
@@ -109,7 +109,7 @@ export function KafalahCreatePage({ kind }: { kind: Kind }) {
       <PageHeader
         eyebrow="Kafalah"
         title={`${labels[kind]} Baru`}
-        description="Semua referensi dibuat server-side dan terikat pada organisasi aktif."
+        description="Nomor referensi dibuat otomatis dan tercatat di organisasi aktif."
         actions={
           <Button variant="outline" onClick={() => list("kafalah_contracts")}>
             <ArrowLeft size={16} /> Daftar
@@ -217,7 +217,7 @@ export function KafalahCreatePage({ kind }: { kind: Kind }) {
             </div>
           ) : kind === "match" ? (
             <div className="form-grid">
-              <Field label="Kebutuhan approved">
+              <Field label="Kebutuhan yang disetujui">
                 <select
                   required
                   value={match.need_id}
@@ -285,7 +285,7 @@ export function KafalahCreatePage({ kind }: { kind: Kind }) {
             </div>
           ) : (
             <div className="form-grid">
-              <Field label="Matching proposed">
+              <Field label="Usulan pencocokan">
                 <select
                   required
                   value={contract.match_id}

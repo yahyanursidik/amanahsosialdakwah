@@ -65,6 +65,33 @@ export function App() {
             meta: { label: "Aset Wakaf" },
           },
           {
+            name: "field_reports",
+            list: "/field/reports",
+            create: "/field/reports/new",
+            show: "/field/reports/:id",
+            meta: { label: "Laporan Lapangan" },
+          },
+          {
+            name: "donors",
+            list: "/donors",
+            create: "/donors/new",
+            edit: "/donors/:id/edit",
+            show: "/donors/:id",
+            meta: { label: "Donatur & Wakif" },
+          },
+          {
+            name: "field_settings",
+            list: "/field/settings",
+            meta: { label: "Pengaturan Lapangan" },
+          },
+          {
+            name: "field_tasks",
+            list: "/field/tasks",
+            create: "/field/tasks/new",
+            show: "/field/tasks/:id",
+            meta: { label: "Tugas Lapangan" },
+          },
+          {
             name: "beneficiaries",
             list: "/beneficiaries",
             create: "/beneficiaries/new",

@@ -46,7 +46,7 @@ export type ProgramPlanningOptions = {
   }>;
 };
 
-export function createDeliveryAreaDraft(): DeliveryAreaDraft {
+function createDeliveryAreaDraft(): DeliveryAreaDraft {
   return {
     addressLine: "",
     city: "",
@@ -60,7 +60,7 @@ export function createDeliveryAreaDraft(): DeliveryAreaDraft {
   };
 }
 
-export function createPartnerAssignmentDraft(): PartnerAssignmentDraft {
+function createPartnerAssignmentDraft(): PartnerAssignmentDraft {
   return {
     assignmentRole: "distributor",
     clientId: crypto.randomUUID(),

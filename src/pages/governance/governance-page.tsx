@@ -114,7 +114,7 @@ export function GovernancePage() {
       <PageHeader
         eyebrow="Tata kelola"
         title="Audit, risiko & tindak lanjut"
-        description="Register organisasi untuk risiko, insiden, pengaduan, corrective action, SLA, dan audit trail yang tidak dapat dihapus."
+        description="Catatan organisasi untuk risiko, insiden, pengaduan, tindakan perbaikan, batas waktu penanganan, dan jejak audit yang tidak dapat dihapus."
         actions={<>
           <ProtectedActionButton action="manage" resource="risk_flags" onClick={() => navigate("/governance/new/risk")}><Plus size={16} /> Risiko</ProtectedActionButton>
           <ProtectedActionButton action="report" resource="governance_incidents" onClick={() => navigate("/governance/new/incident")}><ShieldAlert size={16} /> Insiden</ProtectedActionButton>
@@ -124,7 +124,7 @@ export function GovernancePage() {
       {hasError ? <ErrorState title="Sebagian register tidak dapat dimuat" description="Setiap register memiliki permission baca yang terpisah." /> : null}
 
       <CanAccess action="read" resource="risk_flags">
-        <DetailSection title="Risk flags" description="Risiko terbuka dan mitigasi yang harus dijaga sampai ditutup secara formal.">
+        <DetailSection title="Risiko" description="Risiko terbuka dan mitigasi yang harus dijaga sampai ditutup secara formal.">
           <ResourceTable
             items={risks.result?.data ?? []} isLoading={risks.query.isLoading} getRowId={(item) => item.id}
             columns={[titleColumn<RiskFlag>(), { header: "Risiko", key: "risk", render: (item) => `${item.risk_type} / ${item.severity}` }, { header: "SLA", key: "sla", render: (item) => isOverdue(item) ? <StatusBadge tone="danger">terlambat</StatusBadge> : new Date(item.resolution_due_at!).toLocaleDateString("id-ID") }, { header: "Status", key: "status", render: (item) => <StatusBadge tone={tone(item.status, item.severity)}>{item.status}</StatusBadge> }]}
@@ -154,7 +154,7 @@ export function GovernancePage() {
       </CanAccess>
 
       <CanAccess action="read" resource="corrective_actions">
-        <DetailSection title="Corrective actions" description="Perbaikan harus selesai dan diverifikasi oleh aktor berbeda.">
+        <DetailSection title="Tindakan perbaikan" description="Perbaikan harus selesai dan diverifikasi oleh aktor berbeda.">
           <div className="section-heading"><span /><ProtectedActionButton action="manage" resource="corrective_actions" variant="outline" onClick={() => navigate("/governance/new/corrective-action")}><Plus size={16} /> Corrective action</ProtectedActionButton></div>
           <ResourceTable
             items={actions.result?.data ?? []} isLoading={actions.query.isLoading} getRowId={(item) => item.id}
@@ -165,7 +165,7 @@ export function GovernancePage() {
       </CanAccess>
 
       <CanAccess action="read" resource="audit">
-        <DetailSection title="Audit trail" description="Ringkasan peristiwa lintas modul; payload before/after tidak dikirim pada daftar.">
+        <DetailSection title="Jejak audit" description="Ringkasan perubahan data lintas modul; rincian sebelum/sesudah hanya dibuka oleh auditor.">
           <ResourceTable
             items={audits.result?.data ?? []} isLoading={audits.query.isLoading} getRowId={(item) => item.id}
             columns={[{ header: "Aksi", key: "action", render: (item) => <div className="crm-contact-cell"><strong>{item.action}</strong><small>{item.request_id}</small></div> }, { header: "Entitas", key: "entity", render: (item) => `${item.entity_type} / ${item.entity_id.slice(0, 8)}` }, { header: "Waktu", key: "time", render: (item) => new Date(item.occurred_at).toLocaleString("id-ID") }]}

@@ -235,9 +235,9 @@ export function AssessmentTemplateCreatePage() {
   return (
     <section className="workspace-page" aria-labelledby="template-create-title">
       <PageHeader
-        eyebrow="Assessment Engine"
+        eyebrow="Asesmen"
         title={isNewVersion ? "Buat Versi Template" : "Buat Template Asesmen"}
-        description="Scoring dihitung server-side. Versi yang sudah published tidak dapat diedit."
+        description="Skor dihitung otomatis. Versi yang sudah diterbitkan tidak dapat diubah; buat versi baru bila perlu."
         actions={
           <Button
             variant="outline"

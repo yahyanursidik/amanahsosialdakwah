@@ -1,6 +1,6 @@
 import { AlertTriangle } from "lucide-react";
+import { Link } from "react-router";
 
-import { ProtectedActionButton } from "@/components/access-control/protected-action-button";
 import type { ContactDuplicateCandidate } from "@/features/crm/contact-rules";
 
 type DuplicateWarningProps = {
@@ -23,14 +23,15 @@ export function DuplicateWarning({
         <strong>Kemungkinan duplikasi kontak</strong>
       </div>
       <p>
-        Sistem hanya memberi peringatan. Kontak tidak akan digabung otomatis;
-        merge harus diajukan lewat workflow terkontrol.
+        Sistem hanya memberi peringatan dan tidak menggabungkan kontak secara
+        otomatis. Buka kontak di bawah untuk memeriksa; bila memang sama, pakai
+        salah satu dan nonaktifkan yang lain.
       </p>
       {!compact ? (
         <ul>
           {candidates.map((candidate) => (
             <li key={candidate.contact.$id}>
-              <span>{candidate.contact.display_name}</span>
+              <Link to={`/crm/contacts/${candidate.contact.$id}`}>{candidate.contact.display_name}</Link>
               <small>
                 {Math.round(candidate.score * 100)}% -{" "}
                 {candidate.reasons.join(", ")}
@@ -39,14 +40,6 @@ export function DuplicateWarning({
           ))}
         </ul>
       ) : null}
-      <ProtectedActionButton
-        action="manage"
-        resource="crm_merge_requests"
-        variant="outline"
-        size="sm"
-      >
-        Ajukan review merge
-      </ProtectedActionButton>
     </aside>
   );
 }

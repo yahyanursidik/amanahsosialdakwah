@@ -71,7 +71,7 @@ export function ApprovalRequestListPage() {
   if (query.isError) {
     return (
       <section className="workspace-page">
-        <PageHeader title="Permintaan Approval" eyebrow="Approval Engine" />
+        <PageHeader title="Permintaan Approval" eyebrow="Approval" />
         <ErrorState
           title="Permintaan tidak dapat dimuat"
           description="Periksa organisasi aktif dan permission Anda."
@@ -84,7 +84,7 @@ export function ApprovalRequestListPage() {
   return (
     <section className="workspace-page">
       <PageHeader
-        eyebrow="Approval Engine"
+        eyebrow="Approval"
         title="Permintaan Approval"
         description="Pantau keputusan, kuorum, revisi, dan jejak audit pada satu timeline."
         actions={
@@ -97,7 +97,7 @@ export function ApprovalRequestListPage() {
               Workflow
             </Button>
             <ProtectedActionButton
-              action="create"
+              action="submit"
               resource="approval_requests"
               onClick={() => create("approval_requests")}
             >

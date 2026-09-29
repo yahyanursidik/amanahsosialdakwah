@@ -79,7 +79,7 @@ export function KafalahListPage() {
     },
     {
       key: "amount",
-      header: "Nilai / Matching",
+      header: "Nilai / pencocokan",
       render: (item) => (
         <div className="crm-contact-cell">
           <MoneyDisplay
@@ -107,7 +107,7 @@ export function KafalahListPage() {
   const matchColumns: ResourceTableColumn<KafalahMatch>[] = [
     {
       key: "reference",
-      header: "Matching",
+      header: "Pencocokan",
       render: (item) => (
         <div className="crm-contact-cell">
           <strong>{item.reference_number}</strong>
@@ -185,7 +185,7 @@ export function KafalahListPage() {
               resource="kafalah_matches"
               onClick={() => create("kafalah_matches")}
             >
-              <Link2 size={16} /> Matching
+              <Link2 size={16} /> Cocokkan kafil
             </ProtectedActionButton>
             <ProtectedActionButton
               action="manage"
@@ -251,7 +251,7 @@ export function KafalahListPage() {
       />
       <div className="section-heading">
         <div>
-          <h2>Matching kafil</h2>
+          <h2>Pencocokan kafil</h2>
           <p>Nilai matching dikunci atomik agar tidak melampaui kebutuhan.</p>
         </div>
       </div>
@@ -263,7 +263,7 @@ export function KafalahListPage() {
         empty={
           <EmptyState
             title="Belum ada matching"
-            description="Pasangkan kafil aktif dengan kebutuhan approved."
+            description="Pasangkan kafil aktif dengan kebutuhan yang sudah disetujui."
           />
         }
       />

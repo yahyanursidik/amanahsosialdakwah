@@ -56,6 +56,7 @@ export type LogisticsDelivery = {
 };
 
 export type LogisticsShipment = {
+  assigned_profile_id?: string | null;
   id: string;
   reference_number: string;
   packing_id: string;

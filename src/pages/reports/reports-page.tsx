@@ -115,7 +115,7 @@ export function ReportsPage() {
       <PageHeader
         eyebrow="Laporan organisasi"
         title="Ringkasan amanah"
-        description="Angka dihitung server-side dalam konteks organisasi aktif. Nilai uang tidak pernah dijumlahkan lintas mata uang."
+        description="Angka dihitung otomatis untuk organisasi aktif. Nilai uang tidak dijumlahkan lintas mata uang."
         actions={
           <div className="flex flex-wrap items-center gap-2">
           <CanAccess action="read" resource="stakeholder_reports">
