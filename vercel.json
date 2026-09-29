@@ -4,8 +4,14 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
@@ -31,11 +37,16 @@
     },
     {
       "source": "/api/:path*",
-      "headers": [{ "key": "Cache-Control", "value": "private, no-store" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
+        }
+      ]
     }
   ],
   "functions": {
-    "api/v1/[...route].ts": {
+    "api/v1-router.ts": {
       "includeFiles": "server/build-output/**"
     }
   },
@@ -43,6 +54,14 @@
     {
       "source": "/api/auth/:path*",
       "destination": "/api/auth-proxy?path=:path*"
+    },
+    {
+      "source": "/api/v1/:path*",
+      "destination": "/api/v1-router?__path=:path*"
+    },
+    {
+      "source": "/api/v1",
+      "destination": "/api/v1-router"
     },
     {
       "source": "/((?!api).*)",
