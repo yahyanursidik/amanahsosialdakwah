@@ -20,6 +20,7 @@ import {
   PageHeader,
   ResourceTable,
   StatusBadge,
+  TablePagination,
   type ResourceTableColumn,
 } from "@/components/design-system";
 import { Button } from "@/components/ui/button";
@@ -379,21 +380,7 @@ export function DonorListPage() {
         />
       )}
 
-      {total > pageSize ? (
-        <div className="flex items-center justify-between text-sm">
-          <span>
-            Menampilkan {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} dari {total} donatur
-          </span>
-          <div className="flex gap-2">
-            <Button disabled={page === 1} size="sm" variant="outline" onClick={() => setPage((value) => value - 1)}>
-              Sebelumnya
-            </Button>
-            <Button disabled={page * pageSize >= total} size="sm" variant="outline" onClick={() => setPage((value) => value + 1)}>
-              Berikutnya
-            </Button>
-          </div>
-        </div>
-      ) : null}
+      <TablePagination itemLabel="donatur" page={page} pageSize={pageSize} total={total} onPageChange={setPage} />
     </section>
   );
 }

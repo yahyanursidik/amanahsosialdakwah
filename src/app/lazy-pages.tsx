@@ -290,6 +290,11 @@ export const ProgramEditPage = lazy(() =>
     default: module.ProgramEditPage,
   })),
 );
+export const ProgramCategoryPage = lazy(() =>
+  import("@/pages/programs/program-category-page").then((module) => ({
+    default: module.ProgramCategoryPage,
+  })),
+);
 export const ProgramListPage = lazy(() =>
   import("@/pages/programs/program-list-page").then((module) => ({
     default: module.ProgramListPage,

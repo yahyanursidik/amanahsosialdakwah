@@ -1,5 +1,8 @@
-import { NavLink } from "react-router";
+import { useState } from "react";
+import { NavLink, useLocation } from "react-router";
 import {
+  ChevronDown,
+  Search,
   BookOpenCheck,
   Building2,
   ChartNoAxesCombined,
@@ -117,9 +120,17 @@ const navigationGroups = [
       {
         action: "read",
         icon: Layers3,
+        end: true,
         label: "Program",
         resource: "programs",
         to: "/programs",
+      },
+      {
+        action: "manage",
+        icon: Tags,
+        label: "Kategori program",
+        resource: "program_categories",
+        to: "/programs/categories",
       },
       {
         action: "read",
@@ -218,7 +229,7 @@ const navigationGroups = [
       {
         action: "read",
         icon: HeartHandshake,
-        label: "Contact master",
+        label: "Semua kontak",
         resource: "crm_contacts",
         to: "/crm/contacts",
       },
@@ -232,7 +243,7 @@ const navigationGroups = [
       {
         action: "read",
         icon: Tags,
-        label: "Tag CRM",
+        label: "Tag kontak",
         resource: "crm_tags",
         to: "/crm/tags",
       },
@@ -252,7 +263,7 @@ const navigationGroups = [
       {
         action: "read",
         icon: FileText,
-        label: "Donatur, mitra & pengaju",
+        label: "Laporan per donatur & mitra",
         resource: "stakeholder_reports",
         to: "/reports/stakeholders",
       },
@@ -278,14 +289,14 @@ const navigationGroups = [
       {
         action: "read",
         icon: UsersRound,
-        label: "Membership",
+        label: "Anggota & peran",
         resource: "memberships",
         to: "/memberships",
       },
       {
         action: "read",
         icon: KeyRound,
-        label: "Role & permission",
+        label: "Hak akses per peran",
         resource: "roles",
         to: "/roles",
       },
@@ -308,7 +319,42 @@ const navigationGroups = [
   },
 ] as const;
 
+const COLLAPSED_KEY = "amanah.navigation.collapsed";
+
+function readCollapsed(): Record<string, boolean> {
+  try {
+    return JSON.parse(localStorage.getItem(COLLAPSED_KEY) ?? "{}") as Record<string, boolean>;
+  } catch {
+    return {};
+  }
+}
+
+function isActivePath(pathname: string, to: string) {
+  return pathname === to || pathname.startsWith(`${to}/`);
+}
+
+/**
+ * Navigasi utama: grup dapat dilipat (diingat per perangkat), grup halaman
+ * aktif selalu terbuka, dan pencarian cepat untuk melompat ke menu.
+ */
 export function ProtectedNavigation() {
+  const { pathname } = useLocation();
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(readCollapsed);
+  const [query, setQuery] = useState("");
+  const search = query.trim().toLowerCase();
+
+  const toggle = (label: string) => {
+    setCollapsed((current) => {
+      const next = { ...current, [label]: !current[label] };
+      try {
+        localStorage.setItem(COLLAPSED_KEY, JSON.stringify(next));
+      } catch {
+        // Penyimpanan lokal tidak tersedia; status lipat hanya berlaku sesi ini.
+      }
+      return next;
+    });
+  };
+
   return (
     <nav className="protected-navigation" aria-label="Navigasi utama">
       <NavLink className="protected-navigation__home" end to="/">
@@ -319,36 +365,68 @@ export function ProtectedNavigation() {
         <BookOpenCheck aria-hidden="true" size={18} />
         <span>Panduan alur</span>
       </NavLink>
+      <label className="protected-navigation__search">
+        <Search aria-hidden size={15} />
+        <input
+          aria-label="Cari menu"
+          placeholder="Cari menu…"
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+      </label>
 
-      {navigationGroups.map((group) => (
-        <section className="protected-navigation__group" key={group.label}>
-          <h2>{group.label}</h2>
-          <div className="protected-navigation__items">
-            {group.items.map((item) => {
-              const Icon = item.icon;
+      {navigationGroups.map((group) => {
+        const items = search
+          ? group.items.filter((item) => `${item.label} ${group.label}`.toLowerCase().includes(search))
+          : group.items;
+        if (items.length === 0) return null;
+        const containsActive = group.items.some((item) => isActivePath(pathname, item.to));
+        const open = Boolean(search) || containsActive || !collapsed[group.label];
+        const groupId = `nav-group-${group.label.replace(/\W+/g, "-").toLowerCase()}`;
+        return (
+          <section className="protected-navigation__group" data-open={open} key={group.label}>
+            <h2>
+              <button
+                aria-controls={groupId}
+                aria-expanded={open}
+                className="protected-navigation__group-toggle"
+                type="button"
+                onClick={() => toggle(group.label)}
+              >
+                <span>{group.label}</span>
+                <ChevronDown aria-hidden size={14} />
+              </button>
+            </h2>
+            {open ? (
+              <div className="protected-navigation__items" id={groupId}>
+                {items.map((item) => {
+                  const Icon = item.icon;
 
-              return (
-                <CanAccess
-                  action={item.action}
-                  key={item.to}
-                  loading={
-                    <span
-                      aria-hidden
-                      className="protected-navigation__placeholder"
-                    />
-                  }
-                  resource={item.resource}
-                >
-                  <NavLink end={"end" in item} to={item.to}>
-                    <Icon aria-hidden="true" size={18} />
-                    <span>{item.label}</span>
-                  </NavLink>
-                </CanAccess>
-              );
-            })}
-          </div>
-        </section>
-      ))}
+                  return (
+                    <CanAccess
+                      action={item.action}
+                      key={item.to}
+                      loading={
+                        <span
+                          aria-hidden
+                          className="protected-navigation__placeholder"
+                        />
+                      }
+                      resource={item.resource}
+                    >
+                      <NavLink end={"end" in item} to={item.to}>
+                        <Icon aria-hidden="true" size={18} />
+                        <span>{item.label}</span>
+                      </NavLink>
+                    </CanAccess>
+                  );
+                })}
+              </div>
+            ) : null}
+          </section>
+        );
+      })}
     </nav>
   );
 }

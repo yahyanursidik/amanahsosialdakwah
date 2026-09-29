@@ -21,6 +21,51 @@ export const fundTypes = [
   "general",
 ] as const;
 
+export const fundTypeLabels: Record<(typeof fundTypes)[number], string> = {
+  zakat: "Zakat",
+  infaq: "Infaq",
+  sedekah: "Sedekah",
+  waqf: "Wakaf",
+  humanitarian: "Kemanusiaan",
+  education: "Pendidikan",
+  health: "Kesehatan",
+  general: "Umum / dana sosial",
+};
+
+export const targetBeneficiaryTypeLabels: Record<(typeof targetBeneficiaryTypes)[number], string> = {
+  individual: "Perorangan",
+  family: "Keluarga",
+  institution: "Lembaga",
+  community: "Komunitas",
+  disaster_area: "Wilayah bencana",
+  mosque: "Masjid / musala",
+  school: "Sekolah / pesantren",
+};
+
+/** Daftar multi-pilihan dari data program; kolom tunggal lama sebagai cadangan. */
+export function resolveProgramList<T extends string>(list: unknown, primary: T): T[] {
+  const values = Array.isArray(list) && list.length > 0 ? (list as T[]) : [];
+  // Nilai utama selalu di depan, tanpa duplikat.
+  return [primary, ...values.filter((value) => value !== primary)];
+}
+
+/** Label klasifikasi amanah program (utama lebih dulu), mis. "Zakat, Sedekah". */
+export function programFundTypesText(program: { fund_type: string; fund_types?: string[] | null | undefined }) {
+  const list = resolveProgramList(program.fund_types, program.fund_type);
+  return list.map((value) => fundTypeLabels[value as keyof typeof fundTypeLabels] ?? value).join(", ");
+}
+
+/** Label tipe penerima program, mis. "Keluarga, Lembaga". */
+export function programTargetTypesText(program: {
+  target_beneficiary_type: string;
+  target_beneficiary_types?: string[] | null | undefined;
+}) {
+  const list = resolveProgramList(program.target_beneficiary_types, program.target_beneficiary_type);
+  return list
+    .map((value) => targetBeneficiaryTypeLabels[value as keyof typeof targetBeneficiaryTypeLabels] ?? value)
+    .join(", ");
+}
+
 export const programSupportModes = ["cash", "in_kind", "logistics"] as const;
 
 export const programSupportModeLabels = {
@@ -96,6 +141,9 @@ export const programFormSchema = z
     target_beneficiary_type: z.enum(targetBeneficiaryTypes, {
       message: "Tipe penerima manfaat tidak valid.",
     }),
+    target_beneficiary_types: z
+      .array(z.enum(targetBeneficiaryTypes))
+      .min(1, "Pilih minimal satu tipe penerima."),
     target_beneficiary_count: z.coerce
       .number({ message: "Jumlah penerima harus berupa angka." })
       .min(0, "Jumlah penerima tidak boleh negatif."),
@@ -120,6 +168,9 @@ export const programFormSchema = z
     fund_type: z.enum(fundTypes, {
       message: "Jenis dana tidak valid.",
     }),
+    fund_types: z
+      .array(z.enum(fundTypes))
+      .min(1, "Pilih minimal satu klasifikasi amanah."),
     starts_at: z.string().optional(),
     ends_at: z.string().optional(),
     owner_id: z.string().optional(),

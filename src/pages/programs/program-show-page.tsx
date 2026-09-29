@@ -43,6 +43,8 @@ import {
 } from "@/features/programs/program-service";
 import {
   programSupportModeLabels,
+  programFundTypesText,
+  programTargetTypesText,
   resolveProgramSupportModes,
 } from "@/features/programs/schemas";
 import type { ControlledEditFormValues } from "@/features/programs/schemas";
@@ -193,8 +195,8 @@ export function ProgramShowPage() {
       ),
     },
     {
-      field: "Jenis dana",
-      value: <span className="capitalize">{program.fund_type}</span>,
+      field: "Klasifikasi amanah",
+      value: programFundTypesText(program),
     },
     {
       field: "Bentuk dukungan",
@@ -204,9 +206,7 @@ export function ProgramShowPage() {
     },
     {
       field: "Tipe penerima",
-      value: (
-        <span className="capitalize">{program.target_beneficiary_type}</span>
-      ),
+      value: programTargetTypesText(program),
     },
     {
       field: "Target penerima",
@@ -403,7 +403,7 @@ export function ProgramShowPage() {
           <p className="program-detail__command-label">Kelola program</p>
           <p className="program-detail__command-context">
             {program.code} ·{" "}
-            <span className="capitalize">{program.fund_type}</span>
+            <span>{programFundTypesText(program)}</span>
           </p>
         </div>
         <div className="program-detail__actions">

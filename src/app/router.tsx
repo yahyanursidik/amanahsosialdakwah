@@ -80,6 +80,7 @@ import {
   ProcurementListPage,
   ProgramCreatePage,
   ProgramEditPage,
+  ProgramCategoryPage,
   ProgramListPage,
   ProcessGuidePage,
   ProgramShowPage,
@@ -327,7 +328,7 @@ export function AppRouter() {
                   element={
                     <FoundationResourcePage
                       resource="memberships"
-                      title="Membership"
+                      title="Anggota & peran"
                     />
                   }
                 />
@@ -403,6 +404,7 @@ export function AppRouter() {
                 element={<ProtectedRoute action="read" resource="programs" />}
               >
                 <Route path="/programs" element={<ProgramListPage />} />
+                <Route path="/programs/categories" element={<ProgramCategoryPage />} />
                 <Route path="/programs/new" element={<ProgramCreatePage />} />
                 <Route
                   path="/programs/:id/edit"

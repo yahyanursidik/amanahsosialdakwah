@@ -44,9 +44,18 @@ function validationHook(result: { success: boolean }): void {
   }
 }
 
-function programInputValidationHook(result: { success: boolean }): void {
+function programInputValidationHook(result: {
+  error?: { issues?: Array<{ message: string }> };
+  success: boolean;
+}): void {
   if (!result.success) {
-    throw new DomainError("VALIDATION_ERROR", "Data Program tidak valid.", 400);
+    // Tampilkan alasan pertama agar pengguna tahu apa yang perlu diperbaiki.
+    const reason = result.error?.issues?.[0]?.message;
+    throw new DomainError(
+      "VALIDATION_ERROR",
+      reason ? `Data program belum valid: ${reason}` : "Data Program tidak valid.",
+      400,
+    );
   }
 }
 

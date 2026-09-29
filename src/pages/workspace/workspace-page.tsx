@@ -107,7 +107,7 @@ const workAreas = [
   {
     action: "read",
     icon: HeartHandshake,
-    label: "Contact master",
+    label: "Semua kontak",
     resource: "crm_contacts",
     to: "/crm/contacts",
   },

@@ -35,11 +35,12 @@ const journeys: Journey[] = [
       "Pemberi zakat, infaq, sedekah, atau donasi program dalam bentuk uang.",
     who: "Petugas penghimpunan / keuangan",
     steps: [
-      { description: "Daftarkan donatur (individu/lembaga) dan beri peran Donatur.", href: "/crm/contacts/new", menu: "Relasi → Contact master", title: "Catat donatur" },
+      { description: "Daftarkan donatur/wakif (individu/lembaga), isi segmen, PIC, minat, dan komitmen rutin; riwayat pemberian terkumpul otomatis.", href: "/donors/new", menu: "Penghimpunan → Donatur & wakif", title: "Catat donatur" },
       { description: "Pastikan ada Dana amanah: umum atau terikat program.", href: "/funds", menu: "Penghimpunan → Dana amanah", title: "Siapkan pos dana" },
       { description: "Catat penerimaan dana dan tautkan ke donatur agar masuk laporan pribadinya.", href: "/funds/new/receipt", menu: "Dana amanah → Penerimaan", title: "Terima dana" },
       { description: "Alokasikan ke program, lalu salurkan melalui Distribusi.", href: "/funds", menu: "Dana amanah → Alokasi", title: "Alokasikan & salurkan" },
-      { description: "Bagikan laporan pribadi donatur: pemberian + capaian program yang didukung.", href: "/reports/stakeholders?role=donor", menu: "Laporan → Pemangku kepentingan", title: "Laporkan ke donatur" },
+      { description: "Bagikan laporan pribadi donatur: pemberian + capaian program yang didukung.", href: "/reports/stakeholders?role=donor", menu: "Laporan → Laporan per donatur & mitra", title: "Laporkan ke donatur" },
+      { description: "Catat komunikasi (WA, telepon, kunjungan) dan jadwalkan tindak lanjut; pantau donatur yang perlu disapa atau lama tidak memberi.", href: "/donors", menu: "Penghimpunan → Donatur & wakif", title: "Rawat hubungan" },
     ],
   },
   {
@@ -54,7 +55,7 @@ const journeys: Journey[] = [
       { description: "Pilih donatur, jenis amanah, program tujuan, gudang, dan rincian barang.", href: "/in-kind-donations/new", menu: "Penghimpunan → Donasi barang", title: "Terima donasi barang" },
       { description: "Cetak tanda terima dari halaman detail untuk diberikan kepada donatur.", href: "/in-kind-donations", menu: "Donasi barang → detail", title: "Cetak tanda terima" },
       { description: "Stok bertambah otomatis. Rakit paket bantuan dan kirim via Logistik.", href: "/aid-packages", menu: "Penyaluran → Paket bantuan", title: "Kemas & kirim" },
-      { description: "Laporan donatur menampilkan barang yang diberikan dan program terkait.", href: "/reports/stakeholders?role=donor", menu: "Laporan → Pemangku kepentingan", title: "Laporkan ke donatur" },
+      { description: "Laporan donatur menampilkan barang yang diberikan dan program terkait.", href: "/reports/stakeholders?role=donor", menu: "Laporan → Laporan per donatur & mitra", title: "Laporkan ke donatur" },
     ],
   },
   {
@@ -69,7 +70,7 @@ const journeys: Journey[] = [
       { description: "Catat setiap setoran wakif (boleh atas nama keluarga yang telah wafat) beserta no. AIW/sertifikat wakaf uang.", href: "/waqf", menu: "Detail aset → Setoran wakif", title: "Catat setoran wakif" },
       { description: "Unggah metadata dokumen legal, verifikasi oleh petugas lain, lalu registrasi aktif.", href: "/waqf", menu: "Detail aset → Dokumen legal", title: "Legalitas & registrasi" },
       { description: "Kelola nazhir, pemanfaatan, pendapatan hasil, dan distribusi manfaat.", href: "/waqf", menu: "Detail aset", title: "Kelola & salurkan manfaat" },
-      { description: "Laporan wakif memuat setoran, status aset, dan manfaat yang telah tersalur.", href: "/reports/stakeholders?role=donor", menu: "Laporan → Pemangku kepentingan", title: "Laporkan ke wakif" },
+      { description: "Laporan wakif memuat setoran, status aset, dan manfaat yang telah tersalur.", href: "/reports/stakeholders?role=donor", menu: "Laporan → Laporan per donatur & mitra", title: "Laporkan ke wakif" },
     ],
   },
   {
@@ -80,6 +81,7 @@ const journeys: Journey[] = [
       "Pengirim barang, penyalur bantuan, verifikator penerima, dan pelapor langsung dari lokasi — dirancang untuk HP dan tetap jalan tanpa sinyal.",
     who: "Petugas lapangan, relawan, dan supervisor",
     steps: [
+      { description: "Admin mengatur aturan (foto/GPS wajib, laporan wajib, tenggat) dan template ceklis per jenis tugas atau per program.", href: "/field/settings", menu: "Lapangan → Pengaturan lapangan", title: "Atur aturan & ceklis" },
       { description: "Koordinator membuat to-do berceklis per penerima: salurkan dana, barang, atau keduanya sekaligus sesuai program; verifikasi; antar; atau pantau.", href: "/field/tasks/new", menu: "Lapangan → Kelola tugas", title: "Buat tugas berceklis" },
       { description: "Tab To-do: buka tugas, telepon/WA/rute ke penerima, centang tiap langkah (tetap tersimpan tanpa sinyal), lalu Isi laporan & selesaikan.", href: "/field", menu: "Lapangan → Tugas lapangan → To-do", title: "Kerjakan ceklis" },
       { description: "Koordinator juga dapat menugaskan distribusi (detail Distribusi → Tugaskan) dan pengiriman (detail Shipment → Petugas pengirim).", href: "/logistics", menu: "Penyaluran → Distribusi / Logistik", title: "Penugasan modul" },
@@ -112,7 +114,7 @@ const journeys: Journey[] = [
     summary: "Perorangan yang mengajukan bantuan atau manfaat wakaf untuk diri/keluarganya.",
     who: "Petugas intake / lapangan",
     steps: [
-      { description: "Daftarkan kontak dan beri peran Pengaju atau Penerima manfaat.", href: "/crm/contacts/new", menu: "Relasi → Contact master", title: "Catat pengaju" },
+      { description: "Daftarkan kontak dan beri peran Pengaju atau Penerima manfaat.", href: "/crm/contacts/new", menu: "Relasi → Semua kontak", title: "Catat pengaju" },
       { description: "Pilih tipe “Individu”, program, jumlah penerima, dan kebutuhan.", href: "/applications/new", menu: "Program & pengajuan → Pengajuan bantuan", title: "Buat pengajuan" },
       { description: "Ajukan → seleksi → terima/tolak → konversi menjadi kasus.", href: "/applications", menu: "Pengajuan → detail", title: "Seleksi" },
       { description: "Asesmen & persetujuan, lalu distribusi dana/barang ke penerima.", href: "/cases", menu: "Kasus → Asesmen → Distribusi", title: "Asesmen & penyaluran" },
@@ -131,7 +133,7 @@ const journeys: Journey[] = [
       { description: "Tipe “Lembaga untuk lembaganya” — isi jumlah jiwa/santri yang terlayani.", href: "/applications/new", menu: "Pengajuan bantuan", title: "Pengajuan untuk lembaga" },
       { description: "Tipe “Mitra atas nama penerima” — pilih lembaga mitra dan penerima; kanal otomatis ‘Mitra’.", href: "/applications/new", menu: "Pengajuan bantuan", title: "Pengajuan atas nama penerima" },
       { description: "Usulan proyek wakaf (masjid, sumur, sekolah) atau penawaran aset diajukan di sini.", href: "/waqf/proposals/new", menu: "Wakaf → Pengajuan program wakaf", title: "Usulan program wakaf" },
-      { description: "Laporan lembaga: semua pengajuan, statusnya, dan usulan wakaf.", href: "/reports/stakeholders?role=applicant", menu: "Laporan → Pemangku kepentingan", title: "Pantau & laporkan" },
+      { description: "Laporan lembaga: semua pengajuan, statusnya, dan usulan wakaf.", href: "/reports/stakeholders?role=applicant", menu: "Laporan → Laporan per donatur & mitra", title: "Pantau & laporkan" },
     ],
   },
   {
@@ -145,7 +147,7 @@ const journeys: Journey[] = [
       { description: "Di detail Program, tetapkan area penyaluran dan tugaskan mitra (peran, PIC, kesiapan).", href: "/programs", menu: "Program → Operasional", title: "Tugaskan ke program" },
       { description: "Alokasikan pengajuan yang diterima ke mitra & area.", href: "/programs", menu: "Program → Alokasi pengajuan", title: "Alokasikan penerima" },
       { description: "Kirim paket via Logistik; mitra mengonfirmasi serah terima dan bukti.", href: "/logistics", menu: "Penyaluran → Logistik / Distribusi", title: "Salurkan" },
-      { description: "Laporan mitra: penugasan, kesiapan, penerima dilayani, dan paket.", href: "/reports/stakeholders?role=distribution_partner", menu: "Laporan → Pemangku kepentingan", title: "Laporkan kinerja mitra" },
+      { description: "Laporan mitra: penugasan, kesiapan, penerima dilayani, dan paket.", href: "/reports/stakeholders?role=distribution_partner", menu: "Laporan → Laporan per donatur & mitra", title: "Laporkan kinerja mitra" },
     ],
   },
   {
@@ -156,7 +158,7 @@ const journeys: Journey[] = [
     who: "Pimpinan / auditor",
     steps: [
       { description: "Dana, barang, wakaf, penyaluran, dan antrean tindak lanjut dalam satu layar.", href: "/reports", menu: "Laporan & dashboard", title: "Ringkasan organisasi" },
-      { description: "Donatur & wakif teratas, kinerja mitra, dan rekap pengaju.", href: "/reports/stakeholders", menu: "Laporan → Pemangku kepentingan", title: "Rekap per peran" },
+      { description: "Donatur & wakif teratas, kinerja mitra, dan rekap pengaju.", href: "/reports/stakeholders", menu: "Laporan → Laporan per donatur & mitra", title: "Rekap per peran" },
       { description: "Terbitkan halaman publik program untuk transparansi kepada masyarakat.", href: "/programs", menu: "Program → Publikasi", title: "Publikasi program" },
       { description: "Jejak audit dan risiko untuk pemeriksaan.", href: "/governance", menu: "Tata kelola → Audit & risiko", title: "Audit" },
     ],

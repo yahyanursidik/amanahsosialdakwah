@@ -223,7 +223,7 @@ export function ContactDetailPage() {
 
       <div className="workspace-page__grid">
         <DetailSection
-          title="Contact master"
+          title="Semua kontak"
           items={[
             { label: "Jenis", value: contact.contact_type },
             { label: "Telepon", value: contact.primary_phone || "-" },

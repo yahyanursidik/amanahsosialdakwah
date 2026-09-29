@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   programFormSchema,
+  programFundTypesText,
+  programTargetTypesText,
+  resolveProgramList,
   resolveProgramSupportModes,
   sumProgramSupportBudget,
 } from "./schemas";
@@ -13,12 +16,14 @@ const baseProgram = {
   description: "",
   ends_at: "",
   fund_type: "general" as const,
+  fund_types: ["general" as const],
   name: "Program Dukungan Campuran",
   objective: "",
   owner_id: "",
   starts_at: "",
   target_beneficiary_count: 10,
   target_beneficiary_type: "family" as const,
+  target_beneficiary_types: ["family" as const],
 };
 
 describe("program support planning", () => {
@@ -54,6 +59,32 @@ describe("program support planning", () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it("mewajibkan minimal satu klasifikasi dan satu tipe penerima", () => {
+    const base = {
+      ...baseProgram,
+      cash_budget_amount: 0,
+      goods_budget_amount: 0,
+      logistics_budget_amount: 0,
+      support_modes: ["cash"],
+    };
+    expect(programFormSchema.safeParse({ ...base, fund_types: [] }).success).toBe(false);
+    expect(programFormSchema.safeParse({ ...base, target_beneficiary_types: [] }).success).toBe(false);
+    expect(
+      programFormSchema.safeParse({
+        ...base,
+        fund_types: ["zakat", "sedekah"],
+        target_beneficiary_types: ["family", "school"],
+      }).success,
+    ).toBe(true);
+  });
+
+  it("menampilkan klasifikasi utama lebih dulu dan mendukung data lama", () => {
+    expect(resolveProgramList(["zakat", "sedekah"], "sedekah")).toEqual(["sedekah", "zakat"]);
+    expect(resolveProgramList(undefined, "waqf")).toEqual(["waqf"]);
+    expect(programFundTypesText({ fund_type: "zakat", fund_types: ["zakat", "education"] })).toBe("Zakat, Pendidikan");
+    expect(programTargetTypesText({ target_beneficiary_type: "family", target_beneficiary_types: null })).toBe("Keluarga");
   });
 
   it("mengamankan UI saat respons program lama belum memiliki bentuk dukungan", () => {

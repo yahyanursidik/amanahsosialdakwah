@@ -993,3 +993,48 @@
     transition-duration: 150ms;
   }
 }
+
+/* Grup navigasi yang dapat dilipat dan pencarian menu. */
+.protected-navigation__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  margin-block: var(--space-2xs);
+  padding: 0 var(--space-sm);
+  border: var(--rule-thin) solid color-mix(in oklch, var(--color-deep-ink) 14%, transparent);
+  border-radius: var(--radius-sm);
+  color: color-mix(in oklch, var(--color-deep-ink) 52%, transparent);
+}
+
+.protected-navigation__search input {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.25rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: var(--text-sm);
+  outline: 0;
+}
+
+.protected-navigation__group-toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2xs);
+  min-height: 1.75rem;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.protected-navigation__group-toggle svg {
+  transition: transform 150ms ease-out;
+}
+
+.protected-navigation__group[data-open="false"] .protected-navigation__group-toggle svg {
+  transform: rotate(-90deg);
+}
