@@ -117,8 +117,8 @@ export function ContactListPage() {
     return (
       <section className="workspace-page">
         <PageHeader
-          eyebrow="CRM"
-          title="Contact Master"
+          eyebrow="Relasi"
+          title="Semua kontak"
           description="Satu orang atau institusi hanya memiliki satu master kontak."
         />
         <ErrorState
@@ -132,8 +132,8 @@ export function ContactListPage() {
   return (
     <section className="workspace-page" aria-labelledby="contact-list-title">
       <PageHeader
-        eyebrow="CRM"
-        title="Contact Master"
+        eyebrow="Relasi"
+        title="Semua kontak"
         description="Basis kontak lintas peran: donatur, kafil, relawan, dan penerima manfaat."
         actions={
           <ProtectedActionButton

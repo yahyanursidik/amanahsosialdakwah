@@ -86,8 +86,8 @@ export function TagListPage() {
   return (
     <section className="workspace-page">
       <PageHeader
-        eyebrow="CRM"
-        title="Tags"
+        eyebrow="Relasi"
+        title="Tag kontak"
         description="Segmentasi kontak untuk kebutuhan komunikasi, asesmen, dan penyaluran."
       />
       <form className="crm-form" onSubmit={handleSubmit(onSubmit)}>
@@ -117,7 +117,7 @@ export function TagListPage() {
         getRowId={(item) => item.$id}
         isLoading={tagsQuery.query.isLoading}
         items={tagsQuery.result?.data ?? []}
-        empty={<EmptyState title="Belum ada tag CRM" />}
+        empty={<EmptyState title="Belum ada tag" />}
       />
     </section>
   );

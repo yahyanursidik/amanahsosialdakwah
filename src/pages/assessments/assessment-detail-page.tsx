@@ -199,7 +199,7 @@ export function AssessmentDetailPage() {
   if (assessmentQuery.query.isError || !record) {
     return (
       <section className="workspace-page">
-        <PageHeader title="Detail Asesmen" eyebrow="Assessment Engine" />
+        <PageHeader title="Detail Asesmen" eyebrow="Asesmen" />
         <ErrorState
           title="Asesmen tidak ditemukan"
           description="Data tidak tersedia atau berada di organisasi lain."

@@ -1,6 +1,6 @@
 import { Authenticated } from "@refinedev/core";
 import { Suspense } from "react";
-import { Navigate, Outlet, Route, Routes } from "react-router";
+import { Navigate, Outlet, Route, Routes, useParams } from "react-router";
 
 import {
   AidPackageListPage,
@@ -26,7 +26,6 @@ import {
   BeneficiaryDetailPage,
   BeneficiaryFormPage,
   BeneficiaryListPage,
-  BeneficiaryProfilePage,
   CaseDetailPage,
   CaseListPage,
   ContactDetailPage,
@@ -52,7 +51,6 @@ import {
   FieldReportListPage,
   FieldWorkspacePage,
   ForgotPasswordPage,
-  FoundationResourcePage,
   FundAllocationDetailPage,
   FundCreatePage,
   FundsDashboardPage,
@@ -80,7 +78,10 @@ import {
   ProcurementListPage,
   ProgramCreatePage,
   ProgramEditPage,
+  MembersPage,
+  OrganizationSettingsPage,
   ProgramCategoryPage,
+  RolesPage,
   ProgramListPage,
   ProcessGuidePage,
   ProgramShowPage,
@@ -100,6 +101,12 @@ import {
   WorkspacePage,
 } from "@/app/lazy-pages";
 import { ProtectedRoute } from "@/components/access-control/protected-route";
+
+/** Profil penerima lama di Relasi kini menyatu dengan registri Penerima manfaat. */
+function LegacyBeneficiaryRedirect() {
+  const { id } = useParams();
+  return <Navigate replace to={`/beneficiaries/${id ?? ""}`} />;
+}
 import { AppBoot } from "@/components/layout/app-boot";
 import { AppLayout } from "@/components/layout/app-layout";
 import { OrganizationGuard } from "@/features/organizations/organization-guard";
@@ -310,12 +317,7 @@ export function AppRouter() {
               >
                 <Route
                   path="/organizations"
-                  element={
-                    <FoundationResourcePage
-                      resource="organizations"
-                      title="Organisasi"
-                    />
-                  }
+                  element={<OrganizationSettingsPage />}
                 />
               </Route>
               <Route
@@ -325,12 +327,7 @@ export function AppRouter() {
               >
                 <Route
                   path="/memberships"
-                  element={
-                    <FoundationResourcePage
-                      resource="memberships"
-                      title="Anggota & peran"
-                    />
-                  }
+                  element={<MembersPage />}
                 />
               </Route>
               <Route
@@ -338,9 +335,7 @@ export function AppRouter() {
               >
                 <Route
                   path="/roles"
-                  element={
-                    <FoundationResourcePage resource="roles" title="Role" />
-                  }
+                  element={<RolesPage />}
                 />
               </Route>
               <Route
@@ -369,7 +364,7 @@ export function AppRouter() {
               >
                 <Route
                   path="/crm/contacts/:id/beneficiary"
-                  element={<BeneficiaryProfilePage />}
+                  element={<LegacyBeneficiaryRedirect />}
                 />
               </Route>
               <Route
@@ -548,7 +543,7 @@ export function AppRouter() {
               <Route
                 element={
                   <ProtectedRoute
-                    action="create"
+                    action="submit"
                     resource="approval_requests"
                   />
                 }

@@ -6,17 +6,19 @@ import {
   useOne,
   useUpdate,
 } from "@refinedev/core";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import {
   Archive,
   ArrowLeft,
   CheckCircle,
   Edit,
+  ListChecks,
   Pause,
   Play,
   ShieldAlert,
 } from "lucide-react";
 
+import { CanAccess } from "@/components/access-control/can-access";
 import { ProtectedActionButton } from "@/components/access-control/protected-action-button";
 import {
   ErrorState,
@@ -27,6 +29,7 @@ import {
   type ResourceTableColumn,
 } from "@/components/design-system";
 import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { useOrganization } from "@/features/organizations/organization-context";
 import { ProgramControlledEditDialog } from "@/features/programs/components/program-controlled-edit-dialog";
 import { ProgramBeneficiaryJourney } from "@/features/programs/components/program-beneficiary-journey";
@@ -407,6 +410,14 @@ export function ProgramShowPage() {
           </p>
         </div>
         <div className="program-detail__actions">
+          {program.status === "active" ? (
+            <CanAccess action="manage" resource="field_tasks">
+              <Link className={buttonVariants({ variant: "outline" })} to={`/field/tasks/new?program=${program.$id}`}>
+                <ListChecks className="mr-1 h-4 w-4" />
+                Tugas lapangan
+              </Link>
+            </CanAccess>
+          ) : null}
           {canFreeEditProgram(program) && (
             <ProtectedActionButton
               action="manage"

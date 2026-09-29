@@ -108,3 +108,23 @@ begin
 
   raise notice 'Data contoh donatur & template lapangan siap untuk organisasi %', v_org;
 end $$;
+
+-- Lengkapi data demo approval: versi alur demo yang dipakai permintaan
+-- berjalan diterbitkan agar permintaan approval baru dapat dibuat.
+do $$
+declare
+  v_org uuid;
+  v_actor uuid;
+begin
+  select id into v_org from public.organizations where code = 'IHSANUL-ADAB';
+  if v_org is null then return; end if;
+  select coalesce(
+    (select id from public.profiles where email = 'admin@ihsanuladab.or.id' limit 1),
+    '10000000-0000-4000-8000-000000000012'::uuid
+  ) into v_actor;
+  update public.approval_workflow_versions version
+  set status = 'published', published_at = coalesce(version.published_at, now()), published_by = coalesce(version.published_by, v_actor), updated_at = now()
+  from public.approval_workflows workflow
+  where workflow.id = version.workflow_id and workflow.organization_id = v_org
+    and workflow.code = 'DEMO-BANTUAN' and version.version_number = 1 and version.status = 'draft';
+end $$;

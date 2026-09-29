@@ -46,7 +46,7 @@ export function EvidenceDetailPage() {
   if (query.query.isError || !query.result)
     return (
       <section className="workspace-page">
-        <PageHeader eyebrow="Evidence" title="Detail Bukti" />
+        <PageHeader eyebrow="Bukti & dokumen" title="Detail Bukti" />
         <ErrorState
           title="Bukti tidak ditemukan"
           description="Bukti tidak tersedia, restricted, atau berada di organisasi lain."

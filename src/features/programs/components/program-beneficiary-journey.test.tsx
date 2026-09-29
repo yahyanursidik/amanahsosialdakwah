@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatJourneyStatus } from "./program-beneficiary-journey";
+import { formatJourneyStatus } from "@/features/programs/journey-status";
 
 describe("formatJourneyStatus", () => {
   it("mengganti status teknis dengan copy operasional", () => {

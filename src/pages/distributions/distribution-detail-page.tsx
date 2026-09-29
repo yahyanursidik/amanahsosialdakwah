@@ -1,8 +1,8 @@
 import { useCustomMutation, useNavigation, useOne, type HttpError } from "@refinedev/core";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Check, Play, ShieldCheck, UserRoundPlus } from "lucide-react";
+import { ArrowLeft, Check, ListChecks, Play, ShieldCheck, UserRoundPlus } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 
 import { CanAccess } from "@/components/access-control/can-access";
 import { ProtectedActionButton } from "@/components/access-control/protected-action-button";
@@ -20,6 +20,7 @@ import {
   type ResourceTableColumn,
 } from "@/components/design-system";
 import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { Label } from "@/components/ui/label";
 import type {
   DistributionAssignee,
@@ -178,6 +179,17 @@ export function DistributionDetailPage() {
               <ArrowLeft aria-hidden="true" size={16} />
               Daftar
             </Button>
+            {["draft", "ready", "assigned", "in_progress", "revision_required"].includes(record.status) ? (
+              <CanAccess action="manage" resource="field_tasks">
+                <Link
+                  className={buttonVariants({ variant: "outline" })}
+                  to={`/field/tasks/new?distribution=${record.id}&program=${record.program_id}&beneficiary=${record.beneficiary_contact_id}&name=${encodeURIComponent(record.beneficiary_name ?? "")}`}
+                >
+                  <ListChecks aria-hidden="true" size={16} />
+                  Tugaskan ke lapangan
+                </Link>
+              </CanAccess>
+            ) : null}
             {record.status === "draft" ? (
               <ProtectedActionButton
                 action="ready"

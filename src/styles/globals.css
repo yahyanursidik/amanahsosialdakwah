@@ -3157,3 +3157,194 @@
     background: var(--color-paper-2);
   }
 }
+
+/* Tata kelola: organisasi, anggota, dan hak akses per peran. */
+@layer components {
+  .admin-readonly {
+    margin: 0;
+    padding: var(--space-xs) 0;
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  .admin-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .admin-role-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    gap: var(--space-2xs);
+  }
+
+  .admin-role-picker label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: var(--space-xs) var(--space-sm);
+    border: var(--rule-thin) solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-paper);
+    cursor: pointer;
+  }
+
+  .admin-role-picker label[data-selected="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-paper-2);
+  }
+
+  .admin-role-picker input {
+    margin-top: 3px;
+  }
+
+  .admin-role-picker span {
+    display: grid;
+    font-size: var(--text-sm);
+  }
+
+  .admin-role-picker small {
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+  }
+
+  .admin-roles {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 900px) {
+    .admin-roles {
+      grid-template-columns: 16rem minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .admin-roles__list {
+      position: sticky;
+      top: var(--space-md);
+    }
+  }
+
+  .admin-roles__list {
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  .admin-roles__list button {
+    display: grid;
+    gap: 2px;
+    padding: var(--space-sm);
+    border: var(--rule-thin) solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-paper);
+    text-align: left;
+  }
+
+  .admin-roles__list button[aria-pressed="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-paper-2);
+    box-shadow: inset 3px 0 0 var(--color-accent);
+  }
+
+  .admin-roles__list small {
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+  }
+
+  .admin-roles__detail {
+    display: grid;
+    gap: var(--space-sm);
+    min-width: 0;
+  }
+
+  .admin-roles__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-sm);
+  }
+
+  .admin-roles__header h2 {
+    margin: 0;
+    font-size: var(--text-lg, 1.15rem);
+  }
+
+  .admin-roles__header p {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+
+  .admin-permissions {
+    border: var(--rule-thin) solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-paper);
+  }
+
+  .admin-permissions summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .admin-permissions table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  .admin-permissions th,
+  .admin-permissions td {
+    padding: var(--space-xs) var(--space-md);
+    border-top: var(--rule-thin) solid var(--color-rule);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .admin-permissions th {
+    width: 16rem;
+    font-weight: 600;
+  }
+
+  .admin-permissions th label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .admin-permission-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .admin-permission-actions > * {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border: var(--rule-thin) solid var(--color-rule);
+    border-radius: 999px;
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+    text-decoration: line-through;
+  }
+
+  .admin-permission-actions > [data-granted="true"] {
+    border-color: color-mix(in oklab, var(--color-success, #067647) 50%, transparent);
+    background: color-mix(in oklab, var(--color-success, #067647) 12%, transparent);
+    color: var(--color-success, #067647);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .admin-permission-actions label {
+    cursor: pointer;
+    text-decoration: none;
+  }
+}

@@ -70,7 +70,7 @@ export function AssessmentTemplateDetailPage() {
   if (templateQuery.query.isError || !template) {
     return (
       <section className="workspace-page">
-        <PageHeader title="Detail Template" eyebrow="Assessment Engine" />
+        <PageHeader title="Detail Template" eyebrow="Asesmen" />
         <ErrorState
           title="Template tidak ditemukan"
           description="Data tidak tersedia atau berada di organisasi lain."

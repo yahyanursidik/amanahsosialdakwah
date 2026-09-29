@@ -74,7 +74,7 @@ export function ApprovalWorkflowListPage() {
   if (query.isError) {
     return (
       <section className="workspace-page">
-        <PageHeader title="Workflow Approval" eyebrow="Approval Engine" />
+        <PageHeader title="Workflow Approval" eyebrow="Approval" />
         <ErrorState
           title="Workflow tidak dapat dimuat"
           description="Periksa organisasi aktif dan permission Anda."
@@ -90,9 +90,9 @@ export function ApprovalWorkflowListPage() {
       aria-labelledby="approval-workflow-title"
     >
       <PageHeader
-        eyebrow="Approval Engine"
+        eyebrow="Approval"
         title="Workflow Approval"
-        description="Konfigurasikan maker-checker berversi. Request baru selalu mengunci versi dan langkah yang dipakai."
+        description="Atur alur persetujuan berjenjang (pengaju ≠ penyetuju). Setiap permintaan memakai versi alur yang berlaku saat diajukan."
         actions={
           <>
             <Button

@@ -11,7 +11,9 @@ function notFound(): never {
   throw new DomainError("NOT_FOUND", "Program atau publikasi tidak ditemukan.", 404);
 }
 
-async function assertProgram(client: { query: Function }, context: RequestContext, programId: string) {
+type QueryClient = { query: (text: string, values?: unknown[]) => Promise<{ rows: unknown[] }> };
+
+async function assertProgram(client: QueryClient, context: RequestContext, programId: string) {
   const result = await client.query("select id from public.programs where id = $1 and organization_id = $2", [programId, context.organizationId]);
   if (!result.rows[0]) notFound();
 }

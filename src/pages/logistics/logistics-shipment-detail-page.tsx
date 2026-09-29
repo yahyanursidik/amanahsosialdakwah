@@ -122,7 +122,7 @@ export function LogisticsShipmentDetailPage() {
   if (query.query.isError || !query.result)
     return (
       <section className="workspace-page">
-        <PageHeader eyebrow="Logistik" title="Detail Shipment" />
+        <PageHeader eyebrow="Logistik" title="Detail pengiriman" />
         <ErrorState
           title="Shipment tidak ditemukan"
           description="Data tidak tersedia atau berada pada organisasi lain."

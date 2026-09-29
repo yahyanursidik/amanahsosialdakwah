@@ -42,6 +42,9 @@ type RestEnvelope<TData> = {
 };
 
 const restResourcePaths = new Map([
+  ["approval_requests", "approval-requests"],
+  ["approval_workflows", "approval-workflows"],
+  ["assessment_templates", "assessment-templates"],
   ["audit_events", "governance/audit-events"],
   ["beneficiaries", "beneficiaries"],
   ["aid_package_packings", "aid-packages/packings"],

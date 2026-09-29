@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ExternalLink, Globe2, Send } from "lucide-react";
 import { Link } from "react-router";
@@ -38,12 +38,13 @@ export function ProgramPublicationPanel({ initialSlug, programId }: { initialSlu
   const publication = useQuery({ queryKey: ["program-publication", programId], queryFn: () => apiFetch<Envelope<Publication | null>>(`/api/v1/programs/${programId}/publication`) });
   const [form, setForm] = useState<PublicationForm>(() => defaultForm(initialSlug));
 
-  useEffect(() => {
-    if (publication.data?.data) {
-      const item = publication.data.data;
-      setForm({ ...item, impact_headline: item.impact_headline ?? "", report_period_end: item.report_period_end ?? "", report_period_start: item.report_period_start ?? "" });
-    }
-  }, [publication.data]);
+  // Isi form dari data server setiap kali data baru dimuat (tanpa efek berantai).
+  const [syncedAt, setSyncedAt] = useState(0);
+  if (publication.data?.data && publication.dataUpdatedAt !== syncedAt) {
+    const item = publication.data.data;
+    setSyncedAt(publication.dataUpdatedAt);
+    setForm({ ...item, impact_headline: item.impact_headline ?? "", report_period_end: item.report_period_end ?? "", report_period_start: item.report_period_start ?? "" });
+  }
 
   const save = useMutation({
     mutationFn: () => apiFetch<Envelope<Publication>>(`/api/v1/programs/${programId}/publication/draft`, { body: JSON.stringify(form), method: "PUT" }),
@@ -58,7 +59,7 @@ export function ProgramPublicationPanel({ initialSlug, programId }: { initialSlu
   const mutationError = save.error ?? publish.error;
 
   return (
-    <DetailSection title="Landing page & laporan publik" description="Hanya snapshot yang diterbitkan tersedia tanpa login. Identitas penerima dan data internal tidak ikut dipublikasikan.">
+    <DetailSection title="Landing page & laporan publik" description="Hanya versi yang diterbitkan yang dapat dibuka tanpa login. Identitas penerima dan data internal tidak ikut dipublikasikan.">
       {current?.status === "published" ? <div className="border-primary/25 bg-primary/5 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 text-sm"><span><Globe2 aria-hidden="true" className="mr-2 inline h-4 w-4" />Versi {current.version_number} sedang publik.</span><Link className="text-primary inline-flex items-center gap-1 font-semibold hover:underline" target="_blank" to={`/p/${current.public_slug}`}><ExternalLink className="h-4 w-4" />Lihat halaman</Link></div> : <p className="text-muted-foreground mt-4 text-sm">Belum ada laporan publik yang diterbitkan.</p>}
       <CanAccess action="manage" resource="programs">
         <details className="border-border mt-4 rounded-lg border p-4">

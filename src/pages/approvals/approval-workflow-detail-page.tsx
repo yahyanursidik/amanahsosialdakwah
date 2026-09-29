@@ -44,7 +44,7 @@ export function ApprovalWorkflowDetailPage() {
   if (query.query.isError || !query.result) {
     return (
       <section className="workspace-page">
-        <PageHeader title="Detail Workflow" eyebrow="Approval Engine" />
+        <PageHeader title="Detail Workflow" eyebrow="Approval" />
         <ErrorState
           title="Workflow tidak ditemukan"
           description="Data tidak tersedia atau berada di organisasi lain."

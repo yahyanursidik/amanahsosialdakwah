@@ -78,8 +78,8 @@ export function InstitutionProfilePage() {
   return (
     <section className="workspace-page">
       <PageHeader
-        eyebrow="CRM"
-        title="Institution profile"
+        eyebrow="Relasi"
+        title="Profil lembaga"
         description={contactQuery.result?.display_name ?? "Profil institusi"}
         actions={
           <Link

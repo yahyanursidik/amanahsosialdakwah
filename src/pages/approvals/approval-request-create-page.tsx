@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreate, useList, useNavigation } from "@refinedev/core";
 import { ArrowLeft, Save } from "lucide-react";
 import { useForm, useWatch, type SubmitHandler } from "react-hook-form";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import {
   EmptyState,
@@ -11,6 +11,7 @@ import {
   PageHeader,
 } from "@/components/design-system";
 import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { Label } from "@/components/ui/label";
 import {
   approvalRequestFormSchema,
@@ -105,9 +106,9 @@ export function ApprovalRequestCreatePage() {
   return (
     <section className="workspace-page">
       <PageHeader
-        eyebrow="Approval Engine"
+        eyebrow="Approval"
         title="Buat Permintaan Approval"
-        description="Subjek akan disnapshot oleh server ketika draft dibuat."
+        description="Data yang diajukan dikunci saat draft dibuat, sehingga keputusan approval merujuk ke data yang sama."
         actions={
           <Button variant="outline" onClick={() => list("approval_requests")}>
             <ArrowLeft aria-hidden="true" size={16} />
@@ -117,8 +118,13 @@ export function ApprovalRequestCreatePage() {
       />
       {workflows.length === 0 && !workflowQuery.query.isLoading ? (
         <EmptyState
-          title="Belum ada workflow aktif"
-          description="Buat dan publish workflow approval terlebih dahulu."
+          title="Belum ada alur approval yang siap dipakai"
+          description="Permintaan hanya bisa dibuat dari alur yang versinya sudah diterbitkan. Buka Workflow approval, pilih alurnya, lalu terbitkan versi."
+          action={
+            <Link className={buttonVariants({ variant: "outline" })} to="/approval-workflows">
+              Buka Workflow approval
+            </Link>
+          }
         />
       ) : (
         <form className="crm-form" onSubmit={handleSubmit(onSubmit)}>

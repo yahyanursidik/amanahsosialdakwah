@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import {
   EmptyState,
@@ -32,6 +32,8 @@ export function FieldTaskListPage() {
   const [status, setStatus] = useState("open");
   const [assignee, setAssignee] = useState("");
   const [search, setSearch] = useState("");
+  const [params] = useSearchParams();
+  const programFilter = params.get("program") ?? "";
 
   const members = useQuery({
     enabled: Boolean(organizationId),
@@ -45,9 +47,10 @@ export function FieldTaskListPage() {
       if (status) query.set("status", status);
       if (assignee) query.set("assigned_profile_id", assignee);
       if (search.trim()) query.set("q", search.trim());
+      if (programFilter) query.set("program_id", programFilter);
       return apiFetch<TaskList>(`/api/v1/field/tasks?${query.toString()}`);
     },
-    queryKey: ["field", "tasks", organizationId, status, assignee, search],
+    queryKey: ["field", "tasks", organizationId, status, assignee, search, programFilter],
   });
   const rows = tasks.data?.data ?? [];
 

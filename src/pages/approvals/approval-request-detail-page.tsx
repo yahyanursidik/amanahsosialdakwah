@@ -77,7 +77,7 @@ export function ApprovalRequestDetailPage() {
   if (query.query.isError || !query.result) {
     return (
       <section className="workspace-page">
-        <PageHeader title="Detail Permintaan" eyebrow="Approval Engine" />
+        <PageHeader title="Detail Permintaan" eyebrow="Approval" />
         <ErrorState
           title="Permintaan tidak ditemukan"
           description="Data tidak tersedia atau berada di organisasi lain."

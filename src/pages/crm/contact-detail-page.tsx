@@ -5,7 +5,8 @@ import {
   useOne,
   type CrudFilters,
 } from "@refinedev/core";
-import { Edit, FileText, ShieldAlert } from "lucide-react";
+import { Edit, FileText, HandHeart, MessageSquarePlus, UserRound } from "lucide-react";
+import { useState } from "react";
 
 import { CanAccess } from "@/components/access-control/can-access";
 import { ProtectedActionButton } from "@/components/access-control/protected-action-button";
@@ -21,11 +22,12 @@ import {
   type ApprovalTimelineItem,
   type ResourceTableColumn,
 } from "@/components/design-system";
-import { Button } from "@/components/ui/button";
+import { InteractionForm } from "@/features/crm/components/interaction-form";
 import { ContactRoleBadges } from "@/features/crm/components/contact-role-badges";
 import { ContactStatusBadge } from "@/features/crm/components/contact-status-badge";
 import { DuplicateWarning } from "@/features/crm/components/duplicate-warning";
 import type { ContactDuplicateCandidate } from "@/features/crm/contact-rules";
+import { interactionTypeLabels, labelOf } from "@/features/giving/labels";
 import { useOrganization } from "@/features/organizations/organization-context";
 import type {
   CrmBeneficiaryProfilesDocument,
@@ -48,7 +50,7 @@ const interactionColumns: ResourceTableColumn<CrmInteractionsDocument>[] = [
   {
     header: "Kanal",
     key: "interaction_type",
-    render: (item) => item.interaction_type,
+    render: (item) => labelOf(interactionTypeLabels, item.interaction_type),
   },
   {
     header: "Ringkasan",
@@ -81,6 +83,7 @@ function consentTimeline(items: CrmConsentsDocument[]): ApprovalTimelineItem[] {
 
 export function ContactDetailPage() {
   const { id } = useParams();
+  const [logging, setLogging] = useState(false);
   const { edit } = useNavigation();
   const { activeOrganization } = useOrganization();
   const activeOrgId = activeOrganization?.organization.$id;
@@ -186,7 +189,7 @@ export function ContactDetailPage() {
   return (
     <section className="workspace-page" aria-labelledby="contact-detail-title">
       <PageHeader
-        eyebrow="CRM 360"
+        eyebrow="Relasi"
         title={contact.display_name}
         description="Ringkasan kontak lintas peran, consent, interaksi, dan profil penerima/institusi."
         meta={
@@ -223,7 +226,7 @@ export function ContactDetailPage() {
 
       <div className="workspace-page__grid">
         <DetailSection
-          title="Semua kontak"
+          title="Data kontak"
           items={[
             { label: "Jenis", value: contact.contact_type },
             { label: "Telepon", value: contact.primary_phone || "-" },
@@ -246,20 +249,30 @@ export function ContactDetailPage() {
           ]}
         />
 
-        <DetailSection title="Profil peran">
+        <DetailSection title="Profil per peran">
           <div className="crm-profile-links">
-            <Link to={`/crm/contacts/${contact.$id}/beneficiary`}>
-              Beneficiary profile
+            <Link to={`/beneficiaries/${contact.$id}`}>
+              <UserRound aria-hidden size={16} /> Profil penerima manfaat
               <StatusBadge tone={beneficiary ? "success" : "neutral"}>
-                {beneficiary ? beneficiary.status : "Belum ada"}
+                {beneficiary ? "Ada" : "Belum ada"}
               </StatusBadge>
             </Link>
-            <Link to={`/crm/contacts/${contact.$id}/institution`}>
-              Institution profile
-              <StatusBadge tone={institution ? "success" : "neutral"}>
-                {institution ? institution.status : "Belum ada"}
-              </StatusBadge>
-            </Link>
+            <CanAccess action="read" resource="donors">
+              <Link to={`/donors/${contact.$id}`}>
+                <HandHeart aria-hidden size={16} /> Profil donatur / wakif
+                <StatusBadge tone={roles.some((role) => ["donor", "kafil"].includes(role.role_type)) ? "success" : "neutral"}>
+                  {roles.some((role) => ["donor", "kafil"].includes(role.role_type)) ? "Donatur" : "Belum"}
+                </StatusBadge>
+              </Link>
+            </CanAccess>
+            {contact.contact_type === "institution" ? (
+              <Link to={`/crm/contacts/${contact.$id}/institution`}>
+                Profil lembaga
+                <StatusBadge tone={institution ? "success" : "neutral"}>
+                  {institution ? "Ada" : "Belum ada"}
+                </StatusBadge>
+              </Link>
+            ) : null}
           </div>
         </DetailSection>
       </div>
@@ -269,18 +282,29 @@ export function ContactDetailPage() {
       </DetailSection>
 
       <DetailSection
-        title="Interaction history"
+        title="Riwayat komunikasi"
         actions={
           <ProtectedActionButton
             action="manage"
             resource="crm_interactions"
             variant="outline"
             size="sm"
+            onClick={() => setLogging((value) => !value)}
           >
-            Catat interaksi
+            <MessageSquarePlus aria-hidden size={14} />
+            {logging ? "Tutup form" : "Catat komunikasi"}
           </ProtectedActionButton>
         }
       >
+        {logging ? (
+          <InteractionForm
+            contactId={contact.$id}
+            onSaved={() => {
+              setLogging(false);
+              void interactionsQuery.query.refetch();
+            }}
+          />
+        ) : null}
         <ResourceTable
           columns={interactionColumns}
           getRowId={(item) => item.$id}
@@ -295,21 +319,6 @@ export function ContactDetailPage() {
         />
       </DetailSection>
 
-      <DetailSection title="Workflow merge">
-        <div className="duplicate-warning duplicate-warning--calm">
-          <div className="duplicate-warning__head">
-            <ShieldAlert aria-hidden="true" size={18} />
-            <strong>Merge tidak otomatis</strong>
-          </div>
-          <p>
-            Bila kontak ini terindikasi sama dengan kontak lain, petugas harus
-            membuat merge request, mendapatkan approval, lalu hasilnya diaudit.
-          </p>
-          <Button variant="outline" disabled>
-            Menunggu workflow approval
-          </Button>
-        </div>
-      </DetailSection>
     </section>
   );
 }

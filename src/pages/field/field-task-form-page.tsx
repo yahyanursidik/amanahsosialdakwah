@@ -2,7 +2,7 @@ import { useList } from "@refinedev/core";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Banknote, Package, Plus, Save, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 
 import { ErrorState, FormSection, PageHeader } from "@/components/design-system";
 import { Button } from "@/components/ui/button";
@@ -46,16 +46,27 @@ export function FieldTaskFormPage() {
   const navigate = useNavigate();
   const { activeOrganization } = useOrganization();
   const organizationId = activeOrganization?.organization.$id ?? "";
-  const [taskType, setTaskTypeState] = useState<FieldTaskType>("distribution");
+  // Nilai awal dapat dikirim dari halaman lain (program, penerima, distribusi).
+  const [params] = useSearchParams();
+  const presetType = params.get("type");
+  const [taskType, setTaskTypeState] = useState<FieldTaskType>(
+    presetType && ["distribution", "verification", "delivery", "monitoring", "other"].includes(presetType)
+      ? (presetType as FieldTaskType)
+      : "distribution",
+  );
+  const distributionPlanId = params.get("distribution");
   const [templateId, setTemplateId] = useState("");
-  const [programId, setProgramId] = useState("");
+  const [programId, setProgramId] = useState(() => params.get("program") ?? "");
   const [modes, setModes] = useState<Mode[]>(["in_kind"]);
   const [cashAmount, setCashAmount] = useState("");
   const [goodsPackageCount, setGoodsPackageCount] = useState("1");
   const [goodsSummary, setGoodsSummary] = useState("");
   const [search, setSearch] = useState("");
   const [onlyProgram, setOnlyProgram] = useState(true);
-  const [selected, setSelected] = useState<Record<string, string>>({});
+  const [selected, setSelected] = useState<Record<string, string>>(() => {
+    const beneficiaryId = params.get("beneficiary");
+    return beneficiaryId ? { [beneficiaryId]: params.get("name") ?? "Penerima terpilih" } : {};
+  });
   const [assignee, setAssignee] = useState("");
   const [dueDateInput, setDueDate] = useState<string | null>(null);
   const [priority, setPriority] = useState("normal");
@@ -161,6 +172,7 @@ export function FieldTaskFormPage() {
     try {
       const response = await apiFetch<{ data: { created: number; ids: string[] } }>("/api/v1/field/tasks", {
         body: JSON.stringify({
+          distribution_plan_id: distributionPlanId,
           assigned_profile_id: assignee,
           beneficiary_contact_ids: selectedIds,
           cash_amount: isDistribution && modes.includes("cash") ? cashAmount : null,

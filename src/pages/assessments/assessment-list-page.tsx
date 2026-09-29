@@ -80,7 +80,7 @@ export function AssessmentListPage() {
   if (query.isError) {
     return (
       <section className="workspace-page">
-        <PageHeader title="Asesmen Kasus" eyebrow="Assessment Engine" />
+        <PageHeader title="Asesmen Kasus" eyebrow="Asesmen" />
         <ErrorState
           title="Asesmen tidak dapat dimuat"
           description="Periksa organisasi aktif dan permission Anda."
@@ -93,9 +93,9 @@ export function AssessmentListPage() {
   return (
     <section className="workspace-page" aria-labelledby="assessment-list-title">
       <PageHeader
-        eyebrow="Assessment Engine"
+        eyebrow="Asesmen"
         title="Asesmen Kasus"
-        description="Isi instrumen published, hitung skor di server, lalu kirim untuk review independen."
+        description="Isi instrumen asesmen, skor dihitung otomatis, lalu kirim untuk direview petugas lain."
         actions={
           <>
             <Button

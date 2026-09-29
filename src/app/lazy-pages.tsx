@@ -110,11 +110,6 @@ export const CaseListPage = lazy(() =>
     default: module.CaseListPage,
   })),
 );
-export const BeneficiaryProfilePage = lazy(() =>
-  import("@/pages/crm/beneficiary-profile-page").then((module) => ({
-    default: module.BeneficiaryProfilePage,
-  })),
-);
 export const ContactDetailPage = lazy(() =>
   import("@/pages/crm/contact-detail-page").then((module) => ({
     default: module.ContactDetailPage,
@@ -340,9 +335,19 @@ export const WaqfListPage = lazy(() =>
     default: module.WaqfListPage,
   })),
 );
-export const FoundationResourcePage = lazy(() =>
-  import("@/pages/workspace/foundation-resource-page").then((module) => ({
-    default: module.FoundationResourcePage,
+export const OrganizationSettingsPage = lazy(() =>
+  import("@/pages/admin/organization-settings-page").then((module) => ({
+    default: module.OrganizationSettingsPage,
+  })),
+);
+export const MembersPage = lazy(() =>
+  import("@/pages/admin/members-page").then((module) => ({
+    default: module.MembersPage,
+  })),
+);
+export const RolesPage = lazy(() =>
+  import("@/pages/admin/roles-page").then((module) => ({
+    default: module.RolesPage,
   })),
 );
 export const OrganizationHubPage = lazy(() =>

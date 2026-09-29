@@ -62,9 +62,9 @@ export function AssessmentCreatePage() {
   return (
     <section className="workspace-page" aria-labelledby="assessment-create-title">
       <PageHeader
-        eyebrow="Assessment Engine"
+        eyebrow="Asesmen"
         title="Mulai Asesmen"
-        description="Asesmen memakai snapshot versi template yang sudah published."
+        description="Asesmen memakai versi template yang sudah diterbitkan, sehingga hasilnya konsisten."
         actions={
           <Button variant="outline" onClick={() => list("assessments")}>
             <ArrowLeft aria-hidden="true" size={16} />

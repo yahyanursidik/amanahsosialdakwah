@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 
 type Kind = "complaint" | "corrective-action" | "incident" | "risk";
 const resourceByKind = { complaint: "complaints", "corrective-action": "corrective_actions", incident: "governance_incidents", risk: "risk_flags" } as const;
-const titleByKind = { complaint: "Catat pengaduan", "corrective-action": "Buat corrective action", incident: "Laporkan insiden", risk: "Catat risk flag" } as const;
+const titleByKind = { complaint: "Catat pengaduan", "corrective-action": "Buat tindakan perbaikan", incident: "Laporkan insiden", risk: "Catat risiko" } as const;
 function nowLocal(days = 0) { const date = new Date(Date.now() + days * 86_400_000); return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16); }
 
 export function GovernanceCreatePage({ kind }: { kind: Kind }) {
@@ -33,7 +33,7 @@ export function GovernanceCreatePage({ kind }: { kind: Kind }) {
   };
   return (
     <section className="workspace-page">
-      <PageHeader eyebrow="Audit & Risk" title={titleByKind[kind]} description="SLA dihitung server-side dan seluruh perubahan status dicatat pada audit trail." actions={<Button variant="outline" onClick={() => navigate("/governance")}><ArrowLeft size={16} /> Kembali</Button>} />
+      <PageHeader eyebrow="Audit & risiko" title={titleByKind[kind]} description="Batas waktu penanganan (SLA) dihitung otomatis dan setiap perubahan status tercatat di jejak audit." actions={<Button variant="outline" onClick={() => navigate("/governance")}><ArrowLeft size={16} /> Kembali</Button>} />
       <form onSubmit={submit}>
         <FormSection title="Konteks laporan">
           <div className="form-grid">
