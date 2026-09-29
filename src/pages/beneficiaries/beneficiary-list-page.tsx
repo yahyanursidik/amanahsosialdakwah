@@ -138,19 +138,24 @@ export function BeneficiaryListPage() {
         <div className="crm-contact-cell">
           <strong>
             {item.program_names.length > 0
-              ? item.program_names.slice(0, 2).join(", ")
-              : "Belum mengikuti program"}
-            {item.program_names.length > 2
-              ? ` +${item.program_names.length - 2}`
-              : ""}
+              ? `${item.program_names.slice(0, 2).join(", ")}${
+                  item.program_names.length > 2
+                    ? ` +${item.program_names.length - 2}`
+                    : ""
+                }`
+              : item.sources.length > 0
+                ? item.sources
+                    .map((value) => labelOf(beneficiarySourceLabels, value))
+                    .join(" · ")
+                : "Terdaftar, belum menerima bantuan"}
           </strong>
-          <small>
-            {item.sources.length > 0
-              ? item.sources
-                  .map((value) => labelOf(beneficiarySourceLabels, value))
-                  .join(" · ")
-              : "Terdaftar, belum menerima"}
-          </small>
+          {item.program_names.length > 0 ? (
+            <small>
+              {item.sources
+                .map((value) => labelOf(beneficiarySourceLabels, value))
+                .join(" · ")}
+            </small>
+          ) : null}
         </div>
       ),
     },

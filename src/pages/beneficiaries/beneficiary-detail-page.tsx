@@ -24,7 +24,9 @@ import {
   beneficiaryCategoryLabels,
   beneficiaryStatusLabels,
   beneficiaryTypeLabels,
+  caseStatusLabels,
   disabilityLabels,
+  distributionStatusLabels,
   educationLabels,
   genderLabels,
   housingLabels,
@@ -330,7 +332,7 @@ export function BeneficiaryDetailPage() {
             { header: "Dibuka", key: "date", render: (item) => date(item.opened_at) },
             { header: "Nomor", key: "ref", render: (item) => <Link className="print-plain" to={`/cases/${String(item.id)}`}>{text(item.reference_number)}</Link> },
             { header: "Program", key: "program", render: (item) => text(item.program_name) },
-            { header: "Status", key: "status", render: (item) => <StatusBadge tone={toneOf(String(item.status))}>{text(item.status).replaceAll("_", " ")}</StatusBadge> },
+            { header: "Status", key: "status", render: (item) => <StatusBadge tone={toneOf(String(item.status))}>{labelOf(caseStatusLabels, String(item.status))}</StatusBadge> },
           ]}
         />
       </History>
@@ -344,7 +346,7 @@ export function BeneficiaryDetailPage() {
             { header: "Nomor", key: "ref", render: (item) => <Link className="print-plain" to={`/distributions/${String(item.id)}`}>{text(item.reference_number)}</Link> },
             { header: "Program", key: "program", render: (item) => text(item.program_name) },
             { align: "right", header: "Nilai", key: "amount", render: (item) => money(item.amount, item.currency) },
-            { header: "Status", key: "status", render: (item) => <StatusBadge tone={toneOf(String(item.status))}>{text(item.status).replaceAll("_", " ")}</StatusBadge> },
+            { header: "Status", key: "status", render: (item) => <StatusBadge tone={toneOf(String(item.status))}>{labelOf(distributionStatusLabels, String(item.status))}</StatusBadge> },
           ]}
         />
       </History>

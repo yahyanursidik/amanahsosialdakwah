@@ -54,3 +54,34 @@ kolom yang tidak memiliki unique constraint. File kini idempoten dan memakai
   petugas (cetak/PDF).
 - Donasi barang belum membuat entri ledger dana (nilai barang adalah estimasi).
 - Setoran wakaf uang belum otomatis masuk ledger dana amanah.
+
+## Registri penerima manfaat (migration 0034)
+
+- Menu **Program & pengajuan → Penerima manfaat** (`/beneficiaries`): satu daftar
+  semua penerima dari kasus program, penyaluran dana, paket bantuan, manfaat
+  wakaf, dan kafalah; filter program, sumber, kategori, kerentanan, dan
+  pencarian nama/telepon/4 digit NIK.
+- **Tambah penerima** dalam satu langkah: kontak, peran penerima, profil lengkap
+  (sosial-ekonomi, kategori & asnaf, wali, kontak darurat, rekening, lembaga
+  pendamping), identitas, dan opsional pendaftaran ke program (draft pengajuan).
+- NIK/KK hanya disimpan sebagai 4 digit terakhir + hash per organisasi
+  (`not-retained:hash-only`) untuk mencegah data ganda; nomor rekening
+  disamarkan bagi pengguna tanpa `crm_sensitive_identities.read`.
+- API: `GET|POST /api/v1/beneficiaries`, `GET /api/v1/beneficiaries/summary`,
+  `GET /api/v1/beneficiaries/:id`, `POST /api/v1/beneficiaries/:id/profile`.
+- Deploy: terapkan migration 0034 **sebelum** kode, karena API data generik
+  membaca kolom profil baru.
+
+## Data contoh
+
+`db/seeds/zzz-demo-giving-waqf-beneficiaries.sql` (idempoten, organisasi
+IHSANUL-ADAB, awalan `DEMO-`) berisi donatur/wakif, mitra & pengaju, 8 penerima
+berprofil lengkap, pengajuan individu/lembaga/mitra, area & penugasan mitra,
+4 aset wakaf (uang, melalui uang, produktif, benda) dengan setoran/manfaat,
+5 pengajuan wakaf berbagai status, dan 4 donasi barang. Jalankan satu file:
+
+```powershell
+node scripts/neon/seed-file.mjs db/seeds/zzz-demo-giving-waqf-beneficiaries.sql
+```
+
+Pada production perlu `NEON_ALLOW_PRODUCTION_SEED=1`.

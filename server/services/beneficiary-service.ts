@@ -68,9 +68,21 @@ const completenessFields = [
   "identity_last4",
 ] as const;
 
+const personOnlyFields = new Set<string>([
+  "birth_date",
+  "gender",
+  "occupation",
+  "education_level",
+  "marital_status",
+  "identity_last4",
+]);
+
 /** Persentase kelengkapan profil (0–100) untuk memandu petugas melengkapi data. */
 export function profileCompleteness(row: Row) {
-  const filled = completenessFields.filter((field) => {
+  const fields = completenessFields.filter(
+    (field) => row.contact_type !== "institution" || !personOnlyFields.has(field),
+  );
+  const filled = fields.filter((field) => {
     const value = row[field];
     return (
       value !== null &&
@@ -80,7 +92,7 @@ export function profileCompleteness(row: Row) {
       value !== "not_assessed"
     );
   }).length;
-  return Math.round((filled / completenessFields.length) * 100);
+  return Math.round((filled / fields.length) * 100);
 }
 
 const appearancesCte = `

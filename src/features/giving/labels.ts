@@ -347,3 +347,27 @@ export const beneficiarySourceLabels: LabelMap = {
   registered: "Terdaftar",
   waqf: "Manfaat wakaf",
 };
+
+export const caseStatusLabels: LabelMap = {
+  assessment: "Asesmen",
+  assigned: "Ditugaskan",
+  cancelled: "Dibatalkan",
+  closed: "Ditutup",
+  eligible: "Layak",
+  not_eligible: "Tidak layak",
+  open: "Dibuka",
+  verified: "Terverifikasi",
+};
+
+export const distributionStatusLabels: LabelMap = {
+  assigned: "Ditugaskan",
+  cancelled: "Dibatalkan",
+  completed: "Selesai",
+  confirmed: "Dikonfirmasi",
+  draft: "Draft",
+  executed: "Dilaksanakan",
+  in_progress: "Berjalan",
+  ready: "Siap",
+  revision_required: "Perlu revisi",
+  verified: "Terverifikasi",
+};
