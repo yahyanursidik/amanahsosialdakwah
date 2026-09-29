@@ -12,6 +12,7 @@ import {
   Gift,
   GitPullRequestArrow,
   HandCoins,
+  HandHeart,
   HeartHandshake,
   KeyRound,
   Landmark,
@@ -74,6 +75,13 @@ const navigationGroups = [
         label: "Program",
         resource: "programs",
         to: "/programs",
+      },
+      {
+        action: "read",
+        icon: HandHeart,
+        label: "Penerima manfaat",
+        resource: "crm_beneficiary_profiles",
+        to: "/beneficiaries",
       },
       {
         action: "read",

@@ -43,6 +43,7 @@ type RestEnvelope<TData> = {
 
 const restResourcePaths = new Map([
   ["audit_events", "governance/audit-events"],
+  ["beneficiaries", "beneficiaries"],
   ["aid_package_packings", "aid-packages/packings"],
   ["aid_package_templates", "aid-packages/templates"],
   ["fund_allocations", "funds/allocations"],
@@ -130,7 +131,16 @@ function restListQuery(params: GetListParams): string {
   for (const filter of params.filters ?? []) {
     if (
       "field" in filter &&
-      ["giving_type", "proposal_type", "q", "status"].includes(filter.field) &&
+      [
+        "category",
+        "giving_type",
+        "program_id",
+        "proposal_type",
+        "q",
+        "source",
+        "status",
+        "vulnerability",
+      ].includes(filter.field) &&
       filter.value !== undefined &&
       filter.value !== null &&
       filter.value !== ""

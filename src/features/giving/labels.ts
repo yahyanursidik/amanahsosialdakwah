@@ -223,3 +223,127 @@ export const contactRoleLabels: LabelMap = {
   kafil: "Kafil",
   volunteer: "Relawan",
 };
+
+export const beneficiaryTypeLabels: LabelMap = {
+  community: "Komunitas",
+  family: "Keluarga",
+  individual: "Individu",
+  institution: "Lembaga",
+};
+
+export const vulnerabilityLabels: LabelMap = {
+  critical: "Kritis",
+  high: "Tinggi",
+  low: "Rendah",
+  medium: "Sedang",
+};
+
+export const assessmentStatusLabels: LabelMap = {
+  eligible: "Layak",
+  expired: "Kedaluwarsa",
+  in_review: "Sedang dinilai",
+  not_assessed: "Belum dinilai",
+  not_eligible: "Tidak layak",
+};
+
+export const beneficiaryStatusLabels: LabelMap = {
+  active: "Aktif",
+  blocked: "Diblokir",
+  graduated: "Sudah mandiri",
+  inactive: "Tidak aktif",
+};
+
+export const incomeRangeLabels: LabelMap = {
+  low: "Rendah",
+  middle: "Menengah",
+  none: "Tidak berpenghasilan",
+  unknown: "Belum diketahui",
+};
+
+export const asnafLabels: LabelMap = {
+  amil: "Amil",
+  fakir: "Fakir",
+  fisabilillah: "Fisabilillah",
+  gharimin: "Gharimin (terlilit utang)",
+  ibnu_sabil: "Ibnu sabil (musafir)",
+  miskin: "Miskin",
+  muallaf: "Muallaf",
+  riqab: "Riqab",
+};
+
+export const beneficiaryCategoryLabels: LabelMap = {
+  dai: "Dai",
+  disabilitas: "Disabilitas",
+  dhuafa: "Dhuafa",
+  guru_ngaji: "Guru ngaji",
+  ibnu_sabil: "Ibnu sabil",
+  janda: "Janda",
+  korban_bencana: "Korban bencana",
+  lainnya: "Lainnya",
+  lansia: "Lansia",
+  mahasiswa: "Mahasiswa",
+  mualaf: "Mualaf",
+  pasien: "Pasien",
+  pelajar: "Pelajar",
+  piatu: "Piatu",
+  santri: "Santri",
+  yatim: "Yatim",
+  yatim_piatu: "Yatim piatu",
+};
+
+export const maritalStatusLabels: LabelMap = {
+  divorced: "Cerai hidup",
+  married: "Menikah",
+  single: "Belum menikah",
+  widowed: "Cerai mati",
+};
+
+export const educationLabels: LabelMap = {
+  diploma: "Diploma",
+  none: "Tidak sekolah",
+  s1: "S1",
+  s2_plus: "S2 / lebih",
+  sd: "SD / sederajat",
+  sma: "SMA / sederajat",
+  smp: "SMP / sederajat",
+};
+
+export const housingLabels: LabelMap = {
+  family: "Menumpang keluarga",
+  free_use: "Bebas sewa",
+  none: "Tidak punya tempat tinggal",
+  official: "Rumah dinas",
+  own: "Milik sendiri",
+  rent: "Sewa / kontrak",
+};
+
+export const disabilityLabels: LabelMap = {
+  intellectual: "Intelektual",
+  mental: "Mental",
+  multiple: "Ganda",
+  none: "Tidak ada",
+  physical: "Fisik",
+  sensory: "Sensorik",
+};
+
+export const genderLabels: LabelMap = {
+  female: "Perempuan",
+  male: "Laki-laki",
+  unknown: "Belum diisi",
+};
+
+export const identityTypeLabels: LabelMap = {
+  family_card: "Nomor KK",
+  kitab: "KITAS",
+  nik: "NIK",
+  other: "Lainnya",
+  passport: "Paspor",
+  tax_id: "NPWP",
+};
+
+export const beneficiarySourceLabels: LabelMap = {
+  kafalah: "Kafalah",
+  program: "Program donasi",
+  registered: "Terdaftar",
+  waqf: "Manfaat wakaf",
+};

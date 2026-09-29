@@ -65,6 +65,14 @@ export function App() {
             meta: { label: "Aset Wakaf" },
           },
           {
+            name: "beneficiaries",
+            list: "/beneficiaries",
+            create: "/beneficiaries/new",
+            edit: "/beneficiaries/:id/edit",
+            show: "/beneficiaries/:id",
+            meta: { label: "Penerima Manfaat" },
+          },
+          {
             name: "waqf_proposals",
             list: "/waqf/proposals",
             create: "/waqf/proposals/new",

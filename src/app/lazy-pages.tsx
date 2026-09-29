@@ -395,3 +395,18 @@ export const WaqfProposalListPage = lazy(() =>
     default: module.WaqfProposalListPage,
   })),
 );
+export const BeneficiaryDetailPage = lazy(() =>
+  import("@/pages/beneficiaries/beneficiary-detail-page").then((module) => ({
+    default: module.BeneficiaryDetailPage,
+  })),
+);
+export const BeneficiaryFormPage = lazy(() =>
+  import("@/pages/beneficiaries/beneficiary-form-page").then((module) => ({
+    default: module.BeneficiaryFormPage,
+  })),
+);
+export const BeneficiaryListPage = lazy(() =>
+  import("@/pages/beneficiaries/beneficiary-list-page").then((module) => ({
+    default: module.BeneficiaryListPage,
+  })),
+);

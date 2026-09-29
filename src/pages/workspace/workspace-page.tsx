@@ -39,6 +39,14 @@ const primaryActions = [
   },
   {
     action: "manage",
+    description: "Daftarkan penerima donasi/wakaf beserta profil lengkap dan program yang diikuti.",
+    icon: HeartHandshake,
+    label: "Tambah penerima manfaat",
+    resource: "crm_beneficiary_profiles",
+    to: "/beneficiaries/new",
+  },
+  {
+    action: "manage",
     description: "Usulan proyek wakaf, penawaran aset, atau permohonan manfaat wakaf.",
     icon: FileStack,
     label: "Catat pengajuan wakaf",

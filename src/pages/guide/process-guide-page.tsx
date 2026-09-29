@@ -3,6 +3,7 @@ import {
   Building2,
   Gift,
   HandHeart,
+  HeartHandshake,
   Landmark,
   Sprout,
   Truck,
@@ -68,6 +69,21 @@ const journeys: Journey[] = [
       { description: "Unggah metadata dokumen legal, verifikasi oleh petugas lain, lalu registrasi aktif.", href: "/waqf", menu: "Detail aset → Dokumen legal", title: "Legalitas & registrasi" },
       { description: "Kelola nazhir, pemanfaatan, pendapatan hasil, dan distribusi manfaat.", href: "/waqf", menu: "Detail aset", title: "Kelola & salurkan manfaat" },
       { description: "Laporan wakif memuat setoran, status aset, dan manfaat yang telah tersalur.", href: "/reports/stakeholders?role=donor", menu: "Laporan → Pemangku kepentingan", title: "Laporkan ke wakif" },
+    ],
+  },
+  {
+    icon: HeartHandshake,
+    id: "beneficiary",
+    label: "Penerima manfaat",
+    summary:
+      "Individu, keluarga, atau lembaga yang menerima bantuan donasi, paket barang, manfaat wakaf, atau kafalah.",
+    who: "Admin / petugas program",
+    steps: [
+      { description: "Isi data diri, NIK/KK (hanya 4 digit terakhir disimpan), alamat, kondisi sosial-ekonomi, kategori & asnaf, wali, dan rekening.", href: "/beneficiaries/new", menu: "Program & pengajuan → Penerima manfaat", title: "Tambah penerima" },
+      { description: "Saat menyimpan, pilih program agar otomatis dibuatkan draft pengajuan bantuan.", href: "/beneficiaries/new", menu: "Form penerima → Daftarkan ke program", title: "Daftarkan ke program" },
+      { description: "Seleksi pengajuan, asesmen, lalu salurkan dana/paket; atau salurkan manfaat wakaf dari aset wakaf.", href: "/applications", menu: "Pengajuan → Kasus → Distribusi", title: "Seleksi & salurkan" },
+      { description: "Satu daftar untuk semua penerima dari semua program, dengan filter program, sumber, kategori, dan kerentanan.", href: "/beneficiaries", menu: "Penerima manfaat", title: "Pantau semua penerima" },
+      { description: "Profil memuat riwayat pengajuan, kasus, penyaluran dana, paket, manfaat wakaf, dan kafalah — dapat dicetak.", href: "/beneficiaries", menu: "Penerima manfaat → detail", title: "Lihat riwayat lengkap" },
     ],
   },
   {

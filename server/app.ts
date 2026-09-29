@@ -8,6 +8,7 @@ import { DomainError } from "./domain/errors";
 import { requestContextMiddleware } from "./middleware/request-context";
 import { requestObservabilityMiddleware } from "./middleware/request-observability";
 import { applicationsRoute } from "./routes/applications";
+import { beneficiariesRoute } from "./routes/beneficiaries";
 import { aidPackagesRoute } from "./routes/aid-packages";
 import { approvalRequestsRoute } from "./routes/approval-requests";
 import { approvalWorkflowsRoute } from "./routes/approval-workflows";
@@ -98,6 +99,8 @@ app.get("/ready", async (context) => {
 
 app.use("/applications", requestContextMiddleware);
 app.use("/applications/*", requestContextMiddleware);
+app.use("/beneficiaries", requestContextMiddleware);
+app.use("/beneficiaries/*", requestContextMiddleware);
 app.use("/cases", requestContextMiddleware);
 app.use("/cases/*", requestContextMiddleware);
 app.use("/assessment-templates", requestContextMiddleware);
@@ -137,6 +140,7 @@ app.use("/governance/*", requestContextMiddleware);
 
 app.route("/public/programs", publicProgramsRoute);
 app.route("/applications", applicationsRoute);
+app.route("/beneficiaries", beneficiariesRoute);
 app.route("/cases", casesRoute);
 app.route("/assessment-templates", assessmentTemplatesRoute);
 app.route("/assessments", assessmentsRoute);

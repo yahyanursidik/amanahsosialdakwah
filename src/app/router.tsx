@@ -23,6 +23,9 @@ import {
   AssessmentTemplateCreatePage,
   AssessmentTemplateDetailPage,
   AssessmentTemplateListPage,
+  BeneficiaryDetailPage,
+  BeneficiaryFormPage,
+  BeneficiaryListPage,
   BeneficiaryProfilePage,
   CaseDetailPage,
   CaseListPage,
@@ -122,6 +125,22 @@ export function AppRouter() {
             <Route element={<AppLayout />}>
               <Route index element={<WorkspacePage />} />
               <Route path="/guide" element={<ProcessGuidePage />} />
+              <Route
+                element={
+                  <ProtectedRoute action="read" resource="crm_beneficiary_profiles" />
+                }
+              >
+                <Route path="/beneficiaries" element={<BeneficiaryListPage />} />
+                <Route path="/beneficiaries/:id" element={<BeneficiaryDetailPage />} />
+              </Route>
+              <Route
+                element={
+                  <ProtectedRoute action="manage" resource="crm_beneficiary_profiles" />
+                }
+              >
+                <Route path="/beneficiaries/new" element={<BeneficiaryFormPage />} />
+                <Route path="/beneficiaries/:id/edit" element={<BeneficiaryFormPage />} />
+              </Route>
               <Route
                 element={
                   <ProtectedRoute action="read" resource="stakeholder_reports" />
