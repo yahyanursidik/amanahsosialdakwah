@@ -5,9 +5,11 @@ import {
   useOne,
   type CrudFilters,
 } from "@refinedev/core";
-import { Edit, ShieldAlert } from "lucide-react";
+import { Edit, FileText, ShieldAlert } from "lucide-react";
 
+import { CanAccess } from "@/components/access-control/can-access";
 import { ProtectedActionButton } from "@/components/access-control/protected-action-button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import {
   ApprovalTimeline,
   DetailSection,
@@ -194,15 +196,26 @@ export function ContactDetailPage() {
           </>
         }
         actions={
-          <ProtectedActionButton
-            action="manage"
-            resource="crm_contacts"
-            variant="outline"
-            onClick={() => edit("crm_contacts", contact.$id)}
-          >
-            <Edit aria-hidden="true" size={16} />
-            Edit kontak
-          </ProtectedActionButton>
+          <div className="flex flex-wrap gap-2">
+            <CanAccess action="read" resource="stakeholder_reports">
+              <Link
+                className={buttonVariants({ variant: "outline" })}
+                to={`/reports/stakeholders/${contact.$id}`}
+              >
+                <FileText aria-hidden="true" size={16} />
+                Laporan pemberian & pengajuan
+              </Link>
+            </CanAccess>
+            <ProtectedActionButton
+              action="manage"
+              resource="crm_contacts"
+              variant="outline"
+              onClick={() => edit("crm_contacts", contact.$id)}
+            >
+              <Edit aria-hidden="true" size={16} />
+              Edit kontak
+            </ProtectedActionButton>
+          </div>
         }
       />
 

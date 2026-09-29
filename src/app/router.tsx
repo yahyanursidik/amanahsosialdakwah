@@ -23,6 +23,9 @@ import {
   AssessmentTemplateCreatePage,
   AssessmentTemplateDetailPage,
   AssessmentTemplateListPage,
+  BeneficiaryDetailPage,
+  BeneficiaryFormPage,
+  BeneficiaryListPage,
   BeneficiaryProfilePage,
   CaseDetailPage,
   CaseListPage,
@@ -43,6 +46,9 @@ import {
   FundsDashboardPage,
   GovernanceCreatePage,
   GovernancePage,
+  InKindDonationCreatePage,
+  InKindDonationDetailPage,
+  InKindDonationListPage,
   InstitutionProfilePage,
   InventoryAdjustmentCreatePage,
   InventoryAdjustmentDetailPage,
@@ -63,15 +69,21 @@ import {
   ProgramCreatePage,
   ProgramEditPage,
   ProgramListPage,
+  ProcessGuidePage,
   ProgramShowPage,
   PublicProgramLandingPage,
   ReportsPage,
+  StakeholderReportPage,
+  StakeholderStatementPage,
   TagListPage,
   UnauthorizedPage,
   UpdatePasswordPage,
   WaqfCreatePage,
   WaqfDetailPage,
   WaqfListPage,
+  WaqfProposalCreatePage,
+  WaqfProposalDetailPage,
+  WaqfProposalListPage,
   WorkspacePage,
 } from "@/app/lazy-pages";
 import { ProtectedRoute } from "@/components/access-control/protected-route";
@@ -85,7 +97,7 @@ function AuthenticationCheck() {
 
 export function AppRouter() {
   return (
-    <Suspense fallback={<AppBoot message="Memuat halamanâ€¦" />}>
+    <Suspense fallback={<AppBoot message="Memuat halaman…" />}>
       <Routes>
         <Route path="/p/:slug" element={<PublicProgramLandingPage />} />
         <Route
@@ -112,6 +124,74 @@ export function AppRouter() {
           <Route element={<OrganizationGuard />}>
             <Route element={<AppLayout />}>
               <Route index element={<WorkspacePage />} />
+              <Route path="/guide" element={<ProcessGuidePage />} />
+              <Route
+                element={
+                  <ProtectedRoute action="read" resource="crm_beneficiary_profiles" />
+                }
+              >
+                <Route path="/beneficiaries" element={<BeneficiaryListPage />} />
+                <Route path="/beneficiaries/:id" element={<BeneficiaryDetailPage />} />
+              </Route>
+              <Route
+                element={
+                  <ProtectedRoute action="manage" resource="crm_beneficiary_profiles" />
+                }
+              >
+                <Route path="/beneficiaries/new" element={<BeneficiaryFormPage />} />
+                <Route path="/beneficiaries/:id/edit" element={<BeneficiaryFormPage />} />
+              </Route>
+              <Route
+                element={
+                  <ProtectedRoute action="read" resource="stakeholder_reports" />
+                }
+              >
+                <Route
+                  path="/reports/stakeholders"
+                  element={<StakeholderReportPage />}
+                />
+                <Route
+                  path="/reports/stakeholders/:contactId"
+                  element={<StakeholderStatementPage />}
+                />
+              </Route>
+              <Route
+                element={
+                  <ProtectedRoute action="read" resource="in_kind_donations" />
+                }
+              >
+                <Route
+                  path="/in-kind-donations"
+                  element={<InKindDonationListPage />}
+                />
+                <Route
+                  path="/in-kind-donations/:id"
+                  element={<InKindDonationDetailPage />}
+                />
+              </Route>
+              <Route
+                element={
+                  <ProtectedRoute
+                    action="receive"
+                    resource="in_kind_donations"
+                  />
+                }
+              >
+                <Route
+                  path="/in-kind-donations/new"
+                  element={<InKindDonationCreatePage />}
+                />
+              </Route>
+              <Route
+                element={
+                  <ProtectedRoute action="manage" resource="waqf_proposals" />
+                }
+              >
+                <Route
+                  path="/waqf/proposals/new"
+                  element={<WaqfProposalCreatePage />}
+                />
+              </Route>
               <Route
                 element={<ProtectedRoute action="read" resource="risk_flags" />}
               >
@@ -348,6 +428,14 @@ export function AppRouter() {
               <Route element={<ProtectedRoute action="read" resource="waqf" />}>
                 <Route path="/waqf" element={<WaqfListPage />} />
                 <Route path="/waqf/assets/:id" element={<WaqfDetailPage />} />
+                <Route
+                  path="/waqf/proposals"
+                  element={<WaqfProposalListPage />}
+                />
+                <Route
+                  path="/waqf/proposals/:id"
+                  element={<WaqfProposalDetailPage />}
+                />
               </Route>
               <Route
                 element={

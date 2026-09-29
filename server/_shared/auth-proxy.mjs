@@ -2,6 +2,12 @@ import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 
 import { readRawBody } from "./neon.mjs";
+import {
+  SESSION_COOKIE_NAME,
+  hasStaleSessionCookies,
+  sessionCookieCandidates,
+  staleSessionCookieClears,
+} from "./session-cookies.mjs";
 
 export async function handleAuthProxy(request, response) {
   const startedAt = performance.now();
@@ -46,7 +52,7 @@ export async function handleAuthProxy(request, response) {
 
   const headers = {
     accept: request.headers.accept ?? "application/json",
-    cookie: request.headers.cookie ?? "",
+    cookie: sessionCookieCandidates(request.headers.cookie)[0] ?? "",
     "content-type": request.headers["content-type"] ?? "application/json",
     ...(request.headers.origin ? { origin: request.headers.origin } : {}),
     "user-agent": request.headers["user-agent"] ?? "AmanahOS",
@@ -116,8 +122,20 @@ export async function handleAuthProxy(request, response) {
       ? authResponse.headers.getSetCookie()
       : authResponse.headers.get("set-cookie");
 
-  if (setCookie) {
-    response.setHeader("set-cookie", setCookie);
+  const cookies = Array.isArray(setCookie)
+    ? setCookie
+    : setCookie
+      ? [setCookie]
+      : [];
+  const setsNewSession = cookies.some((cookie) =>
+    cookie.startsWith(`${SESSION_COOKIE_NAME}=`) && !/Max-Age=0/i.test(cookie),
+  );
+
+  if (setsNewSession && hasStaleSessionCookies(request.headers.cookie)) {
+    // Hapus cookie sesi lama tanpa partisi sebelum cookie baru ditulis.
+    response.setHeader("set-cookie", [...staleSessionCookieClears(), ...cookies]);
+  } else if (cookies.length > 0) {
+    response.setHeader("set-cookie", cookies);
   }
 
   response.end(Buffer.from(await authResponse.arrayBuffer()));

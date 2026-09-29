@@ -5,6 +5,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgPolicy,
   pgTable,
   text,
@@ -105,6 +106,10 @@ export const aidApplications = pgTable(
       mode: "string",
     }),
     notes: text(),
+    submitterType: text("submitter_type").default("individual").notNull(),
+    submittingPartnerContactId: uuid("submitting_partner_contact_id"),
+    beneficiaryCount: integer("beneficiary_count").default(1).notNull(),
+    requestedAmount: numeric("requested_amount", { precision: 20, scale: 2 }),
     createdBy: uuid("created_by"),
     updatedBy: uuid("updated_by"),
     createdAt: timestamp("created_at", {

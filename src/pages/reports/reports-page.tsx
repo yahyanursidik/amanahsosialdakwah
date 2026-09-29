@@ -5,13 +5,26 @@ import {
   BanknoteArrowDown,
   BanknoteArrowUp,
   CircleCheckBig,
+  ClipboardList,
   Clock3,
+  FileStack,
+  Gift,
+  HandCoins,
   Layers3,
   PackageSearch,
   Sprout,
+  UsersRound,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
+
+import { CanAccess } from "@/components/access-control/can-access";
+import { buttonVariants } from "@/components/ui/button-variants";
+import {
+  givingTypeLabels,
+  labelOf,
+  waqfAssetTypeLabels,
+} from "@/features/giving/labels";
 
 import {
   DetailSection,
@@ -93,6 +106,8 @@ export function ReportsPage() {
     { icon: CircleCheckBig, label: "Distribusi selesai", value: data.metrics.completedDistributions },
     { icon: PackageSearch, label: "Batch kedaluwarsa ≤30 hari", value: data.metrics.expiringBatches },
     { icon: Sprout, label: "Aset wakaf aktif", value: data.metrics.activeWaqfAssets },
+    { icon: ClipboardList, label: "Pengajuan menunggu seleksi", value: data.metrics.pendingApplications ?? null },
+    { icon: FileStack, label: "Pengajuan wakaf berjalan", value: data.metrics.pendingWaqfProposals ?? null },
   ].filter((metric) => metric.value !== null);
 
   return (
@@ -102,6 +117,15 @@ export function ReportsPage() {
         title="Ringkasan amanah"
         description="Angka dihitung server-side dalam konteks organisasi aktif. Nilai uang tidak pernah dijumlahkan lintas mata uang."
         actions={
+          <div className="flex flex-wrap items-center gap-2">
+          <CanAccess action="read" resource="stakeholder_reports">
+            <Link
+              className={buttonVariants({ size: "sm", variant: "outline" })}
+              to="/reports/stakeholders"
+            >
+              <UsersRound aria-hidden size={16} /> Laporan donatur, mitra &amp; pengaju
+            </Link>
+          </CanAccess>
           <div className="report-range" aria-label="Rentang laporan">
             {ranges.map((item) => (
               <Button
@@ -113,6 +137,7 @@ export function ReportsPage() {
                 {item.label}
               </Button>
             ))}
+          </div>
           </div>
         }
       />
@@ -148,6 +173,20 @@ export function ReportsPage() {
           <span>Dana disalurkan</span>
           <MoneyTotals totals={data.money.disbursed} />
         </article>
+        {data.money.inKindReceived ? (
+          <article>
+            <Gift aria-hidden />
+            <span>Donasi barang (estimasi)</span>
+            <MoneyTotals totals={data.money.inKindReceived} />
+          </article>
+        ) : null}
+        {data.money.waqfContributions ? (
+          <article>
+            <HandCoins aria-hidden />
+            <span>Setoran wakif</span>
+            <MoneyTotals totals={data.money.waqfContributions} />
+          </article>
+        ) : null}
         <article>
           <Sprout aria-hidden />
           <span>Pendapatan wakaf</span>
@@ -208,6 +247,23 @@ export function ReportsPage() {
         />
       </DetailSection>
 
+      {(data.inKindByGivingType ?? []).length > 0 ? (
+        <DetailSection
+          title="Donasi barang per jenis amanah"
+          description="Estimasi nilai barang yang diterima dalam periode, dikelompokkan menurut zakat, infaq, sedekah, wakaf, hibah, atau CSR."
+        >
+          <ResourceTable
+            items={data.inKindByGivingType ?? []}
+            getRowId={(item) => `${item.giving_type}-${item.currency}`}
+            columns={[
+              { header: "Jenis amanah", key: "type", render: (item) => labelOf(givingTypeLabels, item.giving_type) },
+              { header: "Jumlah penerimaan", key: "count", align: "right", render: (item) => item.count },
+              { header: "Estimasi nilai", key: "amount", align: "right", render: (item) => <MoneyDisplay amount={item.amount} currency={item.currency} /> },
+            ]}
+          />
+        </DetailSection>
+      ) : null}
+
       {data.waqfPerformance.length > 0 ? (
         <DetailSection
           title="Portofolio wakaf"
@@ -217,7 +273,7 @@ export function ReportsPage() {
             items={data.waqfPerformance}
             getRowId={(item) => `${item.asset_type}-${item.currency}`}
             columns={[
-              { header: "Jenis aset", key: "type", render: (item) => item.asset_type.replaceAll("_", " ") },
+              { header: "Jenis aset", key: "type", render: (item) => labelOf(waqfAssetTypeLabels, item.asset_type) },
               { header: "Jumlah aset", key: "total", align: "right", render: (item) => item.total_assets },
               { header: "Aktif", key: "active", align: "right", render: (item) => item.active_assets },
               { header: "Nilai perolehan", key: "value", align: "right", render: (item) => <MoneyDisplay amount={item.acquisition_value} currency={item.currency} /> },
@@ -227,7 +283,7 @@ export function ReportsPage() {
       ) : null}
 
       <p className="report-generated-at">
-        Dihitung {new Date(data.generatedAt).toLocaleString("id-ID")} · bagian tersedia: {data.availableSections.join(", ") || "tidak ada"}.
+        Dihitung {new Date(data.generatedAt).toLocaleString("id-ID")} · {data.availableSections.length} bagian laporan tersedia sesuai izin Anda.
       </p>
     </section>
   );

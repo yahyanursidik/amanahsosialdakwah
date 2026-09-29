@@ -1,5 +1,7 @@
 import { Pool } from "@neondatabase/serverless";
 
+import { sessionCookieCandidates } from "./session-cookies.mjs";
+
 let poolInstance = null;
 
 export function getDatabasePool() {
@@ -233,6 +235,27 @@ export const tableSchemas = Object.freeze({
     "assessment_status",
     "status",
     "eligibility_notes",
+    "birth_place",
+    "marital_status",
+    "education_level",
+    "occupation",
+    "monthly_income",
+    "dependents_count",
+    "housing_status",
+    "disability_status",
+    "health_notes",
+    "asnaf_category",
+    "beneficiary_categories",
+    "guardian_name",
+    "guardian_relation",
+    "guardian_phone",
+    "emergency_contact_name",
+    "emergency_contact_phone",
+    "bank_name",
+    "bank_account_holder",
+    "referral_partner_contact_id",
+    "registration_source",
+    "updated_by",
     "created_by",
     "created_at",
     "updated_at",
@@ -408,30 +431,31 @@ export async function readRawBody(
 }
 
 export async function requireSession(request) {
-  const sessionResponse = await fetch(`${getAuthBaseUrl()}/get-session`, {
-    method: "GET",
-    headers: {
-      cookie: request.headers.cookie ?? "",
-      accept: "application/json",
-    },
-  });
+  // Cookie sesi ganda (lama tanpa partisi + baru) dicoba satu per satu.
+  for (const cookie of sessionCookieCandidates(request.headers.cookie)) {
+    const sessionResponse = await fetch(`${getAuthBaseUrl()}/get-session`, {
+      method: "GET",
+      headers: {
+        cookie,
+        accept: "application/json",
+      },
+    });
 
-  if (!sessionResponse.ok) {
-    const error = new Error("Sesi tidak valid.");
-    error.statusCode = 401;
-    throw error;
+    if (!sessionResponse.ok) {
+      continue;
+    }
+
+    const session = await sessionResponse.json();
+    const user = session?.user ?? session?.data?.user;
+
+    if (user?.id && user?.email) {
+      return { session, user };
+    }
   }
 
-  const session = await sessionResponse.json();
-  const user = session?.user ?? session?.data?.user;
-
-  if (!user?.id || !user?.email) {
-    const error = new Error("Sesi tidak valid.");
-    error.statusCode = 401;
-    throw error;
-  }
-
-  return { session, user };
+  const error = new Error("Sesi tidak valid.");
+  error.statusCode = 401;
+  throw error;
 }
 
 export async function ensureProfileAndBootstrap(user) {

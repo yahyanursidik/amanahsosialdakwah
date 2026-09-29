@@ -206,7 +206,7 @@ async function resolveBatch(
   return inserted.rows[0]?.id ?? null;
 }
 
-async function applyMovement(
+export async function applyInventoryMovement(
   client: PoolClient,
   context: RequestContext,
   input: {
@@ -925,7 +925,7 @@ export async function postInventoryAdjustment(
           ? "adjustment_in"
           : "adjustment_out";
       const quantity = String(Math.abs(Number(adjustment.expected_delta)));
-      const movement = await applyMovement(client, context, {
+      const movement = await applyInventoryMovement(client, context, {
         batchNumber: adjustment.batch_number as string | null,
         expiresAt: adjustment.expires_at as string | null,
         movementType,
@@ -1003,7 +1003,7 @@ export async function postGoodsReceiptToInventory(
 
       const movements: Row[] = [];
       for (const item of input.items) {
-        const movement = await applyMovement(client, context, {
+        const movement = await applyInventoryMovement(client, context, {
           batchNumber: item.batch_number ?? null,
           expiresAt: item.expires_at ?? null,
           movementType: "receipt_in",

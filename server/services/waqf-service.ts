@@ -6,21 +6,33 @@ import { DomainError } from "../domain/errors";
 import {
   assertActiveWaqfAsset,
   assertBenefitDistributionCapacity,
+  assertIndependentProposalReview,
   assertIndependentVerification,
+  assertWaqfAcceptsContribution,
+  assertWaqfDuration,
+  assertWaqfProposalTransition,
   assertWaqfRegistration,
   type WaqfAssetStatus,
+  type WaqfCollectionScheme,
+  type WaqfProposalStatus,
 } from "../domain/waqf-rules";
 import type {
   AssignWaqfNazhirInput,
+  ConvertWaqfProposalInput,
   CreateWaqfAssetInput,
   CreateWaqfLegalDocumentInput,
+  CreateWaqfProposalInput,
   DistributeWaqfBenefitInput,
+  RecordWaqfContributionInput,
   RecordWaqfIncomeInput,
   RecordWaqfMaintenanceInput,
   RecordWaqfUtilizationInput,
   RecordWaqfValuationInput,
+  ReverseWaqfContributionInput,
   VerifyWaqfLegalDocumentInput,
   WaqfListQuery,
+  WaqfProposalDecisionInput,
+  WaqfProposalListQuery,
 } from "../routes/waqf-schemas";
 import type { RequestContext } from "../types";
 import { insertAuditEvent } from "./audit-service";
@@ -203,7 +215,7 @@ export async function listWaqfAssets(
     if (query.q) {
       values.push(`%${query.q}%`);
       filters.push(
-        `(asset.name ilike $${values.length} or asset.reference_number ilike $${values.length} or donor.display_name ilike $${values.length})`,
+        `(asset.name ilike $${values.length} or asset.reference_number ilike $${values.length} or donor.display_name ilike $${values.length} or asset.designation ilike $${values.length})`,
       );
     }
     const where = filters.join(" and ");
@@ -221,7 +233,9 @@ export async function listWaqfAssets(
               donor.display_name donor_name,
               coalesce((select amount from public.waqf_valuations valuation where valuation.asset_id = asset.id and valuation.organization_id = asset.organization_id order by valuation.valuation_date desc, valuation.created_at desc limit 1), asset.acquisition_value) latest_valuation,
               coalesce((select sum(income.amount) from public.waqf_income_records income where income.asset_id = asset.id and income.organization_id = asset.organization_id and income.status = 'received'), 0) total_income,
-              coalesce((select sum(benefit.amount) from public.waqf_benefit_distributions benefit where benefit.asset_id = asset.id and benefit.organization_id = asset.organization_id and benefit.status = 'completed'), 0) total_benefit
+              coalesce((select sum(benefit.amount) from public.waqf_benefit_distributions benefit where benefit.asset_id = asset.id and benefit.organization_id = asset.organization_id and benefit.status = 'completed'), 0) total_benefit,
+              coalesce((select sum(contribution.amount) from public.waqf_contributions contribution where contribution.asset_id = asset.id and contribution.organization_id = asset.organization_id and contribution.status = 'received'), 0) total_contributions,
+              (select count(distinct coalesce(contribution.wakif_contact_id::text, contribution.wakif_name))::int from public.waqf_contributions contribution where contribution.asset_id = asset.id and contribution.organization_id = asset.organization_id and contribution.status = 'received') wakif_count
        from public.waqf_assets asset
        left join public.crm_contacts donor on donor.id = asset.donor_contact_id and donor.organization_id = asset.organization_id
        where ${where}
@@ -258,6 +272,8 @@ export async function getWaqfAsset(context: RequestContext, id: string) {
       income,
       benefits,
       events,
+      contributions,
+      proposals,
     ] = await Promise.all([
       client.query(
         `select * from public.waqf_legal_documents where asset_id = $1 and organization_id = $2 order by created_at desc`,
@@ -313,10 +329,39 @@ export async function getWaqfAsset(context: RequestContext, id: string) {
         `select * from public.waqf_events where entity_id = $1 and organization_id = $2 order by created_at desc limit 50`,
         [id, context.organizationId],
       ),
+      client.query(
+        `select contribution.*, wakif.display_name wakif_contact_name
+         from public.waqf_contributions contribution
+         left join public.crm_contacts wakif on wakif.id = contribution.wakif_contact_id and wakif.organization_id = contribution.organization_id
+         where contribution.asset_id = $1 and contribution.organization_id = $2
+         order by contribution.received_at desc`,
+        [id, context.organizationId],
+      ),
+      client.query(
+        `select proposal.id, proposal.reference_number, proposal.title, proposal.proposal_type, proposal.status, proposer.display_name proposer_name
+         from public.waqf_proposals proposal
+         join public.crm_contacts proposer on proposer.id = proposal.proposer_contact_id and proposer.organization_id = proposal.organization_id
+         where proposal.organization_id = $2 and (proposal.asset_id = $1 or proposal.converted_asset_id = $1)
+         order by proposal.created_at desc`,
+        [id, context.organizationId],
+      ),
     ]);
+    const receivedContributions = contributions.rows.filter(
+      (row) => row.status === "received",
+    );
     return {
       ...record,
       benefit_distributions: benefits.rows,
+      contributions: contributions.rows,
+      proposals: proposals.rows,
+      total_contributions: receivedContributions
+        .reduce((total, row) => total + Number(row.amount), 0)
+        .toFixed(2),
+      wakif_count: new Set(
+        receivedContributions.map((row) =>
+          String(row.wakif_contact_id ?? row.wakif_name),
+        ),
+      ).size,
       events: events.rows,
       income_records: income.rows,
       legal_documents: legalDocuments.rows,
@@ -328,35 +373,61 @@ export async function getWaqfAsset(context: RequestContext, id: string) {
   });
 }
 
+async function insertWaqfAsset(
+  client: PoolClient,
+  context: RequestContext,
+  input: CreateWaqfAssetInput,
+) {
+  const record = await client.query<Row>(
+    `insert into public.waqf_assets (
+       organization_id, reference_number, asset_type, name, description,
+       donor_contact_id, acquisition_date, acquisition_value, currency,
+       location_text, waqf_purpose, waqf_duration, duration_end_date,
+       collection_scheme, designation, pledge_date, fundraising_target,
+       created_by, updated_by
+     )
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$18)
+     returning *`,
+    [
+      context.organizationId,
+      reference("WQF-AST"),
+      input.asset_type,
+      input.name,
+      input.description,
+      input.donor_contact_id || null,
+      input.acquisition_date ?? null,
+      input.acquisition_value ?? null,
+      input.currency,
+      input.location_text ?? null,
+      input.waqf_purpose,
+      input.waqf_duration,
+      input.duration_end_date ?? null,
+      input.collection_scheme,
+      input.designation || null,
+      input.pledge_date ?? null,
+      input.fundraising_target ?? null,
+      context.profileId,
+    ],
+  );
+  return record.rows[0] ?? missing("Aset wakaf gagal dibuat.");
+}
+
 export async function createWaqfAsset(
   context: RequestContext,
   input: CreateWaqfAssetInput,
 ) {
   requirePermission(context, "waqf_assets.manage");
+  try {
+    assertWaqfDuration({
+      durationEndDate: input.duration_end_date ?? null,
+      pledgeDate: input.pledge_date ?? null,
+      waqfDuration: input.waqf_duration,
+    });
+  } catch (error) {
+    translateRule(error);
+  }
   return withTenantTransaction(context, async (database, client) => {
-    const record = await client.query<Row>(
-      `insert into public.waqf_assets (
-         organization_id, reference_number, asset_type, name, description,
-         donor_contact_id, acquisition_date, acquisition_value, currency,
-         location_text, created_by, updated_by
-       )
-       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$11)
-       returning *`,
-      [
-        context.organizationId,
-        reference("WQF-AST"),
-        input.asset_type,
-        input.name,
-        input.description,
-        input.donor_contact_id || null,
-        input.acquisition_date ?? null,
-        input.acquisition_value ?? null,
-        input.currency,
-        input.location_text ?? null,
-        context.profileId,
-      ],
-    );
-    const asset = record.rows[0] ?? missing("Aset wakaf gagal dibuat.");
+    const asset = await insertWaqfAsset(client, context, input);
     await event(client, context, "waqf_asset", asset.id, "created", asset);
     await insertAuditEvent(database, context, {
       action: "waqf.asset_created",
@@ -851,4 +922,536 @@ export async function distributeWaqfBenefit(
       return benefit;
     },
   );
+}
+
+async function ensureActiveContact(
+  client: PoolClient,
+  context: RequestContext,
+  contactId: string,
+  label: string,
+) {
+  const result = await client.query<
+    Row & { contact_type: string; display_name: string }
+  >(
+    `select id, contact_type, display_name from public.crm_contacts
+     where id = $1 and organization_id = $2 and status = 'active'`,
+    [contactId, context.organizationId],
+  );
+  return (
+    result.rows[0] ?? missing(`${label} tidak ditemukan atau tidak aktif.`)
+  );
+}
+
+export async function recordWaqfContribution(
+  context: RequestContext,
+  assetId: string,
+  input: RecordWaqfContributionInput,
+  idempotencyKey: string,
+) {
+  requirePermission(context, "waqf_contributions.record");
+  return idempotent(
+    context,
+    idempotencyKey,
+    "waqf.contribution.record",
+    { assetId, input },
+    async (database, client) => {
+      const asset = await ensureAsset(client, context, assetId, true);
+      try {
+        assertWaqfAcceptsContribution({
+          collectionScheme: String(
+            asset.collection_scheme,
+          ) as WaqfCollectionScheme,
+          operationalStatus: String(
+            asset.operational_status,
+          ) as WaqfAssetStatus,
+        });
+      } catch (error) {
+        translateRule(error);
+      }
+      let wakifName = input.wakif_name ?? "";
+      if (input.wakif_contact_id) {
+        const wakif = await ensureActiveContact(
+          client,
+          context,
+          input.wakif_contact_id,
+          "Kontak wakif",
+        );
+        wakifName = input.wakif_name || wakif.display_name;
+      }
+      const inserted = await client.query<Row>(
+        `insert into public.waqf_contributions (
+           organization_id, asset_id, reference_number, wakif_contact_id,
+           wakif_name, on_behalf_of, contribution_form, amount, currency,
+           payment_method, received_at, pledge_confirmed, certificate_number,
+           notes, created_by
+         )
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+         returning *`,
+        [
+          context.organizationId,
+          assetId,
+          reference("WQF-SET"),
+          input.wakif_contact_id || null,
+          wakifName,
+          input.on_behalf_of || null,
+          input.contribution_form,
+          input.amount,
+          input.currency,
+          input.payment_method,
+          input.received_at,
+          input.pledge_confirmed,
+          input.certificate_number || null,
+          input.notes || null,
+          context.profileId,
+        ],
+      );
+      const contribution =
+        inserted.rows[0] ?? missing("Setoran wakif gagal dicatat.");
+      await event(
+        client,
+        context,
+        "waqf_asset",
+        assetId,
+        "contribution_recorded",
+        { amount: input.amount, contributionId: contribution.id },
+      );
+      await insertAuditEvent(database, context, {
+        action: "waqf.contribution_recorded",
+        after: contribution,
+        entityId: contribution.id,
+        entityType: "waqf_contribution",
+      });
+      return contribution;
+    },
+  );
+}
+
+export async function reverseWaqfContribution(
+  context: RequestContext,
+  contributionId: string,
+  input: ReverseWaqfContributionInput,
+) {
+  requirePermission(context, "waqf_contributions.reverse");
+  return withTenantTransaction(context, async (database, client) => {
+    const current = await client.query<Row>(
+      `select * from public.waqf_contributions
+       where id = $1 and organization_id = $2 for update`,
+      [contributionId, context.organizationId],
+    );
+    const contribution =
+      current.rows[0] ?? missing("Setoran wakif tidak ditemukan.");
+    if (contribution.status !== "received") {
+      throw new DomainError(
+        "INVALID_STATE",
+        "Setoran wakif ini sudah dibatalkan.",
+        409,
+      );
+    }
+    if (contribution.created_by === context.profileId) {
+      throw new DomainError(
+        "INVALID_STATE",
+        "Pembatalan setoran harus dilakukan oleh petugas berbeda dari pencatat.",
+        409,
+      );
+    }
+    const updated = await client.query<Row>(
+      `update public.waqf_contributions
+       set status = 'reversed', reversal_reason = $1, reversed_by = $2, reversed_at = now()
+       where id = $3 and organization_id = $4
+       returning *`,
+      [input.reason, context.profileId, contributionId, context.organizationId],
+    );
+    const record =
+      updated.rows[0] ?? missing("Setoran wakif tidak ditemukan.");
+    await event(
+      client,
+      context,
+      "waqf_asset",
+      String(record.asset_id),
+      "contribution_reversed",
+      { contributionId },
+    );
+    await insertAuditEvent(database, context, {
+      action: "waqf.contribution_reversed",
+      after: record,
+      before: contribution,
+      entityId: contributionId,
+      entityType: "waqf_contribution",
+    });
+    return record;
+  });
+}
+
+const proposalSelect = `
+  select proposal.*,
+         proposer.display_name proposer_name,
+         proposer.contact_type proposer_contact_type,
+         proposer.primary_phone proposer_phone,
+         asset.name asset_name,
+         asset.reference_number asset_reference,
+         converted_asset.name converted_asset_name
+  from public.waqf_proposals proposal
+  join public.crm_contacts proposer
+    on proposer.id = proposal.proposer_contact_id and proposer.organization_id = proposal.organization_id
+  left join public.waqf_assets asset
+    on asset.id = proposal.asset_id and asset.organization_id = proposal.organization_id
+  left join public.waqf_assets converted_asset
+    on converted_asset.id = proposal.converted_asset_id and converted_asset.organization_id = proposal.organization_id
+`;
+
+export async function listWaqfProposals(
+  context: RequestContext,
+  query: WaqfProposalListQuery,
+) {
+  requirePermission(context, "waqf.read");
+  return withTenantTransaction(context, async (_database, client) => {
+    const values: unknown[] = [context.organizationId];
+    const filters = ["proposal.organization_id = $1"];
+    if (query.status) {
+      values.push(query.status);
+      filters.push(`proposal.status = $${values.length}`);
+    }
+    if (query.proposal_type) {
+      values.push(query.proposal_type);
+      filters.push(`proposal.proposal_type = $${values.length}`);
+    }
+    if (query.q) {
+      values.push(`%${query.q}%`);
+      filters.push(
+        `(proposal.title ilike $${values.length} or proposal.reference_number ilike $${values.length} or proposer.display_name ilike $${values.length})`,
+      );
+    }
+    const where = filters.join(" and ");
+    const count = await client.query<{ total: number }>(
+      `select count(*)::int total
+       from public.waqf_proposals proposal
+       join public.crm_contacts proposer on proposer.id = proposal.proposer_contact_id and proposer.organization_id = proposal.organization_id
+       where ${where}`,
+      values,
+    );
+    const { limit, offset } = page(query);
+    values.push(limit, offset);
+    const rows = await client.query(
+      `${proposalSelect}
+       where ${where}
+       order by proposal.created_at desc
+       limit $${values.length - 1} offset $${values.length}`,
+      values,
+    );
+    return {
+      data: rows.rows,
+      page: query.page,
+      pageSize: query.pageSize,
+      total: count.rows[0]?.total ?? 0,
+    };
+  });
+}
+
+export async function getWaqfProposal(context: RequestContext, id: string) {
+  requirePermission(context, "waqf.read");
+  return withTenantTransaction(context, async (_database, client) => {
+    const result = await client.query<Row>(
+      `${proposalSelect} where proposal.id = $1 and proposal.organization_id = $2`,
+      [id, context.organizationId],
+    );
+    const proposal =
+      result.rows[0] ?? missing("Pengajuan wakaf tidak ditemukan.");
+    const events = await client.query(
+      `select * from public.waqf_events
+       where entity_type = 'waqf_proposal' and entity_id = $1 and organization_id = $2
+       order by created_at desc limit 50`,
+      [id, context.organizationId],
+    );
+    return { ...proposal, events: events.rows };
+  });
+}
+
+export async function createWaqfProposal(
+  context: RequestContext,
+  input: CreateWaqfProposalInput,
+) {
+  requirePermission(context, "waqf_proposals.manage");
+  return withTenantTransaction(context, async (database, client) => {
+    const proposer = await ensureActiveContact(
+      client,
+      context,
+      input.proposer_contact_id,
+      "Kontak pengaju",
+    );
+    if (input.asset_id) {
+      await ensureAsset(client, context, input.asset_id);
+    }
+    const status = input.submit_now ? "submitted" : "draft";
+    const inserted = await client.query<Row>(
+      `insert into public.waqf_proposals (
+         organization_id, reference_number, proposal_type, proposer_type,
+         proposer_contact_id, title, description, asset_id, proposed_asset_type,
+         requested_amount, currency, location_text, beneficiary_estimate,
+         status, submitted_at, created_by, updated_by
+       )
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::text,
+               case when $14::text = 'submitted' then now() else null end, $15, $15)
+       returning *`,
+      [
+        context.organizationId,
+        reference("WQF-PRP"),
+        input.proposal_type,
+        proposer.contact_type === "institution" ? "institution" : "individual",
+        input.proposer_contact_id,
+        input.title,
+        input.description,
+        input.proposal_type === "benefit_request" ? input.asset_id : null,
+        input.proposal_type === "benefit_request"
+          ? null
+          : (input.proposed_asset_type ?? null),
+        input.requested_amount ?? null,
+        input.currency,
+        input.location_text || null,
+        input.beneficiary_estimate ?? null,
+        status,
+        context.profileId,
+      ],
+    );
+    const proposal =
+      inserted.rows[0] ?? missing("Pengajuan wakaf gagal dibuat.");
+    await event(client, context, "waqf_proposal", proposal.id, "created", {
+      status,
+    });
+    await insertAuditEvent(database, context, {
+      action: "waqf.proposal_created",
+      after: proposal,
+      entityId: proposal.id,
+      entityType: "waqf_proposal",
+    });
+    return proposal;
+  });
+}
+
+async function transitionProposal(
+  context: RequestContext,
+  id: string,
+  target: WaqfProposalStatus,
+  options: { notes?: string; review?: boolean } = {},
+) {
+  return withTenantTransaction(context, async (database, client) => {
+    const current = await client.query<Row>(
+      `select * from public.waqf_proposals where id = $1 and organization_id = $2 for update`,
+      [id, context.organizationId],
+    );
+    const proposal =
+      current.rows[0] ?? missing("Pengajuan wakaf tidak ditemukan.");
+    try {
+      assertWaqfProposalTransition(
+        String(proposal.status) as WaqfProposalStatus,
+        target,
+      );
+      if (options.review) {
+        assertIndependentProposalReview({
+          createdBy: String(proposal.created_by),
+          reviewedBy: context.profileId,
+        });
+      }
+    } catch (error) {
+      translateRule(error);
+    }
+    const updated = await client.query<Row>(
+      `update public.waqf_proposals
+       set status = $1::text,
+           submitted_at = case when $1::text = 'submitted' then now() else submitted_at end,
+           review_notes = case when $2::boolean then $3::text else review_notes end,
+           reviewed_by = case when $2::boolean then $4::uuid else reviewed_by end,
+           reviewed_at = case when $2::boolean then now() else reviewed_at end,
+           updated_by = $4::uuid
+       where id = $5 and organization_id = $6
+       returning *`,
+      [
+        target,
+        Boolean(options.review),
+        options.notes ?? null,
+        context.profileId,
+        id,
+        context.organizationId,
+      ],
+    );
+    const record =
+      updated.rows[0] ?? missing("Pengajuan wakaf tidak ditemukan.");
+    await event(client, context, "waqf_proposal", id, target, {
+      notes: options.notes ?? null,
+    });
+    await insertAuditEvent(database, context, {
+      action: `waqf.proposal_${target}`,
+      after: record,
+      before: proposal,
+      entityId: id,
+      entityType: "waqf_proposal",
+    });
+    return record;
+  });
+}
+
+export function submitWaqfProposal(context: RequestContext, id: string) {
+  requirePermission(context, "waqf_proposals.manage");
+  return transitionProposal(context, id, "submitted");
+}
+
+export function cancelWaqfProposal(context: RequestContext, id: string) {
+  requirePermission(context, "waqf_proposals.manage");
+  return transitionProposal(context, id, "cancelled");
+}
+
+export function startWaqfProposalReview(context: RequestContext, id: string) {
+  requirePermission(context, "waqf_proposals.review");
+  return transitionProposal(context, id, "under_review");
+}
+
+export function decideWaqfProposal(
+  context: RequestContext,
+  id: string,
+  input: WaqfProposalDecisionInput,
+) {
+  requirePermission(context, "waqf_proposals.review");
+  return transitionProposal(context, id, input.decision, {
+    notes: input.notes,
+    review: true,
+  });
+}
+
+/**
+ * Pengajuan yang disetujui diteruskan ke objek operasional tanpa ketik ulang:
+ * proyek wakaf/penawaran aset menjadi aset draft, permohonan manfaat menjadi
+ * rencana pemanfaatan pada aset aktif.
+ */
+export async function convertWaqfProposal(
+  context: RequestContext,
+  id: string,
+  input: ConvertWaqfProposalInput,
+) {
+  requirePermission(context, "waqf_proposals.review");
+  return withTenantTransaction(context, async (database, client) => {
+    const current = await client.query<Row>(
+      `select * from public.waqf_proposals where id = $1 and organization_id = $2 for update`,
+      [id, context.organizationId],
+    );
+    const proposal =
+      current.rows[0] ?? missing("Pengajuan wakaf tidak ditemukan.");
+    try {
+      assertWaqfProposalTransition(
+        String(proposal.status) as WaqfProposalStatus,
+        "converted",
+      );
+    } catch (error) {
+      translateRule(error);
+    }
+
+    let convertedAssetId: string | null = null;
+    let convertedUtilizationId: string | null = null;
+
+    if (proposal.proposal_type === "benefit_request") {
+      requirePermission(context, "waqf_utilizations.manage");
+      const asset = await ensureAsset(
+        client,
+        context,
+        String(proposal.asset_id),
+      );
+      try {
+        assertActiveWaqfAsset(
+          String(asset.operational_status) as WaqfAssetStatus,
+        );
+      } catch (error) {
+        translateRule(error);
+      }
+      const utilization = await client.query<Row>(
+        `insert into public.waqf_utilizations (
+           organization_id, asset_id, utilization_type, beneficiary_contact_id,
+           start_date, expected_benefit, status, created_by
+         )
+         values ($1,$2,$3,$4,$5,$6,'planned',$7)
+         returning *`,
+        [
+          context.organizationId,
+          proposal.asset_id,
+          input.utilization_type,
+          proposal.proposer_contact_id,
+          input.start_date ?? new Date().toISOString().slice(0, 10),
+          `${String(proposal.title)} — ${String(proposal.description)}`.slice(
+            0,
+            3000,
+          ),
+          context.profileId,
+        ],
+      );
+      convertedUtilizationId =
+        utilization.rows[0]?.id ?? missing("Pemanfaatan wakaf gagal dibuat.");
+      await event(
+        client,
+        context,
+        "waqf_asset",
+        String(proposal.asset_id),
+        "utilization_recorded",
+        { proposalId: id, utilizationId: convertedUtilizationId },
+      );
+    } else {
+      requirePermission(context, "waqf_assets.manage");
+      const fundraising =
+        proposal.proposal_type === "waqf_project" &&
+        proposal.requested_amount !== null;
+      const asset = await insertWaqfAsset(client, context, {
+        asset_type: String(
+          proposal.proposed_asset_type ?? "other",
+        ) as CreateWaqfAssetInput["asset_type"],
+        collection_scheme: fundraising ? "cash_for_asset" : "direct_asset",
+        currency: String(proposal.currency ?? "IDR"),
+        description: String(proposal.description),
+        donor_contact_id:
+          proposal.proposal_type === "asset_offer"
+            ? String(proposal.proposer_contact_id)
+            : null,
+        fundraising_target: fundraising
+          ? String(proposal.requested_amount)
+          : null,
+        ...(proposal.location_text
+          ? { location_text: String(proposal.location_text) }
+          : {}),
+        name: String(proposal.title),
+        waqf_duration: "permanent",
+        waqf_purpose: "khairi",
+      });
+      convertedAssetId = asset.id;
+      await event(client, context, "waqf_asset", asset.id, "created", {
+        proposalId: id,
+      });
+    }
+
+    const updated = await client.query<Row>(
+      `update public.waqf_proposals
+       set status = 'converted',
+           converted_asset_id = $1,
+           converted_utilization_id = $2,
+           converted_at = now(),
+           updated_by = $3
+       where id = $4 and organization_id = $5
+       returning *`,
+      [
+        convertedAssetId,
+        convertedUtilizationId,
+        context.profileId,
+        id,
+        context.organizationId,
+      ],
+    );
+    const record =
+      updated.rows[0] ?? missing("Pengajuan wakaf tidak ditemukan.");
+    await event(client, context, "waqf_proposal", id, "converted", {
+      assetId: convertedAssetId,
+      utilizationId: convertedUtilizationId,
+    });
+    await insertAuditEvent(database, context, {
+      action: "waqf.proposal_converted",
+      after: record,
+      before: proposal,
+      entityId: id,
+      entityType: "waqf_proposal",
+    });
+    return record;
+  });
 }

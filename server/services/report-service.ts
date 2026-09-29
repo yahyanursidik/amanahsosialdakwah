@@ -39,12 +39,16 @@ export async function getOrganizationReport(
       expiringBatches: null as number | null,
       stockedProducts: null as number | null,
       openCases: null as number | null,
+      pendingApplications: null as number | null,
       pendingApprovals: null as number | null,
+      pendingWaqfProposals: null as number | null,
     };
     const money = {
       disbursed: [] as MoneyRow[],
       distributed: [] as MoneyRow[],
+      inKindReceived: [] as MoneyRow[],
       received: [] as MoneyRow[],
+      waqfContributions: [] as MoneyRow[],
       waqfBenefits: [] as MoneyRow[],
       waqfIncome: [] as MoneyRow[],
     };
@@ -57,6 +61,12 @@ export async function getOrganizationReport(
       title: string;
     }> = [];
     let programPerformance: ProgramPerformanceRow[] = [];
+    let inKindByGivingType: Array<{
+      amount: string;
+      count: number;
+      currency: string;
+      giving_type: string;
+    }> = [];
     let waqfPerformance: Array<{
       acquisition_value: string;
       active_assets: number;
@@ -325,6 +335,34 @@ export async function getOrganizationReport(
           [context.organizationId],
         )
       ).rows;
+      money.waqfContributions = (
+        await client.query<MoneyRow>(
+          `select currency::text, sum(amount)::numeric(20,2)::text as amount
+           from public.waqf_contributions
+           where organization_id = $1 and status = 'received' and received_at between $2 and $3
+           group by currency order by currency`,
+          [context.organizationId, period.from, period.to],
+        )
+      ).rows;
+      const proposals = await client.query<CountRow & { stale: number }>(
+        `select count(*)::int as count,
+                count(*) filter (where updated_at < now() - interval '7 days')::int as stale
+         from public.waqf_proposals
+         where organization_id = $1 and status in ('submitted','under_review','approved')`,
+        [context.organizationId],
+      );
+      metrics.pendingWaqfProposals = proposals.rows[0]?.count ?? 0;
+      if ((proposals.rows[0]?.stale ?? 0) > 0) {
+        actionItems.push({
+          category: "waqf",
+          count: proposals.rows[0]!.stale,
+          description:
+            "Pengajuan program wakaf belum diputuskan atau dikonversi lebih dari tujuh hari.",
+          href: "/waqf/proposals",
+          severity: "medium",
+          title: "Pengajuan wakaf menunggu",
+        });
+      }
       const legal = await client.query<CountRow>(
         `select count(*)::int as count from public.waqf_assets
          where organization_id = $1 and legal_status in ('incomplete','pending_review','disputed')`,
@@ -338,6 +376,59 @@ export async function getOrganizationReport(
           href: "/waqf",
           severity: "high",
           title: "Legalitas wakaf belum tuntas",
+        });
+      }
+    }
+
+    if (context.permissions.has("in_kind_donations.read")) {
+      availableSections.push("in_kind");
+      inKindByGivingType = (
+        await client.query<{
+          amount: string;
+          count: number;
+          currency: string;
+          giving_type: string;
+        }>(
+          `select giving_type, currency::text, count(*)::int as count,
+                  coalesce(sum(estimated_total_value), 0)::numeric(20,2)::text as amount
+           from public.in_kind_donations
+           where organization_id = $1 and received_at between $2 and $3
+           group by giving_type, currency order by giving_type`,
+          [context.organizationId, period.from, period.to],
+        )
+      ).rows;
+      const totals = new Map<string, number>();
+      for (const row of inKindByGivingType) {
+        totals.set(
+          row.currency,
+          (totals.get(row.currency) ?? 0) + Number(row.amount),
+        );
+      }
+      money.inKindReceived = [...totals].map(([currency, amount]) => ({
+        amount: amount.toFixed(2),
+        currency,
+      }));
+    }
+
+    if (context.permissions.has("applications.read")) {
+      availableSections.push("applications");
+      const pending = await client.query<CountRow & { stale: number }>(
+        `select count(*)::int as count,
+                count(*) filter (where coalesce(submitted_at, created_at) < now() - interval '3 days')::int as stale
+         from public.aid_applications
+         where organization_id = $1 and status in ('submitted','in_screening')`,
+        [context.organizationId],
+      );
+      metrics.pendingApplications = pending.rows[0]?.count ?? 0;
+      if ((pending.rows[0]?.stale ?? 0) > 0) {
+        actionItems.push({
+          category: "application",
+          count: pending.rows[0]!.stale,
+          description:
+            "Pengajuan dari individu atau lembaga belum selesai diseleksi lebih dari tiga hari.",
+          href: "/applications",
+          severity: "medium",
+          title: "Pengajuan menunggu seleksi",
         });
       }
     }
@@ -389,6 +480,7 @@ export async function getOrganizationReport(
       actionItems,
       availableSections,
       generatedAt: new Date().toISOString(),
+      inKindByGivingType,
       metrics,
       money,
       period,

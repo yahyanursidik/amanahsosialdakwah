@@ -1,6 +1,7 @@
 import type { MiddlewareHandler } from "hono";
 import { z } from "zod";
 
+import { sessionCookieCandidates } from "../_shared/session-cookies.mjs";
 import { getDatabasePool } from "../db/client";
 import { DomainError } from "../domain/errors";
 import type { AppEnv } from "../types";
@@ -24,36 +25,35 @@ async function readAuthUser(cookie: string): Promise<AuthUser> {
     );
   }
 
-  const response = await fetch(`${authBaseUrl}/get-session`, {
-    headers: {
-      accept: "application/json",
-      cookie,
-    },
-  });
+  // Cookie sesi ganda (lama tanpa partisi + baru) dicoba satu per satu.
+  for (const candidate of sessionCookieCandidates(cookie)) {
+    const response = await fetch(`${authBaseUrl}/get-session`, {
+      headers: {
+        accept: "application/json",
+        cookie: candidate,
+      },
+    });
 
-  if (!response.ok) {
-    throw new DomainError(
-      "UNAUTHENTICATED",
-      "Sesi Anda tidak valid atau telah berakhir.",
-      401,
-    );
+    if (!response.ok) {
+      continue;
+    }
+
+    const payload = (await response.json()) as {
+      data?: { user?: AuthUser };
+      user?: AuthUser;
+    } | null;
+    const user = payload?.user ?? payload?.data?.user;
+
+    if (user?.id && user.email) {
+      return user;
+    }
   }
 
-  const payload = (await response.json()) as {
-    data?: { user?: AuthUser };
-    user?: AuthUser;
-  };
-  const user = payload.user ?? payload.data?.user;
-
-  if (!user?.id || !user.email) {
-    throw new DomainError(
-      "UNAUTHENTICATED",
-      "Sesi Anda tidak valid atau telah berakhir.",
-      401,
-    );
-  }
-
-  return user;
+  throw new DomainError(
+    "UNAUTHENTICATED",
+    "Sesi Anda tidak valid atau telah berakhir.",
+    401,
+  );
 }
 
 export const requestContextMiddleware: MiddlewareHandler<AppEnv> = async (

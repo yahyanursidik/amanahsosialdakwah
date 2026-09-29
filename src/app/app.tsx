@@ -65,6 +65,28 @@ export function App() {
             meta: { label: "Aset Wakaf" },
           },
           {
+            name: "beneficiaries",
+            list: "/beneficiaries",
+            create: "/beneficiaries/new",
+            edit: "/beneficiaries/:id/edit",
+            show: "/beneficiaries/:id",
+            meta: { label: "Penerima Manfaat" },
+          },
+          {
+            name: "waqf_proposals",
+            list: "/waqf/proposals",
+            create: "/waqf/proposals/new",
+            show: "/waqf/proposals/:id",
+            meta: { label: "Pengajuan Program Wakaf" },
+          },
+          {
+            name: "in_kind_donations",
+            list: "/in-kind-donations",
+            create: "/in-kind-donations/new",
+            show: "/in-kind-donations/:id",
+            meta: { label: "Donasi Barang" },
+          },
+          {
             name: "kafalah_needs",
             list: "/kafalah",
             create: "/kafalah/needs/new",

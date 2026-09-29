@@ -7,7 +7,7 @@ import {
 } from "@refinedev/core";
 import { ArrowLeft, CheckCircle2, Send, ShieldCheck } from "lucide-react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 
 import { ProtectedActionButton } from "@/components/access-control/protected-action-button";
 import {
@@ -16,6 +16,7 @@ import {
   ErrorState,
   FormSection,
   LoadingSkeleton,
+  MoneyDisplay,
   PageHeader,
   ResourceTable,
   type ApprovalTimelineItem,
@@ -33,6 +34,21 @@ import type {
   ApplicationScreening,
   CaseRecord,
 } from "@/features/applications/types";
+import { labelOf, submitterTypeLabels } from "@/features/giving/labels";
+
+const channelLabels: Record<string, string> = {
+  field: "Petugas lapangan",
+  online: "Online",
+  partner: "Melalui lembaga mitra",
+  referral: "Rujukan",
+  walk_in: "Datang langsung",
+};
+
+const urgencyLabels: Record<string, string> = {
+  emergency: "Darurat",
+  normal: "Normal",
+  urgent: "Mendesak",
+};
 
 function timelineItems(application: ApplicationRecord): ApprovalTimelineItem[] {
   return (application.events ?? []).map((event) => ({
@@ -226,8 +242,54 @@ export function ApplicationDetailPage() {
           items={[
             { label: "Nomor", value: application.reference_number },
             { label: "Program", value: application.program_name ?? "—" },
-            { label: "Kanal", value: application.channel },
-            { label: "Urgensi", value: application.urgency },
+            {
+              label: "Tipe pengaju",
+              value: labelOf(
+                submitterTypeLabels,
+                application.submitter_type ?? "individual",
+              ),
+            },
+            {
+              label: "Pengaju",
+              value: (
+                <Link
+                  to={`/reports/stakeholders/${application.applicant_contact_id}`}
+                >
+                  {application.applicant_name ?? "—"}
+                </Link>
+              ),
+            },
+            ...(application.submitting_partner_contact_id
+              ? [
+                  {
+                    label: "Lembaga mitra pengaju",
+                    value: (
+                      <Link
+                        to={`/reports/stakeholders/${application.submitting_partner_contact_id}`}
+                      >
+                        {application.submitting_partner_name ?? "—"}
+                      </Link>
+                    ),
+                  },
+                ]
+              : []),
+            {
+              label: "Jumlah penerima",
+              value: application.beneficiary_count ?? 1,
+            },
+            {
+              label: "Perkiraan kebutuhan",
+              value: application.requested_amount ? (
+                <MoneyDisplay
+                  amount={application.requested_amount}
+                  currency="IDR"
+                />
+              ) : (
+                "—"
+              ),
+            },
+            { label: "Kanal", value: channelLabels[application.channel] ?? application.channel },
+            { label: "Urgensi", value: urgencyLabels[application.urgency] ?? application.urgency },
             {
               label: "Dibuat",
               value: new Date(application.created_at).toLocaleString("id-ID"),

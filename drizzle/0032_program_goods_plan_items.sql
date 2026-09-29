@@ -1,7 +1,9 @@
 -- Master kategori produk dan rencana barang Program.
 -- Rencana bukan stok: saldo resmi tetap berasal dari inventory_movements.
+-- Idempoten: production pernah menerapkan sebagian file ini tanpa pencatatan
+-- schema_migrations, sehingga setiap objek dibuat hanya bila belum ada.
 
-CREATE TABLE public.inventory_product_categories (
+CREATE TABLE IF NOT EXISTS public.inventory_product_categories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
   organization_id uuid NOT NULL,
   code text NOT NULL,
@@ -27,14 +29,23 @@ CREATE TABLE public.inventory_product_categories (
 --> statement-breakpoint
 
 ALTER TABLE public.inventory_products
-  ADD COLUMN category_id uuid;
+  ADD COLUMN IF NOT EXISTS category_id uuid;
 --> statement-breakpoint
 
-ALTER TABLE public.inventory_products
-  ADD CONSTRAINT inventory_products_category_id_org_fkey
-  FOREIGN KEY (category_id, organization_id)
-  REFERENCES public.inventory_product_categories(id, organization_id)
-  ON DELETE RESTRICT;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'inventory_products_category_id_org_fkey'
+      AND conrelid = 'public.inventory_products'::regclass
+  ) THEN
+    ALTER TABLE public.inventory_products
+      ADD CONSTRAINT inventory_products_category_id_org_fkey
+      FOREIGN KEY (category_id, organization_id)
+      REFERENCES public.inventory_product_categories(id, organization_id)
+      ON DELETE RESTRICT;
+  END IF;
+END $$;
 --> statement-breakpoint
 
 -- Kategori teks lama dipertahankan sebagai snapshot kompatibilitas, lalu
@@ -65,7 +76,7 @@ WHERE category.organization_id = product.organization_id
   AND trim(product.category) <> '';
 --> statement-breakpoint
 
-CREATE TABLE public.program_goods_plan_items (
+CREATE TABLE IF NOT EXISTS public.program_goods_plan_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
   organization_id uuid NOT NULL,
   program_id uuid NOT NULL,
@@ -98,11 +109,11 @@ CREATE TABLE public.program_goods_plan_items (
 );
 --> statement-breakpoint
 
-CREATE INDEX idx_inventory_product_categories_org_status
+CREATE INDEX IF NOT EXISTS idx_inventory_product_categories_org_status
   ON public.inventory_product_categories (organization_id, status, name);
-CREATE INDEX idx_inventory_products_org_category_status
+CREATE INDEX IF NOT EXISTS idx_inventory_products_org_category_status
   ON public.inventory_products (organization_id, category_id, status);
-CREATE INDEX idx_program_goods_plan_items_program_status
+CREATE INDEX IF NOT EXISTS idx_program_goods_plan_items_program_status
   ON public.program_goods_plan_items (organization_id, program_id, status, sort_order);
 --> statement-breakpoint
 
@@ -110,17 +121,20 @@ ALTER TABLE public.inventory_product_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.program_goods_plan_items ENABLE ROW LEVEL SECURITY;
 --> statement-breakpoint
 
+DROP POLICY IF EXISTS inventory_product_categories_select ON public.inventory_product_categories;
 CREATE POLICY inventory_product_categories_select ON public.inventory_product_categories
   FOR SELECT TO app_runtime USING (
     private.has_active_membership(organization_id)
     AND private.has_permission(organization_id, 'inventory_product_categories.read')
   );
+DROP POLICY IF EXISTS inventory_product_categories_insert ON public.inventory_product_categories;
 CREATE POLICY inventory_product_categories_insert ON public.inventory_product_categories
   FOR INSERT TO app_runtime WITH CHECK (
     private.has_active_membership(organization_id)
     AND private.has_permission(organization_id, 'inventory_product_categories.manage')
     AND created_by = private.current_profile_id()
   );
+DROP POLICY IF EXISTS inventory_product_categories_update ON public.inventory_product_categories;
 CREATE POLICY inventory_product_categories_update ON public.inventory_product_categories
   FOR UPDATE TO app_runtime USING (
     private.has_active_membership(organization_id)
@@ -129,16 +143,19 @@ CREATE POLICY inventory_product_categories_update ON public.inventory_product_ca
     private.has_active_membership(organization_id)
     AND private.has_permission(organization_id, 'inventory_product_categories.manage')
   );
+DROP POLICY IF EXISTS inventory_product_categories_delete ON public.inventory_product_categories;
 CREATE POLICY inventory_product_categories_delete ON public.inventory_product_categories
   FOR DELETE TO app_runtime USING (false);
 --> statement-breakpoint
 
+DROP POLICY IF EXISTS program_goods_plan_items_select ON public.program_goods_plan_items;
 CREATE POLICY program_goods_plan_items_select ON public.program_goods_plan_items
   FOR SELECT TO app_runtime USING (
     private.has_active_membership(organization_id)
     AND private.has_permission(organization_id, 'programs.read')
     AND private.has_permission(organization_id, 'program_goods_plan.read')
   );
+DROP POLICY IF EXISTS program_goods_plan_items_insert ON public.program_goods_plan_items;
 CREATE POLICY program_goods_plan_items_insert ON public.program_goods_plan_items
   FOR INSERT TO app_runtime WITH CHECK (
     private.has_active_membership(organization_id)
@@ -146,6 +163,7 @@ CREATE POLICY program_goods_plan_items_insert ON public.program_goods_plan_items
     AND private.has_permission(organization_id, 'program_goods_plan.manage')
     AND created_by = private.current_profile_id()
   );
+DROP POLICY IF EXISTS program_goods_plan_items_update ON public.program_goods_plan_items;
 CREATE POLICY program_goods_plan_items_update ON public.program_goods_plan_items
   FOR UPDATE TO app_runtime USING (
     private.has_active_membership(organization_id)
@@ -156,6 +174,7 @@ CREATE POLICY program_goods_plan_items_update ON public.program_goods_plan_items
     AND private.has_permission(organization_id, 'programs.manage')
     AND private.has_permission(organization_id, 'program_goods_plan.manage')
   );
+DROP POLICY IF EXISTS program_goods_plan_items_delete ON public.program_goods_plan_items;
 CREATE POLICY program_goods_plan_items_delete ON public.program_goods_plan_items
   FOR DELETE TO app_runtime USING (false);
 --> statement-breakpoint
@@ -164,9 +183,11 @@ GRANT SELECT, INSERT, UPDATE ON public.inventory_product_categories TO app_runti
 GRANT SELECT, INSERT, UPDATE ON public.program_goods_plan_items TO app_runtime;
 --> statement-breakpoint
 
+DROP TRIGGER IF EXISTS trg_inventory_product_categories_touch_updated_at ON public.inventory_product_categories;
 CREATE TRIGGER trg_inventory_product_categories_touch_updated_at
   BEFORE UPDATE ON public.inventory_product_categories
   FOR EACH ROW EXECUTE FUNCTION private.touch_updated_at();
+DROP TRIGGER IF EXISTS trg_program_goods_plan_items_touch_updated_at ON public.program_goods_plan_items;
 CREATE TRIGGER trg_program_goods_plan_items_touch_updated_at
   BEFORE UPDATE ON public.program_goods_plan_items
   FOR EACH ROW EXECUTE FUNCTION private.touch_updated_at();
@@ -191,4 +212,4 @@ JOIN public.permissions permission ON permission.key IN (
   'program_goods_plan.manage'
 )
 WHERE role.key IN ('organization_owner', 'organization_admin')
-ON CONFLICT (organization_id, role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING;
