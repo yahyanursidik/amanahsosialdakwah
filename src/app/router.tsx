@@ -1,6 +1,6 @@
 import { Authenticated } from "@refinedev/core";
 import { Suspense } from "react";
-import { Navigate, Outlet, Route, Routes, useParams } from "react-router";
+import { Navigate, Outlet, Route, Routes, useLocation, useParams } from "react-router";
 
 import {
   AidPackageListPage,
@@ -80,7 +80,9 @@ import {
   ProgramEditPage,
   MembersPage,
   OrganizationSettingsPage,
+  HomeLandingPage,
   ProgramCategoryPage,
+  PublicHomePage,
   RolesPage,
   ProgramListPage,
   ProcessGuidePage,
@@ -115,16 +117,26 @@ function AuthenticationCheck() {
   return <AppBoot message="Memeriksa sesi…" />;
 }
 
+/**
+ * Pengunjung yang belum masuk melihat beranda publik di "/", sedangkan
+ * halaman terlindungi lainnya tetap diarahkan ke halaman masuk.
+ */
+function UnauthenticatedFallback() {
+  const { pathname } = useLocation();
+  return pathname === "/" ? <HomeLandingPage /> : <Navigate replace to="/login" />;
+}
+
 export function AppRouter() {
   return (
     <Suspense fallback={<AppBoot message="Memuat halaman…" />}>
       <Routes>
         <Route path="/p/:slug" element={<PublicProgramLandingPage />} />
+        <Route path="/beranda" element={<PublicHomePage />} />
         <Route
           element={
             <Authenticated
               key="protected-routes"
-              redirectOnFail="/login"
+              fallback={<UnauthenticatedFallback />}
               loading={<AuthenticationCheck />}
             >
               <Outlet />

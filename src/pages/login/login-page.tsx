@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLogin } from "@refinedev/core";
-import { Eye, EyeOff, LoaderCircle, LockKeyhole } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, LoaderCircle, LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
@@ -96,6 +96,9 @@ export function LoginPage() {
 
       <section className="auth-panel" aria-labelledby="login-title">
         <div className="auth-panel__inner auth-reveal">
+          <Link className="auth-back-link" to="/beranda">
+            <ArrowLeft aria-hidden size={16} /> Kembali ke beranda
+          </Link>
           <BrandLogo className="auth-panel__logo" priority />
 
           <div className="auth-heading">

@@ -285,6 +285,16 @@ export const ProgramEditPage = lazy(() =>
     default: module.ProgramEditPage,
   })),
 );
+export const HomeLandingPage = lazy(() =>
+  import("@/pages/public/home-landing-page").then((module) => ({
+    default: module.HomeLandingPage,
+  })),
+);
+export const PublicHomePage = lazy(() =>
+  import("@/pages/public/home-landing-page").then((module) => ({
+    default: module.PublicHomePage,
+  })),
+);
 export const ProgramCategoryPage = lazy(() =>
   import("@/pages/programs/program-category-page").then((module) => ({
     default: module.ProgramCategoryPage,

@@ -29,6 +29,7 @@ import { kafalahRoute } from "./routes/kafalah";
 import { logisticsRoute } from "./routes/logistics";
 import { procurementRoute } from "./routes/procurement";
 import { programsRoute } from "./routes/programs";
+import { publicOverviewRoute } from "./routes/public-overview";
 import { publicProgramsRoute } from "./routes/public-programs";
 import { reportsRoute } from "./routes/reports";
 import { waqfRoute } from "./routes/waqf";
@@ -150,6 +151,7 @@ app.use("/programs/*", requestContextMiddleware);
 app.use("/governance", requestContextMiddleware);
 app.use("/governance/*", requestContextMiddleware);
 
+app.route("/public/overview", publicOverviewRoute);
 app.route("/public/programs", publicProgramsRoute);
 app.route("/applications", applicationsRoute);
 app.route("/beneficiaries", beneficiariesRoute);
